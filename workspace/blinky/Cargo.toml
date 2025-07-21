@@ -1,0 +1,14 @@
+[package]
+name = "blinky"
+version = "0.1.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+esp-hal = { version = "0.23.1", features = ["esp32c3"] }
+esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
+defmt = "0.3"
+rtt-target = "0.5"
+panic-rtt-target = "0.1"
+

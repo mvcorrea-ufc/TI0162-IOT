@@ -1,0 +1,30 @@
+{
+    "rust-analyzer.server.path": "/usr/local/cargo/bin/rust-analyzer",
+    "rust-analyzer.cargo.target": "riscv32imc-unknown-none-elf",
+    "rust-analyzer.check.command": "clippy",
+    "rust-analyzer.check.targets": "riscv32imc-unknown-none-elf",
+    "rust-analyzer.cargo.features": ["esp32c3"],
+    "rust-analyzer.cargo.allTargets": false,
+    "rust-analyzer.procMacro.enable": true,
+    "rust-analyzer.procMacro.attributes.enable": true,
+    "rust-analyzer.completion.addCallParentheses": true,
+    "rust-analyzer.completion.addCallArgumentSnippets": true,
+    "rust-analyzer.inlayHints.typeHints.enable": true,
+    "rust-analyzer.inlayHints.parameterHints.enable": true,
+    "rust-analyzer.inlayHints.chainingHints.enable": true,
+    "files.watcherExclude": {
+        "**/target/**": true,
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/*/**": true
+    },
+    "files.exclude": {
+        "**/target": true,
+        "**/*.tmp": true,
+        "**/*.backup": true
+    },
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.cwd": "/workspace/blinky",
+    "git.enabled": true,
+    "git.path": "/usr/bin/git"
+}

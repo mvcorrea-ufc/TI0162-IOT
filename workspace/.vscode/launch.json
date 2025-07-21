@@ -1,0 +1,43 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "probe-rs-debug",
+            "request": "launch",
+            "name": "ESP32-C3 Debug",
+            "cwd": "${workspaceFolder}/workspace/blinky",
+            "chip": "esp32c3",
+            "flashingEnabled": true,
+            "resetAfterFlashing": true,
+            "haltAfterReset": true,
+            "program": "${workspaceFolder}/workspace/blinky/target/riscv32imc-unknown-none-elf/debug/blinky",
+            "runtimeExecutable": "probe-rs",
+            "runtimeArgs": [
+                "dap-server",
+                "--chip",
+                "esp32c3"
+            ],
+            "console": "integratedTerminal",
+            "preLaunchTask": "cargo-build-debug"
+        },
+        {
+            "type": "probe-rs-debug",
+            "request": "launch",
+            "name": "ESP32-C3 Release Debug",
+            "cwd": "${workspaceFolder}/workspace/blinky",
+            "chip": "esp32c3",
+            "flashingEnabled": true,
+            "resetAfterFlashing": true,
+            "haltAfterReset": true,
+            "program": "${workspaceFolder}/workspace/blinky/target/riscv32imc-unknown-none-elf/release/blinky",
+            "runtimeExecutable": "probe-rs",
+            "runtimeArgs": [
+                "dap-server",
+                "--chip",
+                "esp32c3"
+            ],
+            "console": "integratedTerminal",
+            "preLaunchTask": "cargo-build-release"
+        }
+    ]
+}

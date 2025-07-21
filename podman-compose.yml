@@ -1,0 +1,18 @@
+services:
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: test
+    hostname: test-cont
+    stdin_open: true
+    tty: true
+    ports:
+      - "2222:22"
+    volumes:
+      - ./workspace:/workspace
+      - /dev:/dev:rw
+    privileged: true
+    annotations:
+      run.oci.keep_original_groups: "1"
+    restart: unless-stopped

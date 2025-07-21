@@ -1,0 +1,30 @@
+# Rust
+target/
+*.rlib
+*.rmeta
+*.pdb
+Cargo.lock
+
+# IDEs
+#.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# misc
+CLAUDE.md
