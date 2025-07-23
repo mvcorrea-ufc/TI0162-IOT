@@ -104,6 +104,15 @@ fn main() -> ! {
     // Wait for connection using module
     if let Err(e) = wait_for_connection(&mut controller, &mut led) {
         rprintln!("ERROR: WiFi connection failed: {}", e);
+        
+        // Check if user is using placeholder credentials
+        if wifi_config.ssid == "YourWiFiNetwork" || wifi_config.password == "YourWiFiPassword" {
+            rprintln!("WARNING: You are using placeholder WiFi credentials!");
+            rprintln!("Please update .cargo/config.toml with your actual WiFi network details:");
+            rprintln!("  WIFI_SSID = \"YourActualNetworkName\"");
+            rprintln!("  WIFI_PASSWORD = \"YourActualPassword\"");
+        }
+        
         loop {
             led.toggle();
             for _ in 0..100000 {

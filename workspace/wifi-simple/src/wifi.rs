@@ -31,6 +31,7 @@ pub struct WiFiConfig {
 #[derive(Debug, Clone)]
 pub struct WiFiConnection {
     pub ip: core::net::Ipv4Addr,
+    #[allow(dead_code)]
     pub gateway: core::net::Ipv4Addr,
     #[allow(dead_code)]
     pub subnet_mask: u8,
