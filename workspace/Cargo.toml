@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["blinky"]
+members = ["blinky", "wifi-simple"]
 
 [profile.release]
 opt-level = "s"

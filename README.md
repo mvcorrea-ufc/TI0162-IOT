@@ -4,6 +4,7 @@ A comprehensive template for ESP32-C3 embedded development in Rust with modular 
 
 ## Features
 
+- **Bare metal development** using esp-hal only (no esp-idf or RTOS overhead)
 - **Modular project structure** with progressive complexity levels
 - **Direct console output** via RTT - no helper scripts needed
 - **Container-based development** with full USB hardware access
@@ -22,6 +23,23 @@ A comprehensive template for ESP32-C3 embedded development in Rust with modular 
 - **Rust toolchain** (will be installed in container)
 - **probe-rs** for flashing (will be installed in container)
 - **VSCode** with Remote-SSH extension (for IDE development)
+
+## Development Philosophy
+
+This template focuses on **bare metal development** using only **esp-hal** (Hardware Abstraction Layer) for maximum performance and minimal resource usage:
+
+- **No esp-idf**: Avoids the heavy ESP-IDF framework and its overhead
+- **No RTOS**: Direct hardware control without real-time operating system complexity  
+- **Pure Rust**: Leverages Rust's zero-cost abstractions and memory safety
+- **Minimal dependencies**: Only essential crates for hardware interaction
+- **Fast builds**: Reduced compilation time compared to esp-idf solutions
+- **Small binaries**: Optimized for embedded constraints and flash usage
+
+This approach is ideal for:
+- IoT devices requiring minimal power consumption
+- Real-time applications needing predictable performance
+- Learning embedded Rust without framework abstractions
+- Projects where every byte of memory and CPU cycle matters
 
 ## Available Modules
 
