@@ -24,6 +24,9 @@ This workspace contains modular ESP32-C3 projects demonstrating progressive embe
 3. **Combine modules** - Use wifi-simple as foundation for IoT applications
 
 ### Quick Start
+
+**Note**: To avoid dependency conflicts between modules, the workspace configuration is temporarily disabled. Each module builds independently.
+
 ```bash
 # Test basic functionality
 cd workspace/blinky
@@ -34,6 +37,20 @@ cd ../wifi-simple
 # Configure WiFi credentials in .cargo/config.toml
 cargo run --release
 ```
+
+### Workspace Configuration
+
+The workspace `Cargo.toml` is renamed to `Cargo.toml.workspace` to prevent dependency conflicts between modules that use different esp-hal versions:
+- **blinky**: Uses stable esp-hal from crates.io
+- **wifi-simple**: Uses git version of esp-hal for latest WiFi features
+
+To re-enable workspace mode (for workspace-wide builds), rename it back:
+```bash
+cd workspace
+mv Cargo.toml.workspace Cargo.toml
+```
+
+However, this will require aligning all modules to use the same esp-hal version.
 
 ## Module Dependencies
 

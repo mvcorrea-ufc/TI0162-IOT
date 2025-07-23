@@ -143,7 +143,7 @@ fn main() -> ! {
         if counter % 20000 == 0 {
             match get_status(&mut stack) {
                 Ok(Some(status)) => {
-                    rprintln!("Status: CONNECTED IP={} GW={}", status.ip, status.gateway);
+                    rprintln!("Status: CONNECTED {:?}", status);
                 }
                 Ok(None) => {
                     rprintln!("Status: Connection lost");

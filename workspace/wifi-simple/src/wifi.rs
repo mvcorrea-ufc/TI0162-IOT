@@ -32,8 +32,11 @@ pub struct WiFiConfig {
 pub struct WiFiConnection {
     pub ip: core::net::Ipv4Addr,
     pub gateway: core::net::Ipv4Addr,
+    #[allow(dead_code)]
     pub subnet_mask: u8,
+    #[allow(dead_code)]
     pub dns_primary: Option<core::net::Ipv4Addr>,
+    #[allow(dead_code)]
     pub dns_secondary: Option<core::net::Ipv4Addr>,
 }
 
