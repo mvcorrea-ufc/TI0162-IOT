@@ -40,6 +40,8 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Install the cross-compilation target for the ESP32-C3.
 RUN rustup target add riscv32imc-unknown-none-elf
+# for esp32-c6 integration (need to change the project files)
+#RUN rustup target add riscv32imac-unknown-none-elf
 
 # Install espflash and ldproxy for the user.
 RUN cargo install espflash ldproxy probe-rs-tools

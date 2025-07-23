@@ -1,14 +1,15 @@
-# ESP32-C3 RTT Development Template
+# ESP32-C3 Rust Development Template
 
-A clean, minimal template for ESP32-C3 embedded development in Rust with Real-Time Transfer (RTT) console output.
+A comprehensive template for ESP32-C3 embedded development in Rust with modular examples from basic GPIO to WiFi connectivity.
 
 ## Features
 
-- **Direct console output** in `cargo run` via RTT - no helper scripts needed
-- **Minimal dependencies** with stable ESP-HAL 0.23.1
+- **Modular project structure** with progressive complexity levels
+- **Direct console output** via RTT - no helper scripts needed
 - **Container-based development** with full USB hardware access
-- **LED blinking example** on GPIO8 with 500ms timing
-- **Timestamped console output** for easy debugging
+- **WiFi connectivity module** with DHCP and network stack
+- **Clean modular architecture** ready for MQTT and IoT applications
+- **Comprehensive documentation** with usage examples and troubleshooting
 
 ## Hardware Requirements
 
@@ -17,56 +18,77 @@ A clean, minimal template for ESP32-C3 embedded development in Rust with Real-Ti
 
 ## Software Requirements
 
-- **Remote Linux Server** with Podman/Docker installed
-- **Rust toolchain** (installed in container)
-- **probe-rs** for flashing (installed in container)
+- **Remote or Local Linux Server** with Podman/Docker installed (from now we will call it HOST)
+- **Rust toolchain** (will be installed in container)
+- **probe-rs** for flashing (will be installed in container)
 - **VSCode** with Remote-SSH extension (for IDE development)
+
+## Available Modules
+
+### blinky/
+**Basic ESP32-C3 LED control and RTT console**
+- Hardware verification and GPIO control
+- RTT debugging setup
+- Perfect starting point for new projects
+
+### wifi-simple/  
+**Modular WiFi connectivity with network stack**
+- DHCP IP acquisition with real IP display
+- Network monitoring and status reporting
+- Ready for MQTT and TCP applications
+- Clean modular architecture without complex lifetimes
 
 ## Quick Start
 
 ### 1. Repository Setup
 
 ```bash
-# Clone this template
-git clone <repository-url> my-esp32c3-project
+# Clone this template (on the HOST)
+git clone https://github.com/mvcorrea-ufc/rust-esp32-tmpl.git my-esp32c3-project
 cd my-esp32c3-project
 
 # Initialize as new repository
 rm -rf .git
 git init
 git add .
-git commit -m "Initial ESP32-C3 RTT project from template"
+git commit -m "Initial ESP32-C3 project from template"
 ```
 
 ### 2. Development Environment
 
-**On Remote Server (10.10.10.217):**
+**On HOST server (always where you got podman/docker installed):**
 
 ```bash
-# Navigate to project directory
-cd podman/new_tmpl/
+# Navigate to project root directory (where Dockerfile and podman-compose.yml are)
+cd my-esp32c3-project
 
-# Build and start development container
+# Build and start development container (or use docker-compose with '-f podman-compose.yml')
 podman-compose up --build -d
 
+# Then you should have your container up and running
+
+# To connect to it you could
+podman-compose exec esp32dev bash
+or via ssh
+ssh root@HOST -p2222 (where HOST is the place podman/docker is installed)
+
 # Verify ESP32-C3 detection
-podman-compose exec test probe-rs list
+podman-compose exec esp32dev probe-rs list
 # Should show: ESP JTAG -- 303a:1001:F0:F5:BD:C9:4A:90 (EspJtag)
+# from time to time we loose the /dev/tty* access, then you should restart the container 'podman-compose restart'
 ```
 
-### 3. Build and Run
+### 3. Choose Your Starting Point
 
+#### Option A: Basic Hardware Test (Recommended First)
 ```bash
 # Enter development container
-podman-compose exec test bash
+podman-compose exec esp32dev bash
 
-# Navigate to project
+# Navigate to blinky module
 cd /workspace/blinky
 
-# Build project
-cargo build --release
-
-# Flash and run with live console output
+# Build and run basic LED example
 cargo run --release
 ```
 
@@ -79,27 +101,61 @@ cargo run --release
 ...
 ```
 
+#### Option B: WiFi Connectivity
+```bash
+# Enter development container
+podman-compose exec esp32dev bash
+
+# Configure WiFi credentials first
+cd /workspace/wifi-simple
+# Edit .cargo/config.toml with your WiFi network details
+
+# Build and run WiFi example
+cargo run --release
+```
+
+**Expected Output:**
+```
+ESP32-C3 WiFi Simple - Clean Modular Implementation
+Config: SSID=YourNetwork Hostname=ESP32-C3-WiFi-Test
+WiFi: Scanning for networks...
+WiFi: Connected successfully
+DHCP: IP address acquired successfully
+Network: IP=192.168.1.100 Gateway=192.168.1.1 Subnet=/24 DNS=Some(8.8.8.8)
+NETWORK READY
+Status: CONNECTED IP=192.168.1.100 GW=192.168.1.1
+```
+
 ## Project Structure
 
 ```
-new_tmpl/
+rust-esp32-tmpl/
 ├── .vscode/                # VSCode configuration
 │   ├── settings.json       # Rust-analyzer and editor settings
 │   ├── extensions.json     # Recommended extensions
 │   ├── launch.json         # Debug configurations
 │   └── tasks.json          # Build and run tasks
-├── workspace/
-│   ├── blinky/             # Main ESP32-C3 project
-│   │   ├── .cargo/
-│   │   │   └── config.toml # Cargo runner configuration
+├── workspace/              # Development modules (see workspace/README.md)
+│   ├── blinky/             # Basic LED control example
+│   │   ├── src/main.rs     # GPIO control with RTT console
+│   │   ├── Cargo.toml      # Basic ESP-HAL dependencies
+│   │   ├── build.rs        # Linker configuration
+│   │   └── README.md       # Module documentation
+│   ├── wifi-simple/        # WiFi connectivity module
 │   │   ├── src/
-│   │   │   └── main.rs     # Main application with RTT
-│   │   ├── Cargo.toml      # Project dependencies
-│   │   └── build.rs        # Linker configuration
+│   │   │   ├── main.rs     # WiFi application example
+│   │   │   └── wifi.rs     # Modular WiFi helper functions
+│   │   ├── .cargo/
+│   │   │   └── config.toml # WiFi credentials configuration
+│   │   ├── Cargo.toml      # WiFi and networking dependencies
+│   │   ├── build.rs        # Linker configuration
+│   │   └── README.md       # WiFi module documentation
 │   ├── Cargo.toml          # Workspace configuration
-│   ├── .gitignore          # Git ignore patterns
-│   └── README.md           # This file
-└── [other files...]        # Container and Docker configs
+│   ├── rust-toolchain.toml # Rust toolchain specification
+│   └── README.md           # Workspace and module overview
+├── Dockerfile              # Container build configuration
+├── podman-compose.yml      # Container orchestration
+└── README.md               # This file
 ```
 
 ## Key Files Explained
@@ -207,7 +263,7 @@ delay.delay_millis(1000); // 1 second
 podman-compose down && podman-compose up -d
 
 # Verify device detection
-podman-compose exec test probe-rs list
+podman-compose exec esp32dev probe-rs list
 
 # Check USB device mapping in host
 lsusb | grep Espressif
@@ -244,10 +300,10 @@ rprintln!("Debug: RTT working!");
 podman-compose ps
 
 # Check SSH access
-ssh root@localhost -p2222  # password: rootpass
+ssh root@HOST -p 2222  # password: rootpass
 
 # Restart if needed
-podman-compose restart test
+podman-compose restart esp32dev
 ```
 
 ## Customization
@@ -288,14 +344,14 @@ if error_condition {
 ### Prerequisites
 1. **VSCode** installed on your local machine
 2. **Remote-SSH extension** installed in VSCode
-3. **SSH access** to your remote server (10.10.10.217)
+3. **SSH access** to your remote server (HOST)
 
 ### Step 1: Configure SSH Connection
 
 Add to your local `~/.ssh/config`:
 ```
 Host esp32-dev
-    HostName 10.10.10.217
+    HostName <HOST IP>
     Port 2222
     User root
     PasswordAuthentication yes
@@ -310,7 +366,7 @@ Host esp32-dev
 3. **Type** "Remote-SSH: Connect to Host"
 4. **Select** `esp32-dev` from the list
 5. **Enter password** when prompted: `rootpass`
-6. **Open folder** `/workspace/new_tmpl` in the remote VSCode window
+6. **Open folder** `/workspace` in the remote VSCode window
 
 ### Step 3: Install Recommended Extensions
 
@@ -366,10 +422,10 @@ VSCode will automatically suggest installing the recommended extensions defined 
 #### Connection Issues
 ```bash
 # Test SSH connection manually
-ssh root@10.10.10.217 -p 2222
+ssh root@HOST -p 2222
 
 # Restart container if connection fails
-podman-compose restart test
+podman-compose restart esp32dev
 ```
 
 #### Extension Issues
@@ -387,7 +443,7 @@ podman-compose restart test
 If you prefer terminal-based development:
 ```bash
 # SSH directly to container
-ssh root@10.10.10.217 -p 2222
+ssh root@HOST -p 2222
 
 # Use vim/nano for editing
 cd /workspace/blinky
@@ -406,13 +462,42 @@ The development environment uses a privileged Podman container with:
 - **probe-rs tools** for flashing and debugging
 - **Git version control** for project management
 
+## Module Development Workflow
+
+### Starting New Projects
+1. **Begin with blinky** - Verify hardware and development environment
+2. **Progress to wifi-simple** - Add network connectivity to your application
+3. **Combine functionality** - Use wifi-simple as foundation for IoT projects
+
+### Common Integration Patterns
+```rust
+// MQTT Client: wifi-simple + rust-mqtt
+// HTTP Client: wifi-simple + reqwest  
+// Sensor Network: blinky + wifi-simple + sensor libraries
+// IoT Dashboard: wifi-simple + web server + sensor data
+```
+
+## WiFi Configuration
+
+For wifi-simple module, configure your network in `.cargo/config.toml`:
+```toml
+[env]
+# WiFi credentials - Replace with your network details
+WIFI_SSID = "YourNetworkName"
+WIFI_PASSWORD = "YourNetworkPassword"
+CARGO_CFG_PORTABLE_ATOMIC_UNSAFE_ASSUME_SINGLE_CORE = ""
+```
+
+**Important**: Replace the placeholder values with your actual WiFi network credentials before building the wifi-simple module.
+
 ## Next Steps
 
-1. **Explore ESP-HAL**: Check [esp-rs/esp-hal](https://github.com/esp-rs/esp-hal) for more peripheral examples
-2. **Add Sensors**: Integrate I2C/SPI sensors with RTT logging
-3. **WiFi Connectivity**: Use esp-wifi crate for network features
-4. **Real-time Features**: Implement embassy-time for async operations
-5. **Custom Bootloader**: Configure secure boot and OTA updates
+1. **Start with blinky** - Verify your hardware setup works correctly
+2. **Try wifi-simple** - Add network connectivity to your projects  
+3. **Read module READMEs** - Each module has detailed documentation
+4. **Build MQTT applications** - Use wifi-simple as foundation
+5. **Add sensors** - Integrate I2C/SPI sensors with existing modules
+6. **Create IoT solutions** - Combine modules for complete applications
 
 ## License
 

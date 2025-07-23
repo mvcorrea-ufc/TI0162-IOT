@@ -1,10 +1,10 @@
 services:
-  test:
+  esp32dev:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: test
-    hostname: test-cont
+    container_name: esp32dev
+    hostname: esp32-dev
     stdin_open: true
     tty: true
     ports:
