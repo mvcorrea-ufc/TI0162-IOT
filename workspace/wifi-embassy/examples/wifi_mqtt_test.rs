@@ -94,7 +94,7 @@ fn create_mqtt_publish_packet(topic: &str, payload: &[u8]) -> Vec<u8> {
 
 #[embassy_executor::task]
 async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
-    rprintln!("MQTT Publisher: Starting MQTT publishing task");
+    rprintln!("[WIFI-MQTT] Starting MQTT publishing task");
     
     // Wait for WiFi to be established
     Timer::after(Duration::from_secs(10)).await;
@@ -106,7 +106,7 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
         
         // Check WiFi status
         if let Some(connection_info) = wifi_manager.get_connection_info() {
-            rprintln!("MQTT Publisher: WiFi OK - IP: {}", connection_info.ip_address);
+            rprintln!("[WIFI-MQTT] WiFi OK - IP: {}", connection_info.ip_address);
             
             // Get network stack
             let stack = wifi_manager.get_stack();
@@ -117,25 +117,25 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
             let mut socket = TcpSocket::new(*stack, &mut rx_buffer, &mut tx_buffer);
             
             // Try to connect to MQTT broker
-            rprintln!("MQTT Publisher: Connecting to broker {}:{}...", MQTT_BROKER_IP, MQTT_BROKER_PORT);
+            rprintln!("[WIFI-MQTT] Connecting to broker {}:{}...", MQTT_BROKER_IP, MQTT_BROKER_PORT);
             
             let broker_addr: (Ipv4Addr, u16) = (MQTT_BROKER_IP.parse().unwrap(), MQTT_BROKER_PORT);
             
             match socket.connect(broker_addr).await {
                 Ok(()) => {
-                    rprintln!("MQTT Publisher: ✅ TCP connected to broker!");
+                    rprintln!("[WIFI-MQTT] SUCCESS: TCP connected to broker!");
                     
                     // Send MQTT CONNECT packet
                     let connect_packet = create_mqtt_connect_packet();
                     match socket.write_all(&connect_packet).await {
                         Ok(()) => {
-                            rprintln!("MQTT Publisher: ✅ MQTT CONNECT sent");
+                            rprintln!("[WIFI-MQTT] SUCCESS: MQTT CONNECT sent");
                             
                             // Read CONNACK
                             let mut buffer = [0u8; 64];
                             match socket.read(&mut buffer).await {
                                 Ok(n) if n >= 4 && buffer[0] == 0x20 && buffer[3] == 0x00 => {
-                                    rprintln!("MQTT Publisher: ✅ CONNACK received - connected to broker!");
+                                    rprintln!("[WIFI-MQTT] SUCCESS: CONNACK received - connected to broker!");
                                     
                                     // Create mock sensor data
                                     let temperature = 22.0 + (counter as f32 * 0.1) % 5.0;
@@ -148,7 +148,7 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
                                         temperature, humidity, pressure, counter
                                     );
                                     
-                                    rprintln!("MQTT Publisher: Publishing - T:{:.1}°C H:{:.1}% P:{:.1}hPa",
+                                    rprintln!("[WIFI-MQTT] Publishing - T:{:.1}°C H:{:.1}% P:{:.1}hPa",
                                              temperature, humidity, pressure);
                                     
                                     // Publish sensor data
@@ -157,17 +157,17 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
                                         json_payload.as_bytes()
                                     );
                                     
-                                    rprintln!("MQTT Publisher: Publishing packet size: {} bytes", publish_packet.len());
+                                    rprintln!("[WIFI-MQTT] Publishing packet size: {} bytes", publish_packet.len());
                                     rprintln!("MQTT Publisher: Packet content: {:02X?}", &publish_packet[..publish_packet.len().min(20)]);
                                     
                                     match socket.write_all(&publish_packet).await {
                                         Ok(()) => {
-                                            rprintln!("MQTT Publisher: ✅ Sensor data published to esp32/sensor/bme280");
+                                            rprintln!("[WIFI-MQTT] SUCCESS: Sensor data published to esp32/sensor/bme280");
                                             // Add small delay to ensure packet is processed
                                             Timer::after(Duration::from_millis(100)).await;
                                         }
                                         Err(e) => {
-                                            rprintln!("MQTT Publisher: ❌ Failed to publish: {:?}", e);
+                                            rprintln!("[WIFI-MQTT] ERROR: Failed to publish: {:?}", e);
                                         }
                                     }
                                     
@@ -180,7 +180,7 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
                                         
                                         match socket.write_all(&heartbeat_packet).await {
                                             Ok(()) => {
-                                                rprintln!("MQTT Publisher: ✅ Heartbeat published to esp32/heartbeat");
+                                                rprintln!("[WIFI-MQTT] SUCCESS: Heartbeat published to esp32/heartbeat");
                                             }
                                             Err(e) => {
                                                 rprintln!("MQTT Publisher: ❌ Failed to publish heartbeat: {:?}", e);
@@ -202,7 +202,7 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
                                         
                                         match socket.write_all(&status_packet).await {
                                             Ok(()) => {
-                                                rprintln!("MQTT Publisher: ✅ Status published to esp32/status");
+                                                rprintln!("[WIFI-MQTT] SUCCESS: Status published to esp32/status");
                                             }
                                             Err(e) => {
                                                 rprintln!("MQTT Publisher: ❌ Failed to publish status: {:?}", e);
@@ -224,7 +224,7 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
                     }
                 }
                 Err(e) => {
-                    rprintln!("MQTT Publisher: ❌ TCP connection failed: {:?}", e);
+                    rprintln!("[WIFI-MQTT] ERROR: TCP connection failed: {:?}", e);
                 }
             }
             
@@ -235,11 +235,11 @@ async fn mqtt_publisher_task(wifi_manager: &'static WiFiManager) {
             socket.close();
             
         } else {
-            rprintln!("MQTT Publisher: ❌ No WiFi connection");
+            rprintln!("[WIFI-MQTT] ERROR: No WiFi connection");
         }
         
         // Wait 30 seconds between publications
-        rprintln!("MQTT Publisher: ⏳ Waiting 30 seconds for next publication...");
+        rprintln!("[WIFI-MQTT] Waiting 30 seconds for next publication...");
         Timer::after(Duration::from_secs(30)).await;
     }
 }
@@ -253,8 +253,8 @@ async fn main(spawner: Spawner) {
     rtt_init_print!();
     
     rprintln!("================================================");
-    rprintln!("🚀 ESP32-C3 WiFi + MQTT Integration Test");
-    rprintln!("📡 WiFi: {} -> MQTT: {}:{}", WIFI_SSID, MQTT_BROKER_IP, MQTT_BROKER_PORT);
+    rprintln!("[WIFI-MQTT] ESP32-C3 WiFi + MQTT Integration Test");
+    rprintln!("[WIFI-MQTT] WiFi: {} -> MQTT: {}:{}", WIFI_SSID, MQTT_BROKER_IP, MQTT_BROKER_PORT);
     rprintln!("================================================");
 
     // Initialize ESP32-C3 peripherals
@@ -263,7 +263,7 @@ async fn main(spawner: Spawner) {
     // Initialize Embassy time driver
     let timer_group1 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1);
     esp_hal_embassy::init(timer_group1.timer0);
-    rprintln!("✅ Embassy time driver initialized");
+    rprintln!("[WIFI-MQTT] Embassy time driver initialized");
     
     // Create WiFi configuration
     let wifi_config = WiFiConfig {
@@ -271,7 +271,7 @@ async fn main(spawner: Spawner) {
         password: WIFI_PASSWORD,
     };
 
-    rprintln!("🔧 Starting WiFi connection...");
+    rprintln!("[WIFI-MQTT] Starting WiFi connection...");
 
     // Initialize WiFi manager
     let wifi_manager = match WiFiManager::new(
@@ -282,7 +282,7 @@ async fn main(spawner: Spawner) {
         wifi_config,
     ).await {
         Ok(manager) => {
-            rprintln!("✅ WiFi manager initialized successfully!");
+            rprintln!("[WIFI-MQTT] WiFi manager initialized successfully!");
             manager
         }
         Err(e) => {
@@ -316,12 +316,12 @@ async fn main(spawner: Spawner) {
     // Spawn MQTT publishing task
     spawner.spawn(mqtt_publisher_task(wifi_manager_static)).ok();
 
-    rprintln!("🚀 MQTT publishing task started!");
-    rprintln!("📊 Publishing sensor data every 30 seconds...");
+    rprintln!("[WIFI-MQTT] MQTT publishing task started!");
+    rprintln!("[WIFI-MQTT] Publishing sensor data every 30 seconds...");
 
     // Main loop
     loop {
         Timer::after(Duration::from_secs(60)).await;
-        rprintln!("💓 System heartbeat - WiFi + MQTT operational");
+        rprintln!("[WIFI-MQTT] System heartbeat - WiFi + MQTT operational");
     }
 }

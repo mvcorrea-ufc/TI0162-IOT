@@ -101,15 +101,15 @@ impl WiFiManager {
         rng_peripheral: RNG<'static>,
         config: WiFiConfig,
     ) -> Result<Self, WiFiError> {
-        rprintln!("WiFi Embassy: Initializing WiFi manager");
-        rprintln!("WiFi Embassy: Target SSID: {}", config.ssid);
+        rprintln!("[WIFI] Initializing WiFi manager");
+        rprintln!("[WIFI] Target SSID: {}", config.ssid);
 
         // Initialize timers (following working examples)
         let timer_group0 = TimerGroup::new(timg0);
         
         // NOTE: Embassy must be initialized BEFORE calling this function
         // The caller should call esp_hal_embassy::init() before creating WiFiManager
-        rprintln!("WiFi Embassy: Using existing Embassy time driver");
+        rprintln!("[WIFI] Using existing Embassy time driver");
         
         // Initialize WiFi with proper RNG (from working examples)
         let mut rng = Rng::new(rng_peripheral);
@@ -118,13 +118,13 @@ impl WiFiManager {
             init(timer_group0.timer0, rng.clone())
                 .map_err(|_| WiFiError::HardwareInit("Failed to initialize esp-wifi"))?
         );
-        rprintln!("WiFi Embassy: WiFi hardware initialized");
+        rprintln!("[WIFI] WiFi hardware initialized");
 
         // Create WiFi controller and interfaces (from working examples)
         let (controller, interfaces) = esp_wifi::wifi::new(esp_wifi_ctrl, wifi)
             .map_err(|_| WiFiError::HardwareInit("Failed to create WiFi controller"))?;
         let device = interfaces.sta;
-        rprintln!("WiFi Embassy: WiFi controller created");
+        rprintln!("[WIFI] WiFi controller created");
 
         // Initialize Embassy network stack with static allocation (from working examples)
         let stack_resources = mk_static!(StackResources<3>, StackResources::<3>::new());
@@ -137,7 +137,7 @@ impl WiFiManager {
         );
         let stack = mk_static!(Stack<'static>, stack);
         
-        rprintln!("WiFi Embassy: Network stack created with DHCP");
+        rprintln!("[WIFI] Network stack created with DHCP");
 
         // Spawn background tasks (from working examples)
         spawner.spawn(wifi_connection_task(controller, config.ssid, config.password))
@@ -145,10 +145,10 @@ impl WiFiManager {
         spawner.spawn(network_task(runner))
             .map_err(|_| WiFiError::Configuration("Failed to spawn network task"))?;
 
-        rprintln!("WiFi Embassy: Background tasks started");
+        rprintln!("[WIFI] Background tasks started");
 
         // Wait for link up (following examples timeout pattern)
-        rprintln!("WiFi Embassy: Waiting for WiFi connection...");
+        rprintln!("[WIFI] Waiting for WiFi connection...");
         let mut timeout_counter = 0;
         loop {
             if stack.is_link_up() {
@@ -162,13 +162,13 @@ impl WiFiManager {
             }
             
             if timeout_counter % 10 == 0 {
-                rprintln!("WiFi Embassy: Still waiting for connection... ({} seconds)", timeout_counter / 2);
+                rprintln!("[WIFI] Still waiting for connection... ({} seconds)", timeout_counter / 2);
             }
         }
-        rprintln!("WiFi Embassy: WiFi link established");
+        rprintln!("[WIFI] WiFi link established");
         
         // Wait for IP address (DHCP)
-        rprintln!("WiFi Embassy: Waiting for DHCP IP address...");
+        rprintln!("[WIFI] Waiting for DHCP IP address...");
         timeout_counter = 0;
         loop {
             if let Some(config_v4) = stack.config_v4() {
@@ -179,10 +179,10 @@ impl WiFiManager {
                     subnet_prefix: config_v4.address.prefix_len(),
                 };
                 
-                rprintln!("WiFi Embassy: ✅ Connected successfully!");
-                rprintln!("WiFi Embassy: IP address: {}", connection_info.ip_address);
-                rprintln!("WiFi Embassy: Gateway: {:?}", connection_info.gateway);
-                rprintln!("WiFi Embassy: Device is now pingable!");
+                rprintln!("[WIFI] SUCCESS: Connected successfully!");
+                rprintln!("[WIFI] IP address: {}", connection_info.ip_address);
+                rprintln!("[WIFI] Gateway: {:?}", connection_info.gateway);
+                rprintln!("[WIFI] Device is now pingable!");
                 
                 return Ok(Self {
                     stack,
@@ -198,7 +198,7 @@ impl WiFiManager {
             }
             
             if timeout_counter % 10 == 0 {
-                rprintln!("WiFi Embassy: Still waiting for DHCP... ({} seconds)", timeout_counter / 2);
+                rprintln!("[WIFI] Still waiting for DHCP... ({} seconds)", timeout_counter / 2);
             }
         }
     }
@@ -261,14 +261,14 @@ async fn wifi_connection_task(
     ssid: &'static str,
     password: &'static str,
 ) {
-    rprintln!("WiFi Embassy: Starting connection task for SSID: {}", ssid);
+    rprintln!("[WIFI] Starting connection task for SSID: {}", ssid);
     
     loop {
         match esp_wifi::wifi::wifi_state() {
             WifiState::StaConnected => {
                 // Wait until we're no longer connected
                 controller.wait_for_event(WifiEvent::StaDisconnected).await;
-                rprintln!("WiFi Embassy: Disconnected from network");
+                rprintln!("[WIFI] Disconnected from network");
                 Timer::after(Duration::from_millis(5000)).await
             }
             _ => {}
@@ -281,18 +281,18 @@ async fn wifi_connection_task(
                 ..Default::default()
             });
             controller.set_configuration(&client_config).unwrap();
-            rprintln!("WiFi Embassy: Starting WiFi...");
+            rprintln!("[WIFI] Starting WiFi...");
             controller.start_async().await.unwrap();
-            rprintln!("WiFi Embassy: WiFi started");
+            rprintln!("[WIFI] WiFi started");
         }
         
-        rprintln!("WiFi Embassy: Connecting to '{}'...", ssid);
+        rprintln!("[WIFI] Connecting to '{}'...", ssid);
         match controller.connect_async().await {
             Ok(_) => {
-                rprintln!("WiFi Embassy: Connected successfully to '{}'", ssid);
+                rprintln!("[WIFI] Connected successfully to '{}'", ssid);
             }
             Err(e) => {
-                rprintln!("WiFi Embassy: Connection failed: {:?}", e);
+                rprintln!("[WIFI] Connection failed: {:?}", e);
                 Timer::after(Duration::from_millis(5000)).await;
             }
         }

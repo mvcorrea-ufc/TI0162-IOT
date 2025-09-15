@@ -165,7 +165,7 @@ impl MqttClient {
     
     /// Connect to MQTT broker using Embassy TCP socket
     pub async fn connect<'a>(&self, stack: &Stack<'static>, rx_buffer: &'a mut [u8], tx_buffer: &'a mut [u8]) -> Result<TcpSocket<'a>, MqttError> {
-        rprintln!("MQTT Embassy: Connecting to broker {}:{}", 
+        rprintln!("[MQTT] Connecting to broker {}:{}", 
                  self.config.broker_ip, self.config.broker_port);
         
         // Create TCP socket with provided buffers
@@ -176,14 +176,14 @@ impl MqttClient {
         socket.connect(broker_addr).await
             .map_err(|_| MqttError::ConnectionFailed("TCP connection failed"))?;
         
-        rprintln!("MQTT Embassy: TCP connection established");
+        rprintln!("[MQTT] TCP connection established");
         
         // Send MQTT CONNECT packet
         let connect_packet = self.create_connect_packet();
         socket.write_all(&connect_packet).await
             .map_err(|_| MqttError::IoError("Failed to send CONNECT packet"))?;
         
-        rprintln!("MQTT Embassy: CONNECT packet sent");
+        rprintln!("[MQTT] CONNECT packet sent");
         
         // Read CONNACK response
         let mut buffer = [0u8; 64];
@@ -191,7 +191,7 @@ impl MqttClient {
             .map_err(|_| MqttError::IoError("Failed to read CONNACK"))?;
         
         if n >= 4 && buffer[0] == 0x20 && buffer[3] == 0x00 {
-            rprintln!("MQTT Embassy: CONNACK received - connection accepted");
+            rprintln!("[MQTT] CONNACK received - connection accepted");
             Ok(socket)
         } else {
             Err(MqttError::ProtocolError("Invalid CONNACK response"))
@@ -200,13 +200,13 @@ impl MqttClient {
     
     /// Publish a single MQTT message
     pub async fn publish<'a>(&self, socket: &mut TcpSocket<'a>, message: &MqttMessage<'_>) -> Result<(), MqttError> {
-        rprintln!("MQTT Embassy: Publishing to topic '{}'", message.topic);
+        rprintln!("[MQTT] Publishing to topic '{}'", message.topic);
         
         let publish_packet = self.create_publish_packet(message);
         socket.write_all(&publish_packet).await
             .map_err(|_| MqttError::IoError("Failed to send PUBLISH packet"))?;
         
-        rprintln!("MQTT Embassy: Message published successfully");
+        rprintln!("[MQTT] Message published successfully");
         Ok(())
     }
     
@@ -266,13 +266,13 @@ pub async fn mqtt_publish_task(
     stack: &'static Stack<'static>,
     config: MqttConfig,
 ) {
-    rprintln!("MQTT Embassy: Task started, waiting for network...");
+    rprintln!("[MQTT] Task started, waiting for network...");
     
     // Wait for network to be ready
     stack.wait_config_up().await;
     
     if let Some(network_config) = stack.config_v4() {
-        rprintln!("MQTT Embassy: Network ready, IP: {}", network_config.address.address());
+        rprintln!("[MQTT] Network ready, IP: {}", network_config.address.address());
     }
     
     let client = MqttClient::new(config);
@@ -286,7 +286,7 @@ pub async fn mqtt_publish_task(
         let connection_result = client.connect(stack, &mut rx_buffer, &mut tx_buffer).await;
         match connection_result {
             Ok(mut socket) => {
-                rprintln!("MQTT Embassy: Connected successfully");
+                rprintln!("[MQTT] Connected successfully");
                 
                 // Publish test messages
                 let test_sensor_data = SensorData::new(25.5, 60.2, 1013.25);
@@ -294,7 +294,7 @@ pub async fn mqtt_publish_task(
                 
                 // Initial status message
                 if let Err(e) = client.publish_device_status(&mut socket, &test_status).await {
-                    rprintln!("MQTT Embassy: Failed to publish status: {}", e);
+                    rprintln!("[MQTT] ERROR: Failed to publish status: {}", e);
                     continue;
                 }
                 
@@ -305,14 +305,14 @@ pub async fn mqtt_publish_task(
                     
                     // Publish sensor data every 10 seconds
                     if let Err(e) = client.publish_sensor_data(&mut socket, &test_sensor_data).await {
-                        rprintln!("MQTT Embassy: Failed to publish sensor data: {}", e);
+                        rprintln!("[MQTT] ERROR: Failed to publish sensor data: {}", e);
                         break;
                     }
                     
                     // Publish heartbeat every 30 seconds
                     if counter % 3 == 0 {
                         if let Err(e) = client.publish_heartbeat(&mut socket).await {
-                            rprintln!("MQTT Embassy: Failed to publish heartbeat: {}", e);
+                            rprintln!("[MQTT] ERROR: Failed to publish heartbeat: {}", e);
                             break;
                         }
                     }
@@ -321,7 +321,7 @@ pub async fn mqtt_publish_task(
                 }
             }
             Err(e) => {
-                rprintln!("MQTT Embassy: Connection failed: {}", e);
+                rprintln!("[MQTT] ERROR: Connection failed: {}", e);
                 Timer::after(Duration::from_secs(5)).await; // Retry after 5 seconds
             }
         }

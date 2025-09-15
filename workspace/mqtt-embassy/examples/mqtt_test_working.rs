@@ -35,16 +35,16 @@ const WIFI_PASSWORD: &str = env!("WIFI_PASSWORD", "Set WIFI_PASSWORD in .cargo/c
 
 #[embassy_executor::task]
 async fn mqtt_publishing_task(wifi_manager: &'static mut WiFiManager) {
-    rprintln!("MQTT Task: Starting MQTT publishing task");
+    rprintln!("[MQTT-TEST] Starting MQTT publishing task");
     
     // Wait a bit for WiFi to be fully established
     Timer::after(Duration::from_secs(5)).await;
     
     // Verify WiFi connection
     if let Some(connection_info) = wifi_manager.get_connection_info() {
-        rprintln!("MQTT Task: WiFi connected, IP: {}", connection_info.ip_address);
+        rprintln!("[MQTT-TEST] WiFi connected, IP: {}", connection_info.ip_address);
     } else {
-        rprintln!("MQTT Task: No WiFi connection available!");
+        rprintln!("[MQTT-TEST] ERROR: No WiFi connection available!");
         return;
     }
     
@@ -57,7 +57,7 @@ async fn mqtt_publishing_task(wifi_manager: &'static mut WiFiManager) {
     let broker_port = mqtt_config.broker_port;
     let client = MqttClient::new(mqtt_config);
     
-    rprintln!("MQTT Task: Connecting to MQTT broker at {}:{}...", 
+    rprintln!("[MQTT-TEST] Connecting to MQTT broker at {}:{}...", 
              broker_ip, broker_port);
     
     // Main MQTT publishing loop
@@ -72,7 +72,7 @@ async fn mqtt_publishing_task(wifi_manager: &'static mut WiFiManager) {
         
         let sensor_data = SensorData::new(temperature, humidity, pressure);
         
-        rprintln!("MQTT Task: Reading #{} - T: {:.1}°C, H: {:.1}%, P: {:.1} hPa", 
+        rprintln!("[MQTT-TEST] Reading #{} - T: {:.1}°C, H: {:.1}%, P: {:.1} hPa", 
                  reading_counter, temperature, humidity, pressure);
         
         // Create socket buffers for MQTT connection
