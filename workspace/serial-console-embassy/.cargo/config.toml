@@ -1,0 +1,16 @@
+[target.riscv32imc-unknown-none-elf]
+runner = "probe-rs run --chip esp32c3"
+
+[build]
+target = "riscv32imc-unknown-none-elf"
+
+[env]
+# Default WiFi credentials (can be overridden)
+WIFI_SSID = "ESP32-Test"
+WIFI_PASSWORD = "password123"
+
+# Default MQTT configuration
+MQTT_BROKER_IP = "192.168.1.100"
+MQTT_BROKER_PORT = "1883"
+MQTT_CLIENT_ID = "esp32-c3-console"
+MQTT_TOPIC_PREFIX = "esp32"

@@ -1,0 +1,54 @@
+[package]
+name = "serial-console-embassy"
+version = "0.1.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+description = "Serial console interface for ESP32-C3 IoT system configuration and monitoring"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# ESP32-C3 Hardware Abstraction Layer
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+
+# Embassy Async Framework
+embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
+embassy-time = { version = "0.4" }
+embassy-sync = { version = "0.7" }
+
+# UART and async I/O
+embassy-usb = { version = "0.4", optional = true }
+embedded-io-async = "0.6"
+
+# String processing and utilities
+heapless = "0.8"
+nb = "1.0"
+
+# Memory allocation
+esp-alloc = { version = "0.8.0" }
+
+# Debugging and panic handling
+rtt-target = "0.5"
+panic-rtt-target = "0.1"
+
+# Integration with other modules
+wifi-embassy = { path = "../wifi-embassy", optional = true }
+mqtt-embassy = { path = "../mqtt-embassy", optional = true }
+bme280-embassy = { path = "../bme280-embassy", optional = true }
+
+[features]
+default = []
+wifi = ["dep:wifi-embassy"]
+mqtt = ["dep:mqtt-embassy"] 
+sensor = ["dep:bme280-embassy"]
+usb = ["dep:embassy-usb"]
+full = ["wifi", "mqtt", "sensor"]
+
+[[example]]
+name = "basic_console"
+path = "examples/basic_console.rs"
+
+[[example]]
+name = "system_console"
+path = "examples/system_console.rs"
+required-features = ["full"]
