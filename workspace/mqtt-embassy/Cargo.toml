@@ -1,0 +1,52 @@
+[package]
+name = "mqtt-embassy"
+version = "0.1.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+description = "MQTT client module using Embassy async framework for ESP32-C3"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Embassy Async Framework (matching wifi-embassy exactly)
+embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
+embassy-net = { version = "0.7", features = ["tcp", "udp", "dhcpv4", "medium-ethernet"] }
+embassy-time = { version = "0.4" }
+
+# Async I/O support for MQTT TCP connections
+embedded-io-async = "0.6"
+
+# Data structures and JSON serialization
+heapless = "0.8"
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde-json-core = "0.6"
+
+# RTT debugging (following project pattern)
+rtt-target = "0.5"
+
+# ESP32-C3 HAL and WiFi (for examples only)
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"], optional = true }
+esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"], optional = true }
+esp-alloc = { version = "0.8.0", optional = true }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"], optional = true }
+static_cell = { version = "2.0", optional = true }
+panic-rtt-target = { version = "0.1", optional = true }
+smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-dhcpv4", "socket-tcp", "socket-udp"], optional = true }
+
+# WiFi Embassy integration (for working example)
+wifi-embassy = { path = "../wifi-embassy", optional = true }
+
+[features]
+default = []
+examples = ["esp-hal", "esp-wifi", "esp-alloc", "esp-hal-embassy", "static_cell", "panic-rtt-target", "smoltcp", "wifi-embassy"]
+
+[lib]
+name = "mqtt_embassy"
+path = "src/lib.rs"
+
+[[example]]
+name = "mqtt_test"
+path = "examples/mqtt_test.rs"
+
+[[example]]
+name = "mqtt_test_working"
+path = "examples/mqtt_test_working.rs"

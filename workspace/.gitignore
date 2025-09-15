@@ -1,0 +1,76 @@
+# Rust build artifacts
+target/
+**/target/
+Cargo.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# ESP32 specific
+*.bin
+*.elf
+*.map
+
+# Temporary files
+*.tmp
+*.temp
+
+# Log files
+*.log
+
+# Backup files
+*.bak
+*.backup
+
+# Environment variables (if any)
+.env
+.env.local
+
+# Documentation build
+book/
+docs/_build/
+
+# Test artifacts
+junit.xml
+coverage.xml
+
+# Rust analyzer cache
+.rust-analyzer/
+
+# Local development artifacts
+*.orig
+*.rej

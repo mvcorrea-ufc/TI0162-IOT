@@ -1,0 +1,40 @@
+[package]
+name = "bme280-embassy"
+version = "0.1.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Base HAL (same as blinky)
+esp-hal = { version = "0.23.1", features = ["esp32c3"] }
+esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
+
+# RTT Debug support (from blinky)
+defmt = "0.3"
+rtt-target = "0.5"
+panic-rtt-target = "0.1"
+
+# Embassy framework
+embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
+embassy-time = "0.4.0"
+esp-hal-embassy = { version = "0.6", features = ["esp32c3"] }
+
+# I2C Async Support
+embedded-hal-async = "1.0"
+
+# Console output
+esp-println = { version = "0.13.0", features = ["esp32c3"] }
+esp-backtrace = { version = "0.15.0", features = ["esp32c3", "panic-handler", "exception-handler", "println"] }
+
+
+[profile.release]
+opt-level = "s"
+
+[profile.dev]
+debug = true
+opt-level = "z"
+
+[[example]]
+name = "basic_reading"
+path = "examples/basic_reading.rs"
