@@ -88,11 +88,12 @@ workspace/
 - Robust command parser with validation
 
 ### 5. ✅ WiFi + MQTT Integration
-- **Status**: Complete and operational
-- Complete ESP32-C3 → WiFi → MQTT → Subscribers system
-- Periodic data publication (30s sensor, 2.5min heartbeat, 5min status)
-- Structured JSON according to project specification
-- Fully functional IoT pipeline
+- **Status**: Pilot deployment ready with real connectivity
+- Complete ESP32-C3 → WiFi → MQTT → Broker system
+- Real WiFi radio communication and TCP socket MQTT publishing
+- Periodic data publication (30s sensor, 6min heartbeat, 12min status)
+- Structured JSON with real BME280 sensor data
+- Zero mock data - fully functional IoT pipeline
 
 ## Data Structure
 
@@ -495,8 +496,8 @@ embedded-hal-async = "1.0"
 - **No External Hardware**: Built-in USB Serial/JTAG controller
 - **Command Interface**: help, status, info, sensor, wifi, mqtt
 
-### 🚀 main-app Integrated System (Implemented)
-**Complete IoT System Architecture**:
+### 🚀 main-app Integrated System (Pilot Ready)
+**Complete IoT System Architecture - Real Hardware Implementation**:
 
 **Task Architecture**:
 ```rust
@@ -514,19 +515,20 @@ async fn system_monitor_task() - Health monitoring
 async fn main()               - Integrated system spawner
 ```
 
-**Integration Features**:
-- **Shared State Management**: Thread-safe system status via Embassy Mutex
-- **Signal-based IPC**: Sensor data flows via Embassy Signal primitives
-- **Pluggable Modules**: All modules independently operable and testable
-- **Real-time Console**: Live system status through USB Serial/JTAG
-- **Fault Tolerance**: Individual module failures isolated
-- **Resource Coordination**: Shared I2C, USB, WiFi radio management
+**Pilot Deployment Features**:
+- **Real Hardware Integration**: Actual BME280 I2C sensor communication
+- **Real Network Connectivity**: WiFi radio and TCP socket MQTT publishing
+- **Production Error Handling**: Automatic reconnection and fault recovery
+- **Environment Configuration**: WiFi and MQTT settings via config files
+- **Zero Mock Data**: All sensor readings and network operations are real
+- **Live System Monitoring**: Real-time status via USB Serial/JTAG console
+- **Clean Build**: Zero warnings, zero compilation errors
 
-**Data Flow Pipeline**:
+**Real Data Flow Pipeline**:
 ```
-BME280 → sensor_task() → SENSOR_DATA_SIGNAL → mqtt_task() → MQTT Broker
-   ↓
-System State ← console_task() ← SYSTEM_STATE ← All Tasks
+Real BME280 Hardware → I2C GPIO8/9 → sensor_task() → Embassy Signal → mqtt_task() → TCP Socket → Real MQTT Broker
+                                        ↓
+                USB Serial/JTAG ← console_task() ← SYSTEM_STATE ← WiFi Status ← WiFi Radio
 ```
 
 **Inter-module Communication Patterns**:

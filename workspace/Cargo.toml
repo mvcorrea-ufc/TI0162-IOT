@@ -14,6 +14,9 @@ members = [
 esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
 esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
 
+# Override portable-atomic to disable single-core assumption for ESP32-C3
+portable-atomic = { version = "1.11", default-features = false }
+
 # Embassy Async Framework
 embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
 embassy-time = { version = "0.4" }
@@ -46,9 +49,9 @@ bme280-rs = { version = "0.4", features = ["async"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_json = { version = "1.0", default-features = false }
 
-# Network and WiFi (when needed)
-embassy-net = { version = "0.5", features = ["tcp", "udp", "dns", "dhcpv4", "medium-ethernet"] }
-smoltcp = { version = "0.11", default-features = false, features = ["socket-tcp", "socket-udp", "async"] }
+# Network and WiFi (updated for main-app compatibility)
+embassy-net = { version = "0.7", features = ["tcp", "udp", "dhcpv4", "medium-ethernet"] }
+smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
 
 [workspace.metadata.esp-hal-settings]
 esp32c3_direct_boot = true

@@ -9,12 +9,14 @@ rustflags = ["-C", "force-frame-pointers"]
 build-std = ["core"]
 
 [env]
-# WiFi configuration for integrated IoT system
-WIFI_SSID = "YourWiFiNetwork"
-WIFI_PASSWORD = "YourWiFiPassword"
+# WiFi configuration for pilot deployment
+# UPDATE THESE VALUES FOR YOUR NETWORK BEFORE DEPLOYMENT
+WIFI_SSID = "FamiliaFeliz-2Ghz"
+WIFI_PASSWORD = "ines#sara"
 
-# MQTT broker configuration for integrated IoT system
+# MQTT broker configuration for pilot deployment  
+# UPDATE THESE VALUES FOR YOUR BROKER BEFORE DEPLOYMENT
 MQTT_BROKER_IP = "10.10.10.210"
 MQTT_BROKER_PORT = "1883"
-MQTT_CLIENT_ID = "esp32-c3-main-app"
-MQTT_TOPIC_PREFIX = "esp32-iot"
+MQTT_CLIENT_ID = "esp32-c3-pilot"
+MQTT_TOPIC_PREFIX = "iot-pilot"

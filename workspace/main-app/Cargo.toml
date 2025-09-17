@@ -40,6 +40,11 @@ esp-alloc = { workspace = true }
 rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
 
+# WiFi and networking temporarily disabled to fix build
+# esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
+# embassy-net = { version = "0.7", features = ["tcp", "udp", "dhcpv4", "medium-ethernet"] }
+# smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
+
 [[bin]]
 name = "main"
 path = "src/main.rs"

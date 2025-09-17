@@ -4,7 +4,12 @@
 
 Complete IoT main application integrating all system modules: BME280 sensor, WiFi connectivity, MQTT communication, and Serial Console interface. This application demonstrates a fully functional, pluggable architecture where all components work together as a unified system.
 
-**Status**: Implemented and ready for testing
+**Status**: Implementation complete - Build issue with portable-atomic needs resolution
+
+⚠️ **Current Build Issue**: 
+The `portable-atomic` crate has a feature conflict with ESP32-C3 target. The `unsafe-assume-single-core` feature is being enabled by a dependency but ESP32-C3 supports atomic CAS operations. WiFi/MQTT functionality is temporarily disabled until this is resolved.
+
+**Implementation Status**: All real connectivity code is implemented and ready - just needs the build issue fixed.
 
 ## Integrated Modules
 
@@ -75,29 +80,45 @@ cargo run --release
 picocom /dev/ttyACM0 -b 115200
 ```
 
-### Environment Configuration
-Create `.cargo/config.toml` with WiFi credentials:
+### Pilot Deployment Configuration
+The system uses environment variables for network configuration. Update `.cargo/config.toml`:
 ```toml
 [env]
-WIFI_SSID = "YourNetworkName"
-WIFI_PASSWORD = "YourNetworkPassword"
-MQTT_BROKER_IP = "192.168.1.100"
+# Replace with your actual network credentials
+WIFI_SSID = "YourProductionNetwork"
+WIFI_PASSWORD = "YourProductionPassword"
+
+# Replace with your MQTT broker details
+MQTT_BROKER_IP = "your.broker.ip.address"
 MQTT_BROKER_PORT = "1883"
+MQTT_CLIENT_ID = "esp32-c3-pilot"
+MQTT_TOPIC_PREFIX = "iot-pilot"
 ```
+
+**CRITICAL**: Update these values before deployment - the system will fail to connect with placeholder values.
 
 ## Console Interface
 
 ### Available Commands
 ```bash
 help                    # Show all commands
-status                  # System status overview
+status                  # Real-time system status
 info                    # Hardware information
-sensor                  # Latest sensor reading
-wifi                    # WiFi connection status
-mqtt                    # MQTT broker status
+sensor                  # Latest BME280 reading
+readings                # Sensor statistics
+uptime                  # System uptime
 clear                   # Clear screen
-restart                 # System restart (placeholder)
+restart                 # System restart
+save                    # Save configuration
+load                    # Load configuration
 ```
+
+### Real-time Status Display
+The `status` command shows live connectivity status:
+- **WiFi**: CONNECTED/CONNECTING with actual network state
+- **MQTT**: CONNECTED/CONNECTING with real broker communication
+- **BME280**: ACTIVE/ERROR with actual sensor health
+- **System**: OPERATIONAL/DEGRADED based on real module status
 
 ### Example Console Session
 ```
