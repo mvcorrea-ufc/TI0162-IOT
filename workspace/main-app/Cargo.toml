@@ -1,32 +1,44 @@
 [package]
 name = "main-app"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
 edition = "2021"
-description = "IoT main application integrating BME280, WiFi, and MQTT modules for ESP32-C3"
+description = "IoT Environmental Monitoring System - BME280 sensor with WiFi/MQTT Integration for ESP32-C3"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# Local modules - simplified to test basic integration first
+# Local IoT modules - all integrated
+bme280-embassy = { path = "../bme280-embassy" }
+wifi-embassy = { path = "../wifi-embassy" }
 mqtt-embassy = { path = "../mqtt-embassy" }
+serial-console-embassy = { path = "../serial-console-embassy" }
 
-# Embassy Async Framework (matching working modules)
-embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
-embassy-time = "0.4"
+# ESP32-C3 Hardware Abstraction Layer - use workspace versions
+esp-hal = { workspace = true }
+esp-hal-embassy = { workspace = true }
 
-# ESP32-C3 HAL (matching working modules)
-esp-hal = { version = "0.23.1", features = ["esp32c3"] }
-esp-hal-embassy = { version = "0.6", features = ["esp32c3"] }
-esp-wifi = { git = "https://github.com/esp-rs/esp-hal", features = ["esp32c3", "wifi", "embassy-net"] }
+# Embassy Async Framework - use workspace versions
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
+embassy-sync = { workspace = true }
+embassy-futures = { workspace = true }
 
-# Console/Debug
-esp-println = { version = "0.13.0", features = ["esp32c3"] }
-esp-backtrace = { version = "0.15.0", features = ["esp32c3", "panic-handler", "exception-handler", "println"] }
-rtt-target = "0.5"
+# Critical section resolver will be resolved automatically by Embassy
 
-# Embassy network
-embassy-net = "0.7"
-static_cell = "2.0"
+# UART and async I/O - use workspace versions
+embedded-io-async = { workspace = true }
+
+# String processing and utilities - use workspace versions
+heapless = { workspace = true }
+nb = { workspace = true }
+static_cell = { workspace = true }
+
+# Memory allocation - use workspace version
+esp-alloc = { workspace = true }
+
+# Debugging and panic handling - use workspace versions
+rtt-target = { workspace = true }
+panic-rtt-target = { workspace = true }
 
 [[bin]]
 name = "main"

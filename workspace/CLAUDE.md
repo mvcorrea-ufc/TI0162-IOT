@@ -1,102 +1,102 @@
-# TI0162 - Internet das Coisas - Projeto
+# TI0162 - Internet of Things - Project
 
-## Visão Geral do Projeto
+## Project Overview
 
-Este é um projeto de Internet das Coisas (IoT) desenvolvido em Rust para ESP32-C3 utilizando o framework Embassy. O projeto implementa um sistema modular de sensoriamento e conectividade, com foco na coleta de dados ambientais e transmissão via WiFi e MQTT.
+This is an Internet of Things (IoT) project developed in Rust for ESP32-C3 using the Embassy framework. The project implements a modular sensing and connectivity system, focusing on environmental data collection and transmission via WiFi and MQTT.
 
-**Base de Implementação**: O projeto utiliza o exemplo `blinky` como base de implementação, aproveitando sua configuração já estabelecida para ESP32-C3 com esp-hal.
+**Implementation Base**: The project uses the `blinky` example as implementation base, leveraging its established configuration for ESP32-C3 with esp-hal.
 
-## Tecnologias Utilizadas
+## Technologies Used
 
-- **Linguagem**: Rust
-- **Microcontrolador**: ESP32-C3
+- **Language**: Rust
+- **Microcontroller**: ESP32-C3
 - **HAL**: esp-hal v0.23.1 (Hardware Abstraction Layer)
-- **Framework Async**: Embassy (async framework for embedded systems)
-- **Base Template**: Projeto `blinky` do rust-esp32-tmpl
+- **Async Framework**: Embassy (async framework for embedded systems)
+- **Base Template**: `blinky` project from rust-esp32-tmpl
 - **Debugging**: RTT (Real-Time Transfer) via rtt-target
-- **Sensor**: BME280 (temperatura, umidade e pressão)
-- **Conectividade**: WiFi + MQTT
-- **Broker MQTT**: Mosquitto
+- **Sensor**: BME280 (temperature, humidity and pressure)
+- **Connectivity**: WiFi + MQTT
+- **MQTT Broker**: Mosquitto
 
-## Decisões Arquiteturais
+## Architectural Decisions
 
 ### ⚡ esp-hal + Embassy (Chosen)
-- **Vantagens**: Leve, performático, controle total do hardware
-- **Desvantagens**: Mais código manual, menos abstrações
-- **Uso**: Ideal para projetos IoT com recursos limitados
+- **Advantages**: Lightweight, performant, full hardware control
+- **Disadvantages**: More manual code, fewer abstractions
+- **Usage**: Ideal for resource-constrained IoT projects
 
-### ❌ esp-idf/FreeRTOS (Evitado)
-- **Desvantagens**: Framework pesado, mais overhead de memória
-- **Razão**: Desnecessário para aplicações simples de IoT
-- **Impacto**: Reduz recursos disponíveis para lógica de aplicação
+### ❌ esp-idf/FreeRTOS (Avoided)
+- **Disadvantages**: Heavy framework, more memory overhead
+- **Reason**: Unnecessary for simple IoT applications
+- **Impact**: Reduces available resources for application logic
 
-## Arquitetura Modular
+## Modular Architecture
 
-O projeto foi estruturado de forma modular baseado no template `blinky`, expandindo suas funcionalidades:
+The project was structured modularly based on the `blinky` template, expanding its functionalities:
 
 ```
 workspace/
-├── blinky/                 # 🏗️ BASE - Template original com esp-hal e RTT
-├── examples/               # 📚 REFERÊNCIAS - Exemplos existentes BME280
-│   └── simple-bme280-02/   #     Driver BME280 com embedded-hal 1.0
-├── bme280-embassy/         # 🌡️ IMPLEMENTADO - BME280 + Embassy async
-├── wifi-embassy/           # 📡 IMPLEMENTADO - WiFi connectivity usando Embassy
-├── mqtt-embassy/           # 📨 IMPLEMENTADO - MQTT client usando Embassy
-├── serial-console-embassy/ # 💻 IMPLEMENTADO - Console serial interativo
-├── web-server/             # 🌐 Servidor web para display dos dados
-└── main-app/               # 🎯 Aplicação principal integrando todos os módulos
+├── blinky/                 # 🏗️ BASE - Original template with esp-hal and RTT
+├── examples/               # 📚 REFERENCES - Existing BME280 examples
+│   └── simple-bme280-02/   #     BME280 driver with embedded-hal 1.0
+├── bme280-embassy/         # 🌡️ IMPLEMENTED - BME280 + Embassy async
+├── wifi-embassy/           # 📡 IMPLEMENTED - WiFi connectivity using Embassy
+├── mqtt-embassy/           # 📨 IMPLEMENTED - MQTT client using Embassy
+├── serial-console-embassy/ # 💻 IMPLEMENTED - Interactive serial console
+├── web-server/             # 🌐 Web server for data display
+└── main-app/               # 🎯 Main application integrating all modules
 ```
 
-### Estrutura Base (blinky)
-- **Cargo.toml**: Configuração com esp-hal 0.23.1, rtt-target para debugging
-- **main.rs**: Estrutura base com inicialização RTT e loop principal
-- **build.rs**: Configuração de linking necessária para ESP32-C3
-- **Funcionalidade**: LED blinking com output RTT para validação
+### Base Structure (blinky)
+- **Cargo.toml**: Configuration with esp-hal 0.23.1, rtt-target for debugging
+- **main.rs**: Base structure with RTT initialization and main loop
+- **build.rs**: Linking configuration necessary for ESP32-C3
+- **Functionality**: LED blinking with RTT output for validation
 
-## Funcionalidades Implementadas
+## Implemented Features
 
-### 1. ✅ Módulo BME280 Embassy (`bme280-embassy/`)
-- **Status**: Completo e funcional
-- Leitura assíncrona de temperatura (°C), umidade (%) e pressão (hPa) 
-- Interface I2C assíncrona via Embassy
-- Calibração automática do sensor BME280
-- Compensação de valores com algoritmos corrigidos
-- Output RTT para debugging
+### 1. ✅ BME280 Embassy Module (`bme280-embassy/`)
+- **Status**: Complete and functional
+- Asynchronous reading of temperature (°C), humidity (%) and pressure (hPa) 
+- Asynchronous I2C interface via Embassy
+- Automatic BME280 sensor calibration
+- Value compensation with corrected algorithms
+- RTT output for debugging
 
-### 2. ✅ Módulo WiFi Embassy (`wifi-embassy/`)
-- **Status**: Completo e funcional
-- Conexão WiFi automática com credenciais via variáveis de ambiente
-- Aquisição de IP via DHCP (testado: 10.10.10.214)
-- Reconexão automática em caso de desconexão
-- Network stack Embassy com suporte TCP/UDP
-- Interface de gerenciamento WiFi simplificada
+### 2. ✅ WiFi Embassy Module (`wifi-embassy/`)
+- **Status**: Complete and functional
+- Automatic WiFi connection with credentials via environment variables
+- IP acquisition via DHCP (tested: 10.10.10.214)
+- Automatic reconnection in case of disconnection
+- Embassy network stack with TCP/UDP support
+- Simplified WiFi management interface
 
-### 3. ✅ Módulo MQTT Embassy (`mqtt-embassy/`)
-- **Status**: Completo e funcional  
-- Cliente MQTT assíncrono via Embassy TCP sockets
-- Suporte a broker configurável (testado: 10.10.10.210:1883)
-- Publicação JSON de dados de sensores, status e heartbeat
-- Configuração via variáveis de ambiente
-- Protocolo MQTT 3.1.1 completo
+### 3. ✅ MQTT Embassy Module (`mqtt-embassy/`)
+- **Status**: Complete and functional  
+- Asynchronous MQTT client via Embassy TCP sockets
+- Configurable broker support (tested: 10.10.10.210:1883)
+- JSON publication of sensor data, status and heartbeat
+- Configuration via environment variables
+- Complete MQTT 3.1.1 protocol
 
-### 4. ✅ Módulo Serial Console Embassy (`serial-console-embassy/`)
-- **Status**: Completo e funcional
-- Interface serial interativa via UART usando Embassy async
-- Sistema de comandos para configuração e monitoramento
-- Configuração dinâmica de credenciais WiFi e MQTT
-- Display de informações do sistema em tempo real
-- Parser de comandos robusto com validação
+### 4. ✅ Serial Console Embassy Module (`serial-console-embassy/`)
+- **Status**: Complete and functional
+- Interactive serial interface via UART using Embassy async
+- Command system for configuration and monitoring
+- Dynamic configuration of WiFi and MQTT credentials
+- Real-time system information display
+- Robust command parser with validation
 
-### 5. ✅ Integração WiFi + MQTT
-- **Status**: Completo e operacional
-- Sistema completo ESP32-C3 → WiFi → MQTT → Subscribers
-- Publicação periódica de dados (30s sensor, 2.5min heartbeat, 5min status)
-- JSON estruturado conforme especificação do projeto
-- Pipeline IoT totalmente funcional
+### 5. ✅ WiFi + MQTT Integration
+- **Status**: Complete and operational
+- Complete ESP32-C3 → WiFi → MQTT → Subscribers system
+- Periodic data publication (30s sensor, 2.5min heartbeat, 5min status)
+- Structured JSON according to project specification
+- Fully functional IoT pipeline
 
-## Estrutura de Dados
+## Data Structure
 
-### Payload MQTT (JSON)
+### MQTT Payload (JSON)
 ```json
 {
   "timestamp": "2025-01-15T10:30:00Z",
@@ -109,69 +109,69 @@ workspace/
 }
 ```
 
-## 📖 Guia de Uso dos Módulos e Exemplos
+## 📖 Module and Examples Usage Guide
 
-### Pré-requisitos
+### Prerequisites
 
 1. **Rust toolchain**: `rustup target add riscv32imc-unknown-none-elf`
 2. **probe-rs**: `cargo install probe-rs --features cli`
-3. **ESP32-C3**: Conectado via USB com drivers instalados
-4. **WiFi**: Rede disponível para testes de conectividade
-5. **MQTT Broker**: Mosquitto ou similar para testes MQTT
+3. **ESP32-C3**: Connected via USB with drivers installed
+4. **WiFi**: Available network for connectivity tests
+5. **MQTT Broker**: Mosquitto or similar for MQTT tests
 
-### 🌡️ Módulo BME280 Embassy
+### 🌡️ BME280 Embassy Module
 
-**Localização**: `bme280-embassy/`
+**Location**: `bme280-embassy/`
 
 ```bash
-# Navegar para o módulo
+# Navigate to module
 cd bme280-embassy/
 
-# Executar leitura básica do BME280
+# Execute basic BME280 reading
 cargo run --example basic_reading --release
 
-# Executar aplicação principal (leitura contínua)
+# Execute main application (continuous reading)
 cargo run --release
 ```
 
-**Configuração Hardware**:
+**Hardware Configuration**:
 - BME280: SDA=GPIO8, SCL=GPIO9
-- LED de status: GPIO3
-- Frequência I2C: 100kHz
+- Status LED: GPIO3
+- I2C Frequency: 100kHz
 
-**Saída Esperada**:
+**Expected Output**:
 ```
 BME280 Embassy: Sensor initialized successfully
 BME280 Embassy: T: 23.2°C, H: 68.5%, P: 1013.8 hPa
 BME280 Embassy: T: 23.1°C, H: 68.3%, P: 1013.9 hPa
 ```
 
-### 📡 Módulo WiFi Embassy
+### 📡 WiFi Embassy Module
 
-**Localização**: `wifi-embassy/`
+**Location**: `wifi-embassy/`
 
-**Configuração**: Editar `.cargo/config.toml`:
+**Configuration**: Edit `.cargo/config.toml`:
 ```toml
 [env]
-WIFI_SSID = "SuaRedeWiFi"
-WIFI_PASSWORD = "SuaSenhaWiFi"
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
 ```
 
 ```bash
-# Navegar para o módulo
+# Navigate to module
 cd wifi-embassy/
 
-# Teste básico de conectividade WiFi
+# Basic WiFi connectivity test
 cargo run --example wifi_test --release
 
-# Teste completo com informações de rede
+# Complete test with network information
 cargo run --example wifi_test_new --release
 
-# Integração WiFi + MQTT (requer broker MQTT)
+# WiFi + MQTT integration (requires MQTT broker)
 cargo run --example wifi_mqtt_test --release
 ```
 
-**Saída Esperada**:
+**Expected Output**:
 ```
 WiFi Embassy: Connected to WiFi!
 📍 IP Address: 10.10.10.214
@@ -179,59 +179,59 @@ WiFi Embassy: Connected to WiFi!
 🔧 Subnet: /24
 ```
 
-### 💻 Módulo Serial Console Embassy
+### 💻 Serial Console Embassy Module
 
-**Localização**: `serial-console-embassy/`
+**Location**: `serial-console-embassy/`
 
 ```bash
-# Navegar para o módulo
+# Navigate to module
 cd serial-console-embassy/
 
-# Console básico (sem integração)
+# Basic console (without integration)
 cargo run --example basic_console --release
 
-# Console completo com IoT (requer módulos)
+# Complete console with IoT (requires modules)
 cargo run --example system_console --features full --release
 ```
 
-**Interface Serial**: UART0 a 115200 baud
-- **TX**: GPIO1 (conectar ao RX do conversor USB-serial)
-- **RX**: GPIO3 (conectar ao TX do conversor USB-serial) 
-- **GND**: Comum entre ESP32-C3 e conversor
+**Serial Interface**: UART0 at 115200 baud
+- **TX**: GPIO1 (connect to RX of USB-serial converter)
+- **RX**: GPIO3 (connect to TX of USB-serial converter) 
+- **GND**: Common between ESP32-C3 and converter
 
-**Comandos Disponíveis**:
+**Available Commands**:
 
 ```bash
-# Comandos de sistema
-help, h, ?          # Mostrar ajuda
-status, stat        # Status do sistema
-info, i             # Informações detalhadas
-clear, cls          # Limpar tela
-restart, reset      # Reiniciar sistema
+# System commands
+help, h, ?          # Show help
+status, stat        # System status
+info, i             # Detailed information
+clear, cls          # Clear screen
+restart, reset      # Restart system
 
-# Comandos WiFi
-wifi show           # Mostrar configuração WiFi
-wifi ssid <nome>    # Configurar SSID
-wifi pass <senha>   # Configurar senha
+# WiFi commands
+wifi show           # Show WiFi configuration
+wifi ssid <name>    # Configure SSID
+wifi pass <password> # Configure password
 
-# Comandos MQTT  
-mqtt show           # Mostrar configuração MQTT
-mqtt broker <ip>    # Configurar IP do broker
-mqtt port <porta>   # Configurar porta
-mqtt client <id>    # Configurar client ID
-mqtt prefix <pfx>   # Configurar prefixo dos tópicos
+# MQTT commands  
+mqtt show           # Show MQTT configuration
+mqtt broker <ip>    # Configure broker IP
+mqtt port <port>    # Configure port
+mqtt client <id>    # Configure client ID
+mqtt prefix <pfx>   # Configure topic prefix
 
-# Comandos de configuração
-save                # Salvar config na flash
-load                # Carregar config da flash
+# Configuration commands
+save                # Save config to flash
+load                # Load config from flash
 ```
 
-**Exemplo de Sessão**:
+**Session Example**:
 ```
 esp32> help
 === ESP32-C3 IoT System Console ===
 Available commands:
-[lista de comandos...]
+[command list...]
 
 esp32> status
 === System Status ===
@@ -239,8 +239,8 @@ WiFi: Connected (10.10.10.214)
 MQTT: Connected
 Sensor: Active
 
-esp32> wifi ssid MinhaRede
-WiFi SSID set to: MinhaRede
+esp32> wifi ssid MyNetwork
+WiFi SSID set to: MyNetwork
 
 esp32> mqtt broker 192.168.1.100
 MQTT broker set to: 192.168.1.100
@@ -249,39 +249,39 @@ esp32> save
 Configuration saved to flash
 ```
 
-### 📨 Módulo MQTT Embassy
+### 📨 MQTT Embassy Module
 
-**Localização**: `mqtt-embassy/`
+**Location**: `mqtt-embassy/`
 
-**Configuração**: Editar `.cargo/config.toml`:
+**Configuration**: Edit `.cargo/config.toml`:
 ```toml
 [env]
-WIFI_SSID = "SuaRedeWiFi"
-WIFI_PASSWORD = "SuaSenhaWiFi"
-MQTT_BROKER_IP = "192.168.1.100"  # IP do seu broker
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
+MQTT_BROKER_IP = "192.168.1.100"  # Your broker IP
 MQTT_BROKER_PORT = "1883"
 MQTT_CLIENT_ID = "esp32-c3-test"
 MQTT_TOPIC_PREFIX = "esp32"
 ```
 
 ```bash
-# Navegar para o módulo
+# Navigate to module
 cd mqtt-embassy/
 
-# Teste MQTT básico (requer wifi-embassy)
+# Basic MQTT test (requires wifi-embassy)
 cargo run --example mqtt_test_working --features examples --release
 ```
 
-**Monitor MQTT** (terminal separado):
+**MQTT Monitor** (separate terminal):
 ```bash
-# Monitorar todas as mensagens ESP32
-mosquitto_sub -h [SEU_BROKER_IP] -p 1883 -t "esp32/#" -v
+# Monitor all ESP32 messages
+mosquitto_sub -h [YOUR_BROKER_IP] -p 1883 -t "esp32/#" -v
 
-# Monitorar tópico específico
-mosquitto_sub -h [SEU_BROKER_IP] -p 1883 -t "esp32/sensor/bme280" -v
+# Monitor specific topic
+mosquitto_sub -h [YOUR_BROKER_IP] -p 1883 -t "esp32/sensor/bme280" -v
 ```
 
-**Mensagens MQTT Publicadas**:
+**Published MQTT Messages**:
 ```json
 // esp32/sensor/bme280
 {"temperature":23.5,"humidity":68.2,"pressure":1013.8,"reading":1}
@@ -293,80 +293,80 @@ mosquitto_sub -h [SEU_BROKER_IP] -p 1883 -t "esp32/sensor/bme280" -v
 ping
 ```
 
-### 🚀 Sistema Integrado (WiFi + MQTT)
+### 🚀 Integrated System (WiFi + MQTT)
 
-**Exemplo Recomendado**: `wifi-embassy/examples/wifi_mqtt_test.rs`
+**Recommended Example**: `wifi-embassy/examples/wifi_mqtt_test.rs`
 
 ```bash
 cd wifi-embassy/
 cargo run --example wifi_mqtt_test --release
 ```
 
-**Funcionalidades**:
-- ✅ Conexão WiFi automática
-- ✅ Publicação MQTT a cada 30 segundos  
-- ✅ Heartbeat a cada 5 ciclos (2.5 minutos)
-- ✅ Status do dispositivo a cada 10 ciclos (5 minutos)
-- ✅ Reconexão automática WiFi e MQTT
-- ✅ JSON estruturado conforme especificação
+**Features**:
+- ✅ Automatic WiFi connection
+- ✅ MQTT publication every 30 seconds  
+- ✅ Heartbeat every 5 cycles (2.5 minutes)
+- ✅ Device status every 10 cycles (5 minutes)
+- ✅ Automatic WiFi and MQTT reconnection
+- ✅ Structured JSON according to specification
 
-### 🔧 Comandos de Desenvolvimento
+### 🔧 Development Commands
 
 ```bash
-# Build apenas (sem flash)
+# Build only (no flash)
 cargo build --release
 
-# Build e flash com monitor RTT
+# Build and flash with RTT monitor
 cargo run --release
 
-# Build exemplo específico
-cargo build --example [NOME_EXEMPLO] --release
+# Build specific example
+cargo build --example [EXAMPLE_NAME] --release
 
-# Flash exemplo específico
-cargo run --example [NOME_EXEMPLO] --release
+# Flash specific example
+cargo run --example [EXAMPLE_NAME] --release
 
 # Linting
 cargo clippy
 
-# Formatação
+# Formatting
 cargo fmt
 
-# Limpeza
+# Cleanup
 cargo clean
 ```
 
-### 🐛 Debugging e Troubleshooting
+### 🐛 Debugging and Troubleshooting
 
 **RTT Debugging**:
-- Todas as aplicações usam `rtt-target` para output em tempo real
-- Use `rprintln!()` em lugar de `println!()`
-- Monitor via probe-rs automaticamente
+- All applications use `rtt-target` for real-time output
+- Use `rprintln!()` instead of `println!()`
+- Monitor via probe-rs automatically
 
-**Problemas Comuns**:
+**Common Issues**:
 
-1. **WiFi não conecta**: Verificar credenciais em `.cargo/config.toml`
-2. **MQTT não publica**: Verificar IP do broker e firewall
-3. **BME280 não responde**: Verificar pinagem I2C (SDA=GPIO8, SCL=GPIO9)
-4. **Build falha**: Executar `cargo clean` e tentar novamente
+1. **WiFi doesn't connect**: Check credentials in `.cargo/config.toml`
+2. **MQTT doesn't publish**: Check broker IP and firewall
+3. **BME280 doesn't respond**: Check I2C pinout (SDA=GPIO8, SCL=GPIO9)
+4. **Build fails**: Run `cargo clean` and try again
 
-**Verificação de Hardware**:
+**Hardware Verification**:
 ```bash
-# Verificar se ESP32-C3 está conectado
+# Check if ESP32-C3 is connected
 probe-rs list
 
-# Verificar target Rust
+# Check Rust target
 rustup target list | grep riscv32imc
 ```
 
-### Estrutura de Debugging (RTT)
-O projeto utiliza RTT (Real-Time Transfer) para debugging em tempo real:
-- **rtt-target**: Output de logs via RTT
+### Debugging Structure (RTT)
+The project uses RTT (Real-Time Transfer) for real-time debugging:
+- **rtt-target**: Log output via RTT
 - **panic-rtt-target**: Panic handler via RTT  
-- **rprintln!()**: Macro para print via RTT (substitui println!)
+- **rprintln!()**: Macro for RTT print (replaces println!)
 
-### Configurações Base (blinky) → Embassy Migration
+### Base Configuration (blinky) → Embassy Migration
 
-**Dependências Atuais (blinky)**:
+**Current Dependencies (blinky)**:
 ```toml
 esp-hal = { version = "0.23.1", features = ["esp32c3"] }
 esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
@@ -375,7 +375,7 @@ rtt-target = "0.5"
 panic-rtt-target = "0.1"
 ```
 
-**Dependências Embassy (2025)**:
+**Embassy Dependencies (2025)**:
 ```toml
 # Base Embassy
 embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
@@ -396,65 +396,153 @@ esp-println = { version = "0.13.0", features = ["esp32c3", "log"] }
 embedded-hal-async = "1.0"
 ```
 
-### Principais Diferenças
-- **executor assíncrono** via embassy-executor
-- **timer assíncrono** via embassy-time  
-- **I2C assíncrono** via embedded-hal-async
-- **WiFi assíncrono** via esp-wifi com embassy-net
-- **integração** via esp-hal-embassy
+### Key Differences
+- **asynchronous executor** via embassy-executor
+- **asynchronous timer** via embassy-time  
+- **asynchronous I2C** via embedded-hal-async
+- **asynchronous WiFi** via esp-wifi with embassy-net
+- **integration** via esp-hal-embassy
 
-## Análise dos Exemplos Existentes
+## Development Conventions
 
-### 📚 Projeto simple-bme280-02 (Análise)
-**Estrutura encontrada**:
-- Driver BME280 customizado com embedded-hal 1.0
-- Implementação I2C síncrona usando esp-hal
-- Calibração básica (simplificada) dos sensores
-- Interface modular com I2cDevice wrapper
+### Commits
+- **DO NOT mention Claude Code** in commits
+- Commits should be written as if done manually
+- Focus on what was implemented and why
+- Concise and descriptive messages
 
-**Pontos Chave**:
-- Endereços I2C: 0x76 (primário), 0x77 (secundário)
-- Registradores: Temperature(0xFA), Pressure(0xF7), Humidity(0xFD)
-- Chip ID esperado: 0x60
-- GPIO configurado: SDA=GPIO8, SCL=GPIO9
+### Build and Debug Tools
+- **probe-rs**: Mandatory tool for flashing (not espflash)
+- **RTT**: Mandatory system for debugging (not esp-println)
+- **picocom**: For serial console access via /dev/ttyACM0
 
-### 🔍 Pesquisa Embassy (GitHub + 2025)
-**Projeto Referência**: `claudiomattera/esp32c3-embassy`
+### Documentation
+- **Mandatory README.md**: Every module MUST have a README.md file inside its folder
+- **Language**: ALL documentation must be written in **ENGLISH**
+- **Diagrams**: ALL diagrams must use **Mermaid** syntax (no ASCII art, no external tools)
+- **No Emojis**: NO emojis in code or documentation (use clear text labels instead)
+- **Exhaustive documentation**: The README.md must contain:
+  - Complete description of the module and its functionalities
+  - Installation and usage instructions
+  - Code examples and commands
+  - Hardware configuration (pinout, connections)
+  - Common problem troubleshooting
+  - Architecture and file structure
+  - Dependencies and available features
+- **Practical examples**: Include real usage sessions with commands and expected outputs
+- **Implementation status**: Clearly mark what is implemented and tested
+
+## Analysis of Existing Examples
+
+### 📚 simple-bme280-02 Project (Analysis)
+**Found structure**:
+- Custom BME280 driver with embedded-hal 1.0
+- Synchronous I2C implementation using esp-hal
+- Basic (simplified) sensor calibration
+- Modular interface with I2cDevice wrapper
+
+**Key Points**:
+- I2C addresses: 0x76 (primary), 0x77 (secondary)
+- Registers: Temperature(0xFA), Pressure(0xF7), Humidity(0xFD)
+- Expected Chip ID: 0x60
+- Configured GPIO: SDA=GPIO8, SCL=GPIO9
+
+### 🔍 Embassy Research (GitHub + 2025)
+**Reference Project**: `claudiomattera/esp32c3-embassy`
 - ESP32-C3 + BME280 + Embassy + I2C async
-- Dependências atualizadas para 2025
-- Implementação completa com deep sleep
+- Updated dependencies for 2025
+- Complete implementation with deep sleep
 - WiFi time synchronization
 
-**Dependências Embassy Validadas (2025)**:
+**Validated Embassy Dependencies (2025)**:
 - embassy-executor 0.7 + task-arena-size-20480
 - embassy-time 0.4.0  
 - esp-hal 0.23.1 + esp32c3 features
 - esp-hal-embassy 0.6 + esp32c3 features
 - embedded-hal-async 1.0
 
-## Implementação BME280 + Embassy
+## Complete Modular IoT System Implementation
 
-### 🌡️ Módulo bme280-embassy (Implementado)
-**Características**:
-- **Base**: Template blinky migrado para Embassy
+### 🌡️ bme280-embassy Module (Implemented)
+**Characteristics**:
+- **Base**: Blinky template migrated to Embassy
 - **Async Tasks**: Sensor reading + LED heartbeat
-- **I2C Async**: embedded-hal-async + bme280-rs crate
+- **Async I2C**: embedded-hal-async + bme280-rs crate
 - **Hardware**: GPIO8(SDA), GPIO9(SCL), GPIO3(LED)
-- **Timing**: Leituras a cada 2 segundos via embassy-time
+- **Timing**: Readings every 30 seconds for IoT integration
 
-**Arquitetura**:
+### 📡 wifi-embassy Module (Implemented)
+**Characteristics**:
+- **WiFi Management**: Robust connection with auto-reconnection
+- **Network Stack**: Complete TCP/UDP via Embassy networking
+- **DHCP Integration**: Automatic IP configuration
+- **Error Recovery**: Automatic retry on connection failures
+- **Tested Networks**: Home and enterprise WiFi environments
+
+### 📨 mqtt-embassy Module (Implemented)
+**Characteristics**:
+- **MQTT 3.1.1 Client**: Asynchronous broker communication
+- **JSON Publishing**: Structured sensor data transmission
+- **Message Types**: Sensor data, device status, heartbeat
+- **Broker Compatibility**: Mosquitto, AWS IoT, Azure IoT
+- **Automatic Reconnection**: Network failure recovery
+
+### 💻 serial-console-embassy Module (Implemented)
+**Characteristics**:
+- **USB Serial/JTAG Console**: Direct WeAct ESP32-C3 USB-C access
+- **Interactive Commands**: System monitoring and configuration
+- **Real-time Status**: Live module status and sensor readings
+- **No External Hardware**: Built-in USB Serial/JTAG controller
+- **Command Interface**: help, status, info, sensor, wifi, mqtt
+
+### 🚀 main-app Integrated System (Implemented)
+**Complete IoT System Architecture**:
+
+**Task Architecture**:
 ```rust
 #[embassy_executor::task]
-async fn sensor_task() - Leitura contínua BME280
+async fn sensor_task()        - BME280 readings every 30s
 #[embassy_executor::task] 
-async fn led_task() - LED heartbeat
+async fn wifi_task()          - WiFi connection management
+#[embassy_executor::task]
+async fn mqtt_task()          - MQTT publishing pipeline
+#[embassy_executor::task]
+async fn console_task()       - USB Serial/JTAG interface
+#[embassy_executor::task]
+async fn system_monitor_task() - Health monitoring
 #[esp_hal::main]
-async fn main() - Spawner + setup
+async fn main()               - Integrated system spawner
 ```
 
-### Padrões de Código Estabelecidos
-- **NO EMOJIS** em código de produção (apenas na documentação)
-- **esp-hal + Embassy** como stack padrão (não esp-idf)
-- **async/await** para todas operações I/O
-- **embedded-hal-async** para abstração de hardware
-- **Task separation** para responsabilidades distintas
+**Integration Features**:
+- **Shared State Management**: Thread-safe system status via Embassy Mutex
+- **Signal-based IPC**: Sensor data flows via Embassy Signal primitives
+- **Pluggable Modules**: All modules independently operable and testable
+- **Real-time Console**: Live system status through USB Serial/JTAG
+- **Fault Tolerance**: Individual module failures isolated
+- **Resource Coordination**: Shared I2C, USB, WiFi radio management
+
+**Data Flow Pipeline**:
+```
+BME280 → sensor_task() → SENSOR_DATA_SIGNAL → mqtt_task() → MQTT Broker
+   ↓
+System State ← console_task() ← SYSTEM_STATE ← All Tasks
+```
+
+**Inter-module Communication Patterns**:
+- **Embassy Signals**: Async data passing between tasks
+- **Shared Mutex State**: System status coordination across modules
+- **Event-driven Architecture**: Tasks respond to state changes
+- **Non-blocking Operations**: All operations fully asynchronous
+- **Resource Ownership**: Clear hardware peripheral allocation
+
+### Established Code Patterns
+- **NO EMOJIS** in production code (only in documentation)
+- **esp-hal + Embassy** as standard stack (not esp-idf)
+- **async/await** for all I/O operations
+- **embedded-hal-async** for hardware abstraction
+- **Task separation** for distinct responsibilities
+- **Pluggable Architecture**: Each module independently testable
+- **Signal-based IPC**: Embassy signals for inter-task communication
+- **Shared State Management**: Mutex-protected system coordination
+- **Resource Ownership**: Clear hardware resource allocation per module

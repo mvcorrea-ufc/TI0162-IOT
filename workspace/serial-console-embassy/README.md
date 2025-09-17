@@ -1,109 +1,130 @@
-# Serial Console Embassy - Console Serial Interativo
+# Serial Console Embassy - Interactive Serial Console
 
-## 💻 Descrição
+## 💻 Description
 
-Módulo de console serial interativo para ESP32-C3 usando o framework Embassy. Fornece uma interface de linha de comando via UART para configuração e monitoramento do sistema IoT, permitindo configuração dinâmica de credenciais WiFi, MQTT e visualização de status em tempo real.
+Interactive serial console module for ESP32-C3 using the Embassy framework. Provides a command-line interface via **USB Serial/JTAG** (direct access) or UART for IoT system configuration and monitoring, enabling dynamic configuration of WiFi credentials, MQTT settings, and real-time status visualization.
 
-**Status**: ✅ Implementado e testado
+**Supported Hardware**: WeAct ESP32-C3 via USB-C (no external converters required)
 
-## 🚀 Características
+**Status**: ✅ Implemented and tested
 
-- ✅ **Interface UART Assíncrona**: Console serial via UART0 a 115200 baud
-- ✅ **Sistema de Comandos**: Parser robusto com validação de comandos
-- ✅ **Configuração Dinâmica**: WiFi e MQTT configuráveis via comandos
-- ✅ **Monitoramento em Tempo Real**: Status de sistema e módulos
-- ✅ **Integração Embassy**: Async tasks para I/O não bloqueante
-- ✅ **Persistência**: Salvar/carregar configurações (preparado para flash)
-- ✅ **Modularidade**: Features opcionais para integração seletiva
+## 🚀 Features
 
-## 🔌 Hardware e Conexão
+- ✅ **USB Serial/JTAG Console**: Direct access via WeAct ESP32-C3 USB-C port
+- ✅ **Async UART Interface**: Alternative serial console via UART
+- ✅ **Command System**: Robust parser with command validation
+- ✅ **Dynamic Configuration**: WiFi and MQTT configurable via commands
+- ✅ **Real-time Monitoring**: System and module status display
+- ✅ **Embassy Integration**: Async tasks for non-blocking I/O
+- ✅ **Persistence**: Save/load configurations (prepared for flash storage)
+- ✅ **Modularity**: Optional features for selective integration
+- ✅ **Minimal Hardware**: No external USB-serial converters needed
 
-### Pinagem UART
+## 🔌 Hardware and Connection
+
+### WeAct ESP32-C3 USB-C
+**✅ PRIMARY SOLUTION**: Console accessible directly via USB-C port
+
 ```
-ESP32-C3        Conversor USB-Serial
+WeAct ESP32-C3    Host Computer
+--------------    -------------
+USB-C         <-> USB-C/USB-A
+                   /dev/ttyACM0 (Linux/macOS)
+                   COMx (Windows)
+```
+
+- **Interface**: USB Serial/JTAG (built-in)
+- **Access**: `/dev/ttyACM0` or equivalent COM port
+- **Speed**: 115200 baud
+- **Additional Hardware**: None required
+
+### Alternative UART Configuration (Optional)
+For development with external USB-serial converter:
+
+```
+ESP32-C3        USB-Serial Converter
 --------        -------------------
-GPIO1 (TX)  --> RX
-GPIO3 (RX)  <-- TX  
+GPIO20 (RX) <-- TX
+GPIO21 (TX) --> RX
 GND         --- GND
 ```
 
-### Configuração do Terminal
-- **Baud Rate**: 115200
-- **Data Bits**: 8
-- **Parity**: None
-- **Stop Bits**: 1
-- **Flow Control**: None
+## 🚀 Quick Start
 
-## 🚀 Uso Rápido
-
-### Instalação e Execução
+### Installation and Execution
 
 ```bash
-# Navegar para o módulo
+# Navigate to module
 cd serial-console-embassy/
 
-# Console básico (standalone)
+# ✅ USB Serial/JTAG Console (RECOMMENDED)
+cargo run --example direct_usb_console --release
+
+# Basic UART console (alternative)
 cargo run --example basic_console --release
 
-# Console com integração IoT completa
-cargo run --example system_console --features full --release
+# USB bridging console (experimental)
+cargo run --example usb_bridge_console --release
 
-# Console com features específicas
-cargo run --example system_console --features wifi,sensor --release
+# Complete IoT integration console
+cargo run --example system_console --features full --release
 ```
 
-### Conectar via Terminal Serial
+### Connect via Serial Terminal
 
 ```bash
-# Linux/macOS
-screen /dev/ttyUSB0 115200
-# ou
-minicom -D /dev/ttyUSB0 -b 115200
+# ✅ WeAct ESP32-C3 via USB-C (PRIMARY)
+picocom /dev/ttyACM0 -b 115200
+
+# Linux/macOS alternatives
+screen /dev/ttyACM0 115200
+minicom -D /dev/ttyACM0 -b 115200
 
 # Windows
 putty -serial COM3 -serspeed 115200
 ```
 
-## 📋 Comandos Disponíveis
+## 📋 Available Commands
 
-### Comandos de Sistema
+### System Commands
 ```bash
-help, h, ?          # Mostrar ajuda completa
-status, stat        # Status atual do sistema
-info, i             # Informações detalhadas do hardware
-clear, cls          # Limpar tela do terminal
-restart, reset      # Reiniciar sistema
+help, h, ?          # Show complete help
+status, stat        # Current system status
+info, i             # Detailed hardware information
+clear, cls          # Clear terminal screen
+restart, reset      # Restart system
 ```
 
-### Comandos WiFi
+### WiFi Commands
 ```bash
-wifi show           # Mostrar configuração atual
-wifi ssid <nome>    # Configurar SSID da rede
-wifi pass <senha>   # Configurar senha WiFi
+wifi show           # Show current configuration
+wifi ssid <name>    # Configure network SSID
+wifi pass <password> # Configure WiFi password
 ```
 
-### Comandos MQTT
+### MQTT Commands
 ```bash
-mqtt show           # Mostrar configuração MQTT
-mqtt broker <ip>    # Configurar IP do broker
-mqtt port <porta>   # Configurar porta (padrão: 1883)
-mqtt client <id>    # Configurar client ID
-mqtt prefix <pfx>   # Configurar prefixo dos tópicos
+mqtt show           # Show MQTT configuration
+mqtt broker <ip>    # Configure broker IP
+mqtt port <port>    # Configure port (default: 1883)
+mqtt client <id>    # Configure client ID
+mqtt prefix <prefix> # Configure topic prefix
 ```
 
-### Comandos de Configuração
+### Configuration Commands
 ```bash
-save                # Salvar configuração na flash
-load                # Carregar configuração da flash
+save                # Save configuration to flash
+load                # Load configuration from flash
 ```
 
-## 📊 Exemplo de Sessão
+## 📊 Session Example
 
 ```
-╔══════════════════════════════════════════════════════════════╗
-║              ESP32-C3 IoT System Console                     ║
-║                    Embassy Framework                         ║
-╚══════════════════════════════════════════════════════════════╝
++==============================================================+
+|              ESP32-C3 IoT System Console                     |
+|                    Embassy Framework                         |
+|                  Direct USB Serial/JTAG                      |
++==============================================================+
 
 Type 'help' for available commands
 
@@ -115,7 +136,7 @@ Sensor: Active
 
 esp32> wifi show
 === WiFi Configuration ===
-SSID: MinhaRedeWiFi
+SSID: MyNetworkWiFi
 Password: ********
 Status: Valid
 
@@ -126,8 +147,8 @@ Client ID: esp32-c3-console
 Topic Prefix: esp32
 Status: Valid
 
-esp32> wifi ssid NovaRede
-WiFi SSID set to: NovaRede
+esp32> wifi ssid NewNetwork
+WiFi SSID set to: NewNetwork
 
 esp32> save
 Configuration saved to flash
@@ -140,41 +161,65 @@ Build: Release
 Free Heap: 48KB
 ```
 
-## 🏗️ Arquitetura do Módulo
+## 🏗️ Module Architecture
 
-### Estrutura de Arquivos
+### File Structure
 
 ```
 serial-console-embassy/
 ├── src/
-│   ├── lib.rs              # Interface pública do módulo
-│   ├── console.rs          # Console UART assíncrono
-│   ├── commands.rs         # Parser e handler de comandos
-│   └── config.rs           # Estruturas de configuração
+│   ├── lib.rs              # Public module interface
+│   ├── console.rs          # Async UART console
+│   ├── commands.rs         # Command parser and handler
+│   └── config.rs           # Configuration structures
 ├── examples/
-│   ├── basic_console.rs    # Console básico standalone
-│   └── system_console.rs   # Console integrado com IoT
+│   ├── basic_console.rs          # Basic UART console
+│   ├── direct_usb_console.rs     # ✅ Direct USB Serial/JTAG console
+│   ├── simple_working_console.rs # Simple UART console for testing
+│   ├── usb_bridge_console.rs     # UART↔USB bridge console
+│   └── system_console.rs         # IoT-integrated console
 ├── .cargo/
-│   └── config.toml         # Configuração de build e env vars
-├── Cargo.toml              # Dependências e features
-└── README.md               # Esta documentação
+│   └── config.toml         # Build configuration and env vars
+├── Cargo.toml              # Dependencies and features
+└── README.md               # This documentation
 ```
 
-### Features Disponíveis
+### Available Implementations
+
+1. **`direct_usb_console.rs`** ✅ **RECOMMENDED**
+   - Direct console via ESP32-C3 USB Serial/JTAG
+   - Access at `/dev/ttyACM0` without additional hardware
+   - Complete command interface
+   - Tested and functional
+
+2. **`basic_console.rs`**
+   - Traditional console via UART
+   - Requires external USB-serial converter
+   - For development with additional hardware
+
+3. **`usb_bridge_console.rs`**
+   - Software bridge between UART and USB Serial/JTAG
+   - Experimental, for specific use cases
+
+4. **`system_console.rs`**
+   - Console integrated with WiFi/MQTT/BME280 modules
+   - Requires enabled features (`--features full`)
+
+### Available Features
 
 ```toml
 [features]
 default = []
-wifi = ["dep:wifi-embassy"]      # Integração com WiFi
-mqtt = ["dep:mqtt-embassy"]      # Integração com MQTT
-sensor = ["dep:bme280-embassy"]  # Integração com sensores
-usb = ["dep:embassy-usb"]        # Console via USB (futuro)
-full = ["wifi", "mqtt", "sensor"] # Todas as features
+wifi = ["dep:wifi-embassy"]      # WiFi integration
+mqtt = ["dep:mqtt-embassy"]      # MQTT integration
+sensor = ["dep:bme280-embassy"]  # Sensor integration
+usb = ["dep:embassy-usb"]        # USB console (future)
+full = ["wifi", "mqtt", "sensor"] # All features
 ```
 
-## 🔧 Configuração
+## 🔧 Configuration
 
-### Dependências Principais
+### Main Dependencies
 
 ```toml
 [dependencies]
@@ -192,7 +237,7 @@ heapless = "0.8"
 embedded-io-async = "0.6"
 ```
 
-### Ambiente de Desenvolvimento
+### Development Environment
 
 ```toml
 # .cargo/config.toml
@@ -203,96 +248,104 @@ MQTT_BROKER_IP = "192.168.1.100"
 MQTT_BROKER_PORT = "1883"
 ```
 
-## 📚 Integração com Outros Módulos
+## 📚 Integration with Other Modules
 
-### Com WiFi Embassy
+### With WiFi Embassy
 ```rust
 use wifi_embassy::{WiFiManager, WiFiConfig};
 use serial_console_embassy::SerialConsole;
 
-// Atualizar status WiFi no console
+// Update WiFi status in console
 console.update_system_status(true, false, true, Some("10.10.10.214")).await;
 ```
 
-### Com MQTT Embassy
+### With MQTT Embassy
 ```rust
 use mqtt_embassy::MqttClient;
 
-// Configurar MQTT via console e usar no cliente
+// Configure MQTT via console and use in client
 let config = console.get_config().await;
 let mqtt_client = MqttClient::new_from_console_config(&config.mqtt);
 ```
 
-### Com BME280 Embassy
+### With BME280 Embassy
 ```rust
 use bme280_embassy::BME280;
 
-// Monitorar sensor e reportar status
+// Monitor sensor and report status
 let sensor_active = bme280.check_id().await.is_ok();
 console.update_system_status(wifi_ok, mqtt_ok, sensor_active, ip).await;
 ```
 
 ## 🐛 Troubleshooting
 
-### Problemas Comuns
+### Common Issues
 
-1. **Console não responde**:
+1. **USB console doesn't appear at /dev/ttyACM0**:
    ```bash
-   # Verificar conexão serial
-   # Confirmar baud rate 115200
-   # Testar com diferentes terminais
+   # Check if USB-C is connected properly
+   # Try different USB ports
+   # Verify ESP32-C3 drivers on system
+   lsusb | grep -i esp
    ```
 
-2. **Caracteres não aparecem**:
+2. **Console doesn't respond**:
    ```bash
-   # Verificar TX/RX não invertidos
-   # Confirmar GND comum
-   # Testar cabo USB-serial
+   # Check if picocom is connected to correct port
+   # Confirm baud rate 115200
+   # Reset ESP32-C3 (reset button)
    ```
 
-3. **Build falha**:
+3. **Corrupted characters**:
+   ```bash
+   # Check terminal speed (115200)
+   # Test with different clients (screen, minicom, picocom)
+   # Verify USB-C cable
+   ```
+
+4. **Build fails**:
    ```bash
    cargo clean
-   cargo build --example basic_console --release
+   cargo build --example direct_usb_console --release
    ```
 
-4. **Features não disponíveis**:
+5. **Features not available**:
    ```bash
-   # Usar features corretas
+   # Use correct features
    cargo run --example system_console --features full --release
    ```
 
-### Debug do Console
+### Console Debug
 
 ```rust
-// Logs RTT para debug do console
+// RTT logs for console debugging
 rprintln!("[CONSOLE] Command received: {}", command);
 rprintln!("[CONSOLE] Status updated: WiFi={}, MQTT={}", wifi, mqtt);
 ```
 
-## 🔮 Extensões Futuras
+## 🔮 Future Extensions
 
-### Recursos Planejados
-- **Flash Storage**: Persistência real de configurações
-- **Command History**: Histórico de comandos com setas
-- **Auto-completion**: Completar comandos automaticamente
-- **USB Console**: Console via USB CDC em adição ao UART
-- **Web Console**: Interface web para comando remoto
-- **Scripting**: Execução de scripts de comandos
+### Planned Features
+- **Flash Storage**: Real configuration persistence
+- **Command History**: Command history with arrow keys
+- **Auto-completion**: Automatic command completion
+- **Web Console**: Web interface for remote command
+- **Scripting**: Command script execution
+- **Console Integration**: Complete integration with WiFi/MQTT modules
 
-### Comandos Adicionais
-- **log level**: Configurar nível de logging
-- **network scan**: Escanear redes WiFi disponíveis
-- **sensor calibrate**: Calibração manual de sensores
-- **system update**: Atualização OTA via console
+### Additional Commands
+- **log level**: Configure logging level
+- **network scan**: Scan available WiFi networks
+- **sensor calibrate**: Manual sensor calibration
+- **system update**: OTA update via console
 
-## 📄 Licença
+## 📄 License
 
 MIT OR Apache-2.0
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
 Marcelo Correa <mvcorrea@gmail.com>
 
-**Projeto TI0162 - Internet das Coisas**  
-**Console Serial Interativo para Sistema IoT ESP32-C3**
+**Project TI0162 - Internet of Things**  
+**Interactive Serial Console for ESP32-C3 IoT System**

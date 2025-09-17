@@ -1,60 +1,60 @@
-# BME280 Embassy - Sensor de Temperatura, Umidade e Pressão
+# BME280 Embassy - Temperature, Humidity and Pressure Sensor
 
-## 🌡️ Descrição
+## 🌡️ Description
 
-Módulo completo e funcional para leitura assíncrona do sensor BME280 usando o framework Embassy para ESP32-C3. Este módulo implementa um driver BME280 customizado com compensação de valores corrigida e calibração automática.
+Complete and functional module for asynchronous reading of the BME280 sensor using the Embassy framework for ESP32-C3. This module implements a custom BME280 driver with corrected value compensation and automatic calibration.
 
-**Status**: ✅ Implementado e testado
+**Status**: ✅ Implemented and tested
 
-## 🚀 Características
+## 🚀 Features
 
-- ✅ **Async/Await**: Todas operações I2C são assíncronas via Embassy
+- ✅ **Async/Await**: All I2C operations are asynchronous via Embassy
 - ✅ **Embassy Framework**: embassy-executor 0.7 + embassy-time 0.4
-- ✅ **ESP32-C3**: esp-hal v1.0.0-rc.0 com features unstable
-- ✅ **Calibração Automática**: Leitura e aplicação dos coeficientes de calibração
-- ✅ **Compensação Corrigida**: Algoritmos de compensação validados
-- ✅ **Dual Address**: Suporta endereços I2C 0x76 e 0x77
-- ✅ **RTT Debugging**: Output em tempo real via rtt-target
-- ✅ **LED Heartbeat**: Indicação visual de funcionamento
+- ✅ **ESP32-C3**: esp-hal v1.0.0-rc.0 with unstable features
+- ✅ **Automatic Calibration**: Reading and application of calibration coefficients
+- ✅ **Corrected Compensation**: Validated compensation algorithms
+- ✅ **Dual Address**: Supports I2C addresses 0x76 and 0x77
+- ✅ **RTT Debugging**: Real-time output via rtt-target
+- ✅ **LED Heartbeat**: Visual indication of operation
 
-## 🔌 Pinagem Hardware
+## 🔌 Hardware Pinout
 
 ```
 ESP32-C3        BME280
 --------        ------
-GPIO8    <-->   SDA (dados I2C)
-GPIO9    <-->   SCL (clock I2C)
-3.3V     <-->   VCC (alimentação)
-GND      <-->   GND (terra)
-GPIO3    <-->   LED (indicador status)
+GPIO8    <-->   SDA (I2C data)
+GPIO9    <-->   SCL (I2C clock)
+3.3V     <-->   VCC (power supply)
+GND      <-->   GND (ground)
+GPIO3    <-->   LED (status indicator)
 ```
 
-### 📋 Especificações BME280
+### 📋 BME280 Specifications
 
-- **Temperatura**: -40°C a +85°C (precisão ±1°C)
-- **Umidade**: 0-100% RH (precisão ±3%)
-- **Pressão**: 300-1100 hPa (precisão ±1 hPa)
-- **Endereços I2C**: 0x76 (primário), 0x77 (secundário)
-- **Frequência I2C**: 100kHz (padrão)
-- **Alimentação**: 3.3V
-- **Consumo**: ~3.4μA (modo sleep)
+- **Temperature**: -40°C to +85°C (accuracy ±1°C)
+- **Humidity**: 0-100% RH (accuracy ±3%)
+- **Pressure**: 300-1100 hPa (accuracy ±1 hPa)
+- **I2C Addresses**: 0x76 (primary), 0x77 (secondary)
+- **I2C Frequency**: 100kHz (standard)
+- **Power Supply**: 3.3V
+- **Consumption**: ~3.4μA (sleep mode)
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 bme280-embassy/
 ├── src/
-│   ├── main.rs          # Aplicação principal com Embassy tasks
-│   ├── lib.rs           # Módulo library
-│   ├── bme280.rs        # Driver BME280 async
-│   └── i2c_device.rs    # Wrapper I2C async
+│   ├── main.rs          # Main application with Embassy tasks
+│   ├── lib.rs           # Library module
+│   ├── bme280.rs        # Async BME280 driver
+│   └── i2c_device.rs    # Async I2C wrapper
 ├── examples/
-│   └── basic_reading.rs # Exemplo de teste do módulo
-├── Cargo.toml           # Dependências Embassy
-└── build.rs             # Configuração build ESP32-C3
+│   └── basic_reading.rs # Module test example
+├── Cargo.toml           # Embassy dependencies
+└── build.rs             # ESP32-C3 build configuration
 ```
 
-## Dependências
+## Dependencies
 
 ```toml
 # Base Embassy
@@ -69,45 +69,45 @@ esp-hal-embassy = { version = "0.6", features = ["esp32c3"] }
 embedded-hal-async = "1.0"
 ```
 
-## 🚀 Uso Rápido
+## 🚀 Quick Start
 
-### Pré-requisitos
+### Prerequisites
 
 ```bash
-# Instalar target Rust para ESP32-C3
+# Install Rust target for ESP32-C3
 rustup target add riscv32imc-unknown-none-elf
 
-# Instalar probe-rs para flash e debugging
+# Install probe-rs for flashing and debugging
 cargo install probe-rs --features cli
 
-# Verificar ESP32-C3 conectado
+# Verify ESP32-C3 connection
 probe-rs list
 ```
 
-### Comandos de Build
+### Build Commands
 
 ```bash
-# Navegar para o módulo
+# Navigate to the module
 cd bme280-embassy/
 
-# Build apenas (verificar compilação)
+# Build only (check compilation)
 cargo build --release
 
-# Build + Flash + Monitor (aplicação principal)
+# Build + Flash + Monitor (main application)
 cargo run --release
 
-# Build + Flash + Monitor (exemplo básico)
+# Build + Flash + Monitor (basic example)
 cargo run --example basic_reading --release
 
-# Limpeza de build
+# Build cleanup
 cargo clean
 
-# Verificação de código
+# Code verification
 cargo clippy
 cargo fmt
 ```
 
-### Saída Esperada
+### Expected Output
 
 ```
 BME280 Embassy: Initializing BME280 sensor...
@@ -117,24 +117,24 @@ BME280 Embassy: T: 23.1°C, H: 68.3%, P: 1013.9 hPa
 BME280 Embassy: T: 23.0°C, H: 68.7%, P: 1013.7 hPa
 ```
 
-## API do Módulo
+## Module API
 
 ### BME280 Driver
 
 ```rust
 use bme280_embassy::{BME280, Measurements};
 
-// Inicializar
+// Initialize
 let mut bme280 = BME280::new(&mut i2c);
 
-// Verificar sensor
+// Check sensor
 let detected = bme280.check_id().await?;
 
-// Ler dados processados
+// Read processed data
 let measurements = bme280.read_measurements().await?;
 println!("Temp: {:.2}°C", measurements.temperature);
 
-// Ler dados brutos
+// Read raw data
 let (temp, press, hum) = bme280.read_raw_data().await?;
 ```
 
@@ -147,74 +147,74 @@ async fn sensor_task(mut i2c: I2c<'static, esp_hal::peripherals::I2C0>) {
     
     loop {
         let data = bme280.read_measurements().await?;
-        // Processar dados...
+        // Process data...
         Timer::after(Duration::from_secs(2)).await;
     }
 }
 ```
 
-## Padrões de Desenvolvimento
+## Development Standards
 
-- **NO EMOJIS** no código de produção
-- **esp-hal + Embassy** como stack padrão  
-- **async/await** para todas operações I/O
-- **embedded-hal-async** para abstração
-- **Task separation** para responsabilidades
+- **NO EMOJIS** in production code
+- **esp-hal + Embassy** as standard stack  
+- **async/await** for all I/O operations
+- **embedded-hal-async** for abstraction
+- **Task separation** for responsibilities
 
 ## 🐛 Troubleshooting
 
-### Problemas Comuns
+### Common Issues
 
-1. **Sensor não responde (I2C timeout)**:
+1. **Sensor not responding (I2C timeout)**:
    ```bash
-   # Verificar pinagem
+   # Check pinout
    # GPIO8 = SDA, GPIO9 = SCL
-   # Verificar alimentação 3.3V
-   # Testar continuidade com multímetro
+   # Check 3.3V power supply
+   # Test continuity with multimeter
    ```
 
-2. **Valores de umidade incorretos (0-100%)**:
+2. **Incorrect humidity values (0-100%)**:
    ```bash
-   # Normal após correções implementadas
-   # Algoritmo de compensação foi corrigido
-   # Aguardar estabilização (~30 segundos)
+   # Normal after implemented corrections
+   # Compensation algorithm was fixed
+   # Wait for stabilization (~30 seconds)
    ```
 
-3. **Build falha**:
+3. **Build fails**:
    ```bash
    cargo clean
    rustup target add riscv32imc-unknown-none-elf
    cargo build --release
    ```
 
-4. **ESP32-C3 não conecta**:
+4. **ESP32-C3 doesn't connect**:
    ```bash
-   probe-rs list  # Verificar dispositivo
-   # Pressionar BOOT + RST se necessário
-   # Verificar cabo USB (dados, não apenas carga)
+   probe-rs list  # Check device
+   # Press BOOT + RST if necessary
+   # Check USB cable (data, not just charging)
    ```
 
-### Debug RTT
+### RTT Debug
 
 ```rust
-// Adicionar debug personalizado
+// Add custom debug
 rprintln!("BME280 Debug: Temp raw = {}", temp_raw);
 rprintln!("BME280 Debug: Calibration T1 = {}", cal_data.dig_t1);
 ```
 
-## 🔗 Integração com Outros Módulos
+## 🔗 Integration with Other Modules
 
-Este módulo pode ser integrado com:
+This module can be integrated with:
 
-- **wifi-embassy**: Para transmissão WiFi dos dados
-- **mqtt-embassy**: Para publicação MQTT dos sensores
-- **web-server**: Interface web para visualização
-- **main-app**: Aplicação IoT completa
+- **wifi-embassy**: For WiFi data transmission
+- **mqtt-embassy**: For MQTT sensor publishing
+- **web-server**: Web interface for visualization
+- **main-app**: Complete IoT application
 
-### Exemplo de Integração
+### Integration Example
 
 ```rust
-// Em main-app/src/main.rs
+// In main-app/src/main.rs
 use bme280_embassy::{BME280, Measurements};
 use wifi_embassy::WiFiManager;
 use mqtt_embassy::MqttClient;
@@ -227,10 +227,10 @@ async fn sensor_mqtt_task() {
 }
 ```
 
-## 📄 Licença
+## 📄 License
 
 MIT OR Apache-2.0
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
 Marcelo Correa <mvcorrea@gmail.com>

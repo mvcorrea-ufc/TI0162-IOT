@@ -1,88 +1,88 @@
-# WiFi Embassy - Conectividade WiFi Assíncrona
+# WiFi Embassy - Asynchronous WiFi Connectivity
 
-## 📡 Descrição
+## 📡 Description
 
-Módulo completo e funcional para conectividade WiFi usando o framework Embassy para ESP32-C3. Implementa conexão WiFi robusta com reconexão automática, aquisição DHCP e stack de rede completo para operações TCP/UDP.
+Complete and functional module for WiFi connectivity using the Embassy framework for ESP32-C3. Implements robust WiFi connection with automatic reconnection, DHCP acquisition, and complete network stack for TCP/UDP operations.
 
-**Status**: ✅ Implementado e testado
+**Status**: ✅ Implemented and tested
 
-## 🚀 Características
+## 🚀 Features
 
-- ✅ **Conectividade WiFi Robusta**: Conexão automática com lógica de retry
-- ✅ **Suporte DHCP**: Aquisição automática de endereço IP (testado: 10.10.10.214)
-- ✅ **Integração Embassy**: Suporte completo async/await com framework Embassy
-- ✅ **Reconexão Automática**: Gerencia desconexões de rede graciosamente
-- ✅ **Monitoramento de Conexão**: Verificação e relatório de status em tempo real
-- ✅ **Acesso Network Stack**: Fornece stack embassy-net para operações TCP/UDP
-- ✅ **Arquitetura Comprovada**: Baseado em exemplos funcionais do workspace
-- ✅ **Credenciais via Ambiente**: Configuração segura via .cargo/config.toml
+- ✅ **Robust WiFi Connectivity**: Automatic connection with retry logic
+- ✅ **DHCP Support**: Automatic IP address acquisition (tested: 10.10.10.214)
+- ✅ **Embassy Integration**: Complete async/await support with Embassy framework
+- ✅ **Automatic Reconnection**: Gracefully manages network disconnections
+- ✅ **Connection Monitoring**: Real-time status verification and reporting
+- ✅ **Network Stack Access**: Provides embassy-net stack for TCP/UDP operations
+- ✅ **Proven Architecture**: Based on functional examples from the workspace
+- ✅ **Environment Credentials**: Secure configuration via .cargo/config.toml
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-Este módulo segue os padrões estabelecidos de:
-- **bme280-embassy**: Inicialização de hardware e integração Embassy
-- **wifi-simple-embassy**: Design de API limpo e tratamento de erros
-- **wifi-simple-must-working**: Gerenciamento de conexão assíncrona comprovado
+This module follows the established patterns from:
+- **bme280-embassy**: Hardware initialization and Embassy integration
+- **wifi-simple-embassy**: Clean API design and error handling
+- **wifi-simple-must-working**: Proven asynchronous connection management
 
-### Estrutura do Projeto
+### Project Structure
 
 ```
 wifi-embassy/
 ├── src/
-│   ├── lib.rs              # Interface pública do módulo
-│   └── wifi_manager.rs     # Gerenciador WiFi principal
+│   ├── lib.rs              # Module public interface
+│   └── wifi_manager.rs     # Main WiFi manager
 ├── examples/
-│   ├── wifi_test.rs        # Teste básico de conectividade
-│   ├── wifi_test_new.rs    # Teste com informações detalhadas
-│   └── wifi_mqtt_test.rs   # Integração WiFi + MQTT completa
+│   ├── wifi_test.rs        # Basic connectivity test
+│   ├── wifi_test_new.rs    # Test with detailed information
+│   └── wifi_mqtt_test.rs   # Complete WiFi + MQTT integration
 ├── .cargo/
-│   └── config.toml         # Credenciais WiFi via variáveis de ambiente
-└── Cargo.toml              # Dependências Embassy
+│   └── config.toml         # WiFi credentials via environment variables
+└── Cargo.toml              # Embassy dependencies
 
-## ⚙️ Configuração
+## ⚙️ Configuration
 
-### Credenciais WiFi
+### WiFi Credentials
 
-Edite `.cargo/config.toml` para configurar suas credenciais:
+Edit `.cargo/config.toml` to configure your credentials:
 
 ```toml
 [env]
-WIFI_SSID = "SuaRedeWiFi"
-WIFI_PASSWORD = "SuaSenhaWiFi"
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
 ```
 
-## 🚀 Uso Rápido
+## 🚀 Quick Start
 
-### Pré-requisitos
+### Prerequisites
 
 ```bash
-# Instalar target Rust para ESP32-C3
+# Install Rust target for ESP32-C3
 rustup target add riscv32imc-unknown-none-elf
 
-# Instalar probe-rs
+# Install probe-rs
 cargo install probe-rs --features cli
 
-# Verificar dispositivo conectado
+# Verify connected device
 probe-rs list
 ```
 
-### Teste de Conectividade Básica
+### Basic Connectivity Test
 
 ```bash
-# Navegar para o módulo
+# Navigate to the module
 cd wifi-embassy/
 
-# Teste básico de WiFi
+# Basic WiFi test
 cargo run --example wifi_test --release
 
-# Teste com informações detalhadas de rede
+# Test with detailed network information
 cargo run --example wifi_test_new --release
 
-# Teste integrado WiFi + MQTT
+# Integrated WiFi + MQTT test
 cargo run --example wifi_mqtt_test --release
 ```
 
-### Uso Programático
+### Programmatic Usage
 
 ```rust
 use wifi_embassy::{WiFiManager, WiFiConfig};
@@ -90,16 +90,16 @@ use embassy_executor::Spawner;
 
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
-    // Inicializar ESP32-C3
+    // Initialize ESP32-C3
     let peripherals = esp_hal::init(esp_hal::Config::default());
     
-    // Configurar WiFi via variáveis de ambiente
+    // Configure WiFi via environment variables
     let wifi_config = WiFiConfig {
         ssid: env!("WIFI_SSID"),
         password: env!("WIFI_PASSWORD"),
     };
     
-    // Criar WiFi manager
+    // Create WiFi manager
     let wifi_manager = WiFiManager::new(
         spawner,
         peripherals.TIMG0,
@@ -108,17 +108,17 @@ async fn main(spawner: Spawner) {
         wifi_config,
     ).await?;
     
-    // WiFi conectado e pronto!
+    // WiFi connected and ready!
     let stack = wifi_manager.get_stack();
     
-    // Usar stack para operações TCP/UDP
+    // Use stack for TCP/UDP operations
 }
 ```
 
-### Monitoramento de Conexão
+### Connection Monitoring
 
 ```rust
-// Verificar status da conexão
+// Check connection status
 if let Some(connection_info) = wifi_manager.get_connection_info() {
     rprintln!("📍 IP Address: {}", connection_info.ip_address);
     rprintln!("🌐 Gateway: {:?}", connection_info.gateway);
@@ -126,7 +126,7 @@ if let Some(connection_info) = wifi_manager.get_connection_info() {
 }
 ```
 
-## 📊 Saída Esperada
+## 📊 Expected Output
 
 ```
 🚀 ESP32-C3 WiFi Embassy Test
@@ -142,41 +142,41 @@ if let Some(connection_info) = wifi_manager.get_connection_info() {
   🔧 Subnet: /24
 ```
 
-## 🔗 Integração com Outros Módulos
+## 🔗 Integration with Other Modules
 
-### Com BME280 Embassy
+### With BME280 Embassy
 
 ```rust
-// Inicializar WiFi e BME280 juntos
+// Initialize WiFi and BME280 together
 let wifi_manager = WiFiManager::new(/* params */).await?;
 let bme280 = BME280::new(&mut i2c);
 
-// Usar ambos módulos em conjunto
+// Use both modules together
 let stack = wifi_manager.get_stack();
 let measurements = bme280.read_measurements().await?;
 
-// Enviar dados do sensor via rede
+// Send sensor data via network
 ```
 
-### Network Stack para MQTT/HTTP
+### Network Stack for MQTT/HTTP
 
 ```rust
 let stack = wifi_manager.get_stack();
 
-// O stack pode ser usado com:
-// - embassy-net TcpSocket para clientes HTTP
-// - Clientes MQTT que aceitam embassy-net stack
-// - Aplicações TCP/UDP customizadas
+// The stack can be used with:
+// - embassy-net TcpSocket for HTTP clients
+// - MQTT clients that accept embassy-net stack
+// - Custom TCP/UDP applications
 ```
 
-## 📋 Requisitos de Hardware
+## 📋 Hardware Requirements
 
-- **ESP32-C3**: Microcontrolador alvo principal
-- **Rede WiFi**: Rede 2.4GHz (5GHz não suportada pelo ESP32-C3)
-- **Alimentação**: 3.3V estável
-- **Antena**: Antena PCB integrada ou externa
+- **ESP32-C3**: Main target microcontroller
+- **WiFi Network**: 2.4GHz network (5GHz not supported by ESP32-C3)
+- **Power Supply**: Stable 3.3V
+- **Antenna**: Integrated PCB antenna or external
 
-## 📦 Dependências
+## 📦 Dependencies
 
 ```toml
 [dependencies]
@@ -184,7 +184,7 @@ let stack = wifi_manager.get_stack();
 esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
 esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
 
-# WiFi Hardware e Network Stack
+# WiFi Hardware and Network Stack
 esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
 esp-alloc = { version = "0.8.0" }
 
@@ -196,70 +196,70 @@ embassy-time = { version = "0.4" }
 
 ## 🐛 Troubleshooting
 
-### Problemas Comuns
+### Common Issues
 
-1. **WiFi não conecta**:
+1. **WiFi doesn't connect**:
    ```bash
-   # Verificar credenciais em .cargo/config.toml
-   # Verificar se rede é 2.4GHz (não 5GHz)
-   # Confirmar SSID exato (case-sensitive)
+   # Check credentials in .cargo/config.toml
+   # Verify network is 2.4GHz (not 5GHz)
+   # Confirm exact SSID (case-sensitive)
    ```
 
-2. **DHCP falha**:
+2. **DHCP fails**:
    ```bash
-   # Verificar router/gateway funcionando
-   # Confirmar pool DHCP disponível
-   # Testar com dispositivo móvel primeiro
+   # Check router/gateway is working
+   # Confirm DHCP pool is available
+   # Test with mobile device first
    ```
 
-3. **Embassy time driver não inicializado**:
+3. **Embassy time driver not initialized**:
    ```bash
-   # Erro: schedule_wake called before esp_hal_embassy::init()
-   # Solução: Chamar esp_hal_embassy::init() antes de WiFiManager::new()
+   # Error: schedule_wake called before esp_hal_embassy::init()
+   # Solution: Call esp_hal_embassy::init() before WiFiManager::new()
    ```
 
-4. **Build falha**:
+4. **Build fails**:
    ```bash
    cargo clean
    cargo build --release
    ```
 
-### Debug WiFi
+### WiFi Debug
 
 ```rust
-// Adicionar debug detalhado
+// Add detailed debug
 rprintln!("WiFi Status: {:?}", wifi_controller.status());
 rprintln!("IP Config: {:?}", stack.config_v4());
 ```
 
-## 🔗 Integração Testada
+## 🔗 Tested Integration
 
-Este módulo foi testado e integra perfeitamente com:
+This module has been tested and integrates perfectly with:
 
-- **mqtt-embassy**: Publicação MQTT via WiFi (exemplo wifi_mqtt_test.rs)
-- **Mosquitto Broker**: Broker MQTT em 10.10.10.210:1883
-- **Network Stack**: embassy-net para TCP/UDP
+- **mqtt-embassy**: MQTT publishing via WiFi (example wifi_mqtt_test.rs)
+- **Mosquitto Broker**: MQTT broker at 10.10.10.210:1883
+- **Network Stack**: embassy-net for TCP/UDP
 
-### Exemplo de Integração MQTT
+### MQTT Integration Example
 
 ```rust
-// Exemplo funcional em examples/wifi_mqtt_test.rs
+// Functional example in examples/wifi_mqtt_test.rs
 let stack = wifi_manager.get_stack();
 let mut socket = TcpSocket::new(*stack, &mut rx_buffer, &mut tx_buffer);
 
-// Conectar ao broker MQTT
+// Connect to MQTT broker
 let broker_addr = ("10.10.10.210".parse().unwrap(), 1883);
 socket.connect(broker_addr).await?;
 
-// Publicar dados via MQTT
+// Publish data via MQTT
 let json_payload = format!(r#"{{"temperature":{:.1},"humidity":{:.1}}}"#, temp, hum);
 socket.write_all(&mqtt_publish_packet).await?;
 ```
 
-## 📄 Licença
+## 📄 License
 
 MIT OR Apache-2.0
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
 Marcelo Correa <mvcorrea@gmail.com>

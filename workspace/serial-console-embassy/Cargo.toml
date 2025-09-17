@@ -23,6 +23,7 @@ embedded-io-async = "0.6"
 # String processing and utilities
 heapless = "0.8"
 nb = "1.0"
+static_cell = "2.1"
 
 # Memory allocation
 esp-alloc = { version = "0.8.0" }
@@ -47,6 +48,18 @@ full = ["wifi", "mqtt", "sensor"]
 [[example]]
 name = "basic_console"
 path = "examples/basic_console.rs"
+
+[[example]]
+name = "simple_working_console"
+path = "examples/simple_working_console.rs"
+
+[[example]]
+name = "direct_usb_console"
+path = "examples/direct_usb_console.rs"
+
+[[example]]
+name = "usb_bridge_console"
+path = "examples/usb_bridge_console.rs"
 
 [[example]]
 name = "system_console"

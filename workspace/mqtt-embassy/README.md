@@ -1,41 +1,41 @@
-# MQTT Embassy - Cliente MQTT Assíncrono
+# MQTT Embassy - Asynchronous MQTT Client
 
-## 📨 Descrição
+## 📨 Description
 
-Módulo completo e funcional para cliente MQTT usando o framework Embassy para ESP32-C3. Implementa cliente MQTT assíncrono via Embassy TCP sockets com suporte a publicação JSON de dados de sensores, status e heartbeat.
+Complete and functional module for MQTT client using the Embassy framework for ESP32-C3. Implements asynchronous MQTT client via Embassy TCP sockets with support for JSON publication of sensor data, status, and heartbeat.
 
-**Status**: ✅ Implementado e testado
+**Status**: ✅ Implemented and tested
 
-## 🚀 Características
+## 🚀 Features
 
-- ✅ **Cliente MQTT Assíncrono**: Via Embassy TCP sockets
-- ✅ **Protocolo MQTT 3.1.1**: Implementação completa do protocolo
-- ✅ **Broker Configurável**: Suporte a broker via variáveis de ambiente (testado: 10.10.10.210:1883)
-- ✅ **Publicação JSON**: Dados estruturados de sensores, status e heartbeat
-- ✅ **Configuração via Ambiente**: Credenciais seguras via .cargo/config.toml
-- ✅ **Integração WiFi**: Funciona perfeitamente com wifi-embassy
-- ✅ **Reconexão Robusta**: Criação de nova conexão para cada ciclo de publicação
-- ✅ **Pipeline IoT Completo**: ESP32-C3 → WiFi → MQTT → Subscribers
+- ✅ **Asynchronous MQTT Client**: Via Embassy TCP sockets
+- ✅ **MQTT 3.1.1 Protocol**: Complete protocol implementation
+- ✅ **Configurable Broker**: Broker support via environment variables (tested: 10.10.10.210:1883)
+- ✅ **JSON Publication**: Structured sensor data, status, and heartbeat
+- ✅ **Environment Configuration**: Secure credentials via .cargo/config.toml
+- ✅ **WiFi Integration**: Works perfectly with wifi-embassy
+- ✅ **Robust Reconnection**: Creates new connection for each publication cycle
+- ✅ **Complete IoT Pipeline**: ESP32-C3 → WiFi → MQTT → Subscribers
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-### Estrutura do Projeto
+### Project Structure
 
 ```
 mqtt-embassy/
 ├── src/
-│   ├── lib.rs              # Interface pública do módulo
-│   ├── mqtt_client.rs      # Cliente MQTT principal
-│   └── message.rs          # Estruturas de mensagem JSON
+│   ├── lib.rs              # Module public interface
+│   ├── mqtt_client.rs      # Main MQTT client
+│   └── message.rs          # JSON message structures
 ├── examples/
-│   ├── mqtt_test.rs        # Teste básico MQTT
-│   └── mqtt_test_working.rs # Teste integrado com WiFi
+│   ├── mqtt_test.rs        # Basic MQTT test
+│   └── mqtt_test_working.rs # Integrated test with WiFi
 ├── .cargo/
-│   └── config.toml         # Configuração do broker via env vars
-└── Cargo.toml              # Dependências Embassy
+│   └── config.toml         # Broker configuration via env vars
+└── Cargo.toml              # Embassy dependencies
 ```
 
-### Fluxo de Dados
+### Data Flow
 
 ```
 ESP32-C3 → WiFi → MQTT Broker → Mosquitto Subscribers
@@ -43,16 +43,16 @@ ESP32-C3 → WiFi → MQTT Broker → Mosquitto Subscribers
    wifi-embassy        mqtt-embassy
 ```
 
-## ⚙️ Configuração
+## ⚙️ Configuration
 
-### Broker MQTT
+### MQTT Broker
 
-Edite `.cargo/config.toml` para configurar o broker:
+Edit `.cargo/config.toml` to configure the broker:
 
 ```toml
 [env]
-WIFI_SSID = "SuaRedeWiFi"
-WIFI_PASSWORD = "SuaSenhaWiFi"
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
 MQTT_BROKER_IP = "10.10.10.210"
 MQTT_BROKER_PORT = "1883"
 MQTT_CLIENT_ID = "esp32-c3-iot"
@@ -62,54 +62,54 @@ MQTT_TOPIC_PREFIX = "esp32"
 ### Mosquitto Broker
 
 ```bash
-# Instalar Mosquitto
+# Install Mosquitto
 sudo apt install mosquitto mosquitto-clients
 
-# Iniciar broker
+# Start broker
 sudo systemctl start mosquitto
 
-# Configurar para aceitar conexões remotas
+# Configure to accept remote connections
 sudo nano /etc/mosquitto/mosquitto.conf
-# Adicionar:
+# Add:
 # listener 1883 0.0.0.0
 # allow_anonymous true
 
-# Reiniciar
+# Restart
 sudo systemctl restart mosquitto
 ```
 
-## 🚀 Uso Rápido
+## 🚀 Quick Start
 
-### Pré-requisitos
+### Prerequisites
 
 ```bash
-# Instalar target Rust para ESP32-C3
+# Install Rust target for ESP32-C3
 rustup target add riscv32imc-unknown-none-elf
 
-# Instalar probe-rs
+# Install probe-rs
 cargo install probe-rs --features cli
 
-# Verificar dispositivo conectado
+# Check connected device
 probe-rs list
 
-# Verificar broker MQTT disponível
+# Check MQTT broker availability
 ping 10.10.10.210
 ```
 
-### Teste MQTT
+### MQTT Test
 
 ```bash
-# Navegar para o módulo
+# Navigate to module
 cd mqtt-embassy/
 
-# Terminal 1: Monitor MQTT (antes de executar o ESP32)
+# Terminal 1: MQTT Monitor (before running ESP32)
 mosquitto_sub -h 10.10.10.210 -p 1883 -t "esp32/#" -v
 
-# Terminal 2: Executar ESP32
+# Terminal 2: Run ESP32
 cargo run --example mqtt_test_working --features examples --release
 ```
 
-### Uso Programático
+### Programmatic Usage
 
 ```rust
 use mqtt_embassy::{MqttClient, MqttConfig, SensorData, DeviceStatus};
@@ -117,37 +117,37 @@ use wifi_embassy::WiFiManager;
 
 #[embassy_executor::task]
 async fn mqtt_task(wifi_manager: &'static WiFiManager) {
-    // Configurar MQTT
+    // Configure MQTT
     let mqtt_config = MqttConfig::default();
     let client = MqttClient::new(mqtt_config);
     
-    // Obter network stack do WiFi
+    // Get network stack from WiFi
     let stack = wifi_manager.get_stack();
     
-    // Criar dados do sensor
+    // Create sensor data
     let sensor_data = SensorData::new(23.5, 68.2, 1013.8);
     
-    // Buffers para conexão TCP
+    // Buffers for TCP connection
     let mut rx_buffer = [0u8; 1024];
     let mut tx_buffer = [0u8; 1024];
     
-    // Conectar e publicar
+    // Connect and publish
     match client.connect(stack, &mut rx_buffer, &mut tx_buffer).await {
         Ok(mut socket) => {
-            // Publicar dados do sensor
+            // Publish sensor data
             client.publish_sensor_data(&mut socket, &sensor_data).await?;
             
-            // Publicar heartbeat
+            // Publish heartbeat
             client.publish_heartbeat(&mut socket).await?;
         }
-        Err(e) => rprintln!("Erro MQTT: {}", e),
+        Err(e) => rprintln!("MQTT Error: {}", e),
     }
 }
 ```
 
-## 📊 Mensagens Publicadas
+## 📊 Published Messages
 
-### Dados do Sensor (esp32/sensor/bme280)
+### Sensor Data (esp32/sensor/bme280)
 
 ```json
 {
@@ -158,7 +158,7 @@ async fn mqtt_task(wifi_manager: &'static WiFiManager) {
 }
 ```
 
-### Status do Dispositivo (esp32/status)
+### Device Status (esp32/status)
 
 ```json
 {
@@ -175,9 +175,9 @@ async fn mqtt_task(wifi_manager: &'static WiFiManager) {
 ping
 ```
 
-## 📊 Saída Esperada
+## 📊 Expected Output
 
-### Console ESP32
+### ESP32 Console
 
 ```
 🚀 ESP32-C3 MQTT Embassy Test
@@ -209,31 +209,31 @@ esp32/heartbeat ping
 esp32/status {"status":"online","uptime":300,"free_heap":48000,"wifi_rssi":-38}
 ```
 
-## 🔗 Integração Testada
+## 🔗 Tested Integration
 
-### Com WiFi Embassy
+### With WiFi Embassy
 
-Exemplo funcional disponível em `wifi-embassy/examples/wifi_mqtt_test.rs`:
+Functional example available in `wifi-embassy/examples/wifi_mqtt_test.rs`:
 
 ```rust
-// Sistema completo WiFi + MQTT
+// Complete WiFi + MQTT system
 let wifi_manager = WiFiManager::new(/* params */).await?;
 let stack = wifi_manager.get_stack();
 
-// Publicação MQTT direta via TCP sockets
+// Direct MQTT publication via TCP sockets
 let mut socket = TcpSocket::new(*stack, &mut rx_buffer, &mut tx_buffer);
 let broker_addr = ("10.10.10.210".parse().unwrap(), 1883);
 socket.connect(broker_addr).await?;
 
-// Enviar MQTT CONNECT e PUBLISH
+// Send MQTT CONNECT and PUBLISH
 socket.write_all(&connect_packet).await?;
 socket.write_all(&publish_packet).await?;
 ```
 
-### Com BME280 Embassy
+### With BME280 Embassy
 
 ```rust
-// Integração com sensor real
+// Integration with real sensor
 let measurements = bme280.read_measurements().await?;
 let sensor_data = SensorData::new(
     measurements.temperature,
@@ -243,7 +243,7 @@ let sensor_data = SensorData::new(
 client.publish_sensor_data(&mut socket, &sensor_data).await?;
 ```
 
-## 📦 Dependências
+## 📦 Dependencies
 
 ```toml
 [dependencies]
@@ -251,7 +251,7 @@ client.publish_sensor_data(&mut socket, &sensor_data).await?;
 esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
 esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
 
-# WiFi Embassy (integração)
+# WiFi Embassy (integration)
 wifi-embassy = { path = "../wifi-embassy" }
 
 # Embassy Async Framework
@@ -259,7 +259,7 @@ embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
 embassy-time = { version = "0.4" }
 embedded-io-async = "0.6"
 
-# JSON e utilidades
+# JSON and utilities
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde-json-core = "0.6"
 heapless = "0.8"
@@ -267,77 +267,77 @@ heapless = "0.8"
 
 ## 🐛 Troubleshooting
 
-### Problemas Comuns
+### Common Issues
 
-1. **Broker MQTT não acessível**:
+1. **MQTT Broker not accessible**:
    ```bash
-   # Verificar conectividade
+   # Check connectivity
    ping 10.10.10.210
    telnet 10.10.10.210 1883
    
-   # Verificar configuração Mosquitto
+   # Check Mosquitto configuration
    sudo systemctl status mosquitto
    sudo journalctl -u mosquitto
    ```
 
-2. **Mensagens não aparecem no subscriber**:
+2. **Messages don't appear in subscriber**:
    ```bash
-   # Verificar formato do pacote MQTT
-   # Adicionar debug hex no código
+   # Check MQTT packet format
+   # Add hex debug in code
    rprintln!("MQTT Packet: {:02X?}", &publish_packet);
    
-   # Verificar tópicos
+   # Check topics
    mosquitto_sub -h 10.10.10.210 -t "#" -v
    ```
 
-3. **WiFi conectado mas MQTT falha**:
+3. **WiFi connected but MQTT fails**:
    ```bash
-   # Verificar stack de rede
+   # Check network stack
    let stack = wifi_manager.get_stack();
    rprintln!("Stack status: {:?}", stack.config_v4());
    ```
 
-4. **Build falha**:
+4. **Build fails**:
    ```bash
    cargo clean
    cargo build --example mqtt_test_working --features examples --release
    ```
 
-### Debug MQTT
+### MQTT Debug
 
 ```rust
-// Debug detalhado do protocolo MQTT
+// Detailed MQTT protocol debug
 rprintln!("MQTT CONNECT packet: {:02X?}", &connect_packet);
 rprintln!("MQTT PUBLISH packet: {:02X?}", &publish_packet[..20]);
 rprintln!("Socket state: {:?}", socket.state());
 ```
 
-## 📋 Especificações MQTT
+## 📋 MQTT Specifications
 
-- **Protocolo**: MQTT 3.1.1
+- **Protocol**: MQTT 3.1.1
 - **QoS**: 0 (Fire and forget)
 - **Retain**: false
-- **Keep Alive**: 60 segundos
+- **Keep Alive**: 60 seconds
 - **Clean Session**: true
-- **Client ID**: Configurável via env var
+- **Client ID**: Configurable via env var
 
-### Formato dos Pacotes
+### Packet Format
 
 ```
 CONNECT:  [0x10, length, protocol_name, version, flags, keep_alive, client_id]
 PUBLISH:  [0x30, length, topic_length, topic, payload]
 ```
 
-## 🔄 Ciclo de Publicação
+## 🔄 Publication Cycle
 
-1. **Sensor Data**: A cada 30 segundos
-2. **Heartbeat**: A cada 5 ciclos (2.5 minutos)
-3. **Device Status**: A cada 10 ciclos (5 minutos)
+1. **Sensor Data**: Every 30 seconds
+2. **Heartbeat**: Every 5 cycles (2.5 minutes)
+3. **Device Status**: Every 10 cycles (5 minutes)
 
-## 📄 Licença
+## 📄 License
 
 MIT OR Apache-2.0
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
 Marcelo Correa <mvcorrea@gmail.com>

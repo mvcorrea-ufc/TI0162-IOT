@@ -74,3 +74,6 @@ coverage.xml
 # Local development artifacts
 *.orig
 *.rej
+
+# Examples and reference projects (not part of main IoT system)
+examples/

@@ -3,7 +3,7 @@
 //! Defines the command structure and implements parsers for various
 //! system commands including help, status, configuration, etc.
 
-use heapless::{String, Vec};
+use heapless::String;
 use crate::config::{SystemConfig, MAX_SSID_LEN, MAX_PASSWORD_LEN, MAX_IP_LEN, MAX_HOSTNAME_LEN};
 
 /// Maximum number of command arguments
@@ -68,9 +68,15 @@ impl CommandHandler {
         }
         
         let mut parts = line.split_whitespace();
-        let cmd = parts.next().unwrap_or("").to_lowercase();
+        let cmd = parts.next().unwrap_or("");
+        // Create lowercase version manually (no_std compatible)
+        let mut cmd_lower = String::<32>::new();
+        for c in cmd.chars() {
+            let _ = cmd_lower.push(c.to_ascii_lowercase());
+        }
+        let cmd = cmd_lower.as_str();
         
-        match cmd.as_str() {
+        match cmd {
             "help" | "h" | "?" => Command::Help,
             "status" | "stat" => Command::Status,
             "info" | "i" => Command::Info,

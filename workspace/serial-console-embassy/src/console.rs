@@ -4,23 +4,25 @@
 //! management including configuration and monitoring capabilities.
 
 use embassy_sync::mutex::Mutex;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_time::{Duration, Timer};
 use embedded_io_async::{Read, Write};
-use heapless::{String, Vec};
+use heapless::String;
 use rtt_target::rprintln;
 
-use crate::commands::{CommandHandler, Command, MAX_CMD_LEN};
+use crate::commands::{CommandHandler, MAX_CMD_LEN};
 use crate::config::SystemConfig;
 
 /// Maximum input buffer size
+#[allow(dead_code)]
 const INPUT_BUFFER_SIZE: usize = 128;
 /// Command prompt string
 const PROMPT: &str = "esp32> ";
 
 /// Serial console manager
 pub struct SerialConsole {
-    command_handler: Mutex<CommandHandler>,
-    input_buffer: Mutex<String<MAX_CMD_LEN>>,
+    command_handler: Mutex<CriticalSectionRawMutex, CommandHandler>,
+    input_buffer: Mutex<CriticalSectionRawMutex, String<MAX_CMD_LEN>>,
 }
 
 impl SerialConsole {
@@ -187,12 +189,5 @@ where
     }
 }
 
-/// RTT console task for handling RTT input/output (alternative to UART)
-#[cfg(feature = "rtt-console")]
-pub async fn rtt_console_task(console: &SerialConsole) {
-    rprintln!("[CONSOLE] RTT console not implemented yet");
-    // Could implement RTT-based console here
-    loop {
-        Timer::after(Duration::from_secs(1)).await;
-    }
-}
+// RTT console functionality removed - use UART console instead
+// This was causing cfg warnings since rtt-console feature doesn't exist

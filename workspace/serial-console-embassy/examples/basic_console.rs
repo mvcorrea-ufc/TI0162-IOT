@@ -17,7 +17,7 @@ use rtt_target::{rprintln, rtt_init_print};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_hal::{
-    uart::{Uart, UartRx, UartTx, config::Config as UartConfig},
+    uart::{Uart, UartRx, UartTx, Config as UartConfig},
     timer::timg::TimerGroup,
     Async,
 };
@@ -77,10 +77,10 @@ async fn main(spawner: Spawner) {
     rprintln!("[CONSOLE] Embassy time driver initialized");
 
     // Configure UART for serial console (115200 baud)
-    let uart_config = UartConfig::default().baudrate(115200);
+    let uart_config = UartConfig::default();
     let uart = Uart::new(peripherals.UART0, uart_config).unwrap();
-    let (tx, rx) = uart.split();
-    let (tx, rx) = (tx.into_async(), rx.into_async());
+    let (uart_tx, uart_rx) = uart.split();
+    let (tx, rx) = (uart_tx.into_async(), uart_rx.into_async());
 
     rprintln!("[CONSOLE] UART configured at 115200 baud");
 
@@ -92,7 +92,7 @@ async fn main(spawner: Spawner) {
     rprintln!("[CONSOLE] Serial console created");
 
     // Spawn console and monitoring tasks
-    spawner.spawn(console_task(console, rx, tx)).ok();
+    spawner.spawn(console_task(console, tx, rx)).ok();
     spawner.spawn(system_monitor_task(console)).ok();
 
     rprintln!("[CONSOLE] Console tasks spawned");

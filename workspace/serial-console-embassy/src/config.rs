@@ -54,8 +54,16 @@ impl MqttConfig {
         Self {
             broker_ip: String::new(),
             broker_port: 1883,
-            client_id: String::from("esp32-c3"),
-            topic_prefix: String::from("esp32"),
+            client_id: {
+                let mut s = String::new();
+                let _ = s.push_str("esp32-c3");
+                s
+            },
+            topic_prefix: {
+                let mut s = String::new();
+                let _ = s.push_str("esp32");
+                s
+            },
         }
     }
     

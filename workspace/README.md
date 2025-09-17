@@ -1,91 +1,91 @@
-# TI0162 - Internet das Coisas - Projeto IoT Completo
+# TI0162 - Internet of Things - Complete IoT Project
 
-Este workspace contém um projeto IoT completo e funcional desenvolvido em Rust para ESP32-C3 usando o framework Embassy. O sistema implementa coleta de dados ambientais via sensor BME280, conectividade WiFi e transmissão MQTT, formando um pipeline IoT robusto e modular.
+This workspace contains a complete and functional IoT project developed in Rust for ESP32-C3 using the Embassy framework. The system implements environmental data collection via BME280 sensor, WiFi connectivity, and MQTT transmission, forming a robust and modular IoT pipeline.
 
-**Status do Projeto**: ✅ Sistema IoT totalmente funcional e operacional
+**Project Status**: ✅ Fully functional and operational IoT system
 
-## 🏗️ Arquitetura Modular Implementada
+## 🏗️ Implemented Modular Architecture
 
-### ✅ bme280-embassy/ - Sensor BME280 + Embassy
-**Status**: Implementado e testado  
-**Função**: Leitura assíncrona de temperatura, umidade e pressão  
-**Tecnologia**: Embassy async + I2C + BME280 customizado  
+### ✅ bme280-embassy/ - BME280 Sensor + Embassy
+**Status**: Implemented and tested  
+**Function**: Asynchronous reading of temperature, humidity, and pressure  
+**Technology**: Embassy async + I2C + custom BME280  
 **Hardware**: GPIO8(SDA), GPIO9(SCL), GPIO3(LED)  
-**Saída**: RTT debugging com valores compensados
+**Output**: RTT debugging with compensated values
 
-### ✅ wifi-embassy/ - Conectividade WiFi
-**Status**: Implementado e testado  
-**Função**: Conexão WiFi robusta com reconexão automática  
-**Tecnologia**: Embassy + esp-wifi + DHCP  
-**IP Testado**: 10.10.10.214  
-**Features**: Network stack completo para TCP/UDP
+### ✅ wifi-embassy/ - WiFi Connectivity
+**Status**: Implemented and tested  
+**Function**: Robust WiFi connection with automatic reconnection  
+**Technology**: Embassy + esp-wifi + DHCP  
+**Tested IP**: 10.10.10.214  
+**Features**: Complete network stack for TCP/UDP
 
-### ✅ mqtt-embassy/ - Cliente MQTT
-**Status**: Implementado e testado  
-**Função**: Publicação MQTT assíncrona via TCP sockets  
-**Tecnologia**: Embassy + protocolo MQTT 3.1.1  
-**Broker Testado**: 10.10.10.210:1883  
-**Mensagens**: JSON estruturado para sensores, status e heartbeat
+### ✅ mqtt-embassy/ - MQTT Client
+**Status**: Implemented and tested  
+**Function**: Asynchronous MQTT publishing via TCP sockets  
+**Technology**: Embassy + MQTT 3.1.1 protocol  
+**Tested Broker**: 10.10.10.210:1883  
+**Messages**: Structured JSON for sensors, status, and heartbeat
 
-### ✅ Sistema Integrado - Pipeline IoT Completo
-**Status**: Operacional e validado  
-**Fluxo**: ESP32-C3 → BME280 → WiFi → MQTT → Mosquitto → Subscribers  
-**Exemplo**: wifi-embassy/examples/wifi_mqtt_test.rs  
-**Periodicidade**: 30s sensor, 2.5min heartbeat, 5min status
+### ✅ Integrated System - Complete IoT Pipeline
+**Status**: Operational and validated  
+**Flow**: ESP32-C3 → BME280 → WiFi → MQTT → Mosquitto → Subscribers  
+**Example**: wifi-embassy/examples/wifi_mqtt_test.rs  
+**Periodicity**: 30s sensor, 2.5min heartbeat, 5min status
 
-## 🚀 Início Rápido - Sistema IoT Completo
+## 🚀 Quick Start - Complete IoT System
 
-### Pré-requisitos
+### Prerequisites
 
 ```bash
-# Instalar Rust + target ESP32-C3
+# Install Rust + ESP32-C3 target
 rustup target add riscv32imc-unknown-none-elf
 
-# Instalar probe-rs
+# Install probe-rs
 cargo install probe-rs --features cli
 
-# Verificar ESP32-C3 conectado
+# Verify ESP32-C3 connection
 probe-rs list
 ```
 
-### Configuração das Credenciais
+### Credentials Configuration
 
-Cada módulo possui `.cargo/config.toml` para configuração via variáveis de ambiente:
+Each module has `.cargo/config.toml` for configuration via environment variables:
 
 ```toml
-# Exemplo: wifi-embassy/.cargo/config.toml
+# Example: wifi-embassy/.cargo/config.toml
 [env]
-WIFI_SSID = "SuaRedeWiFi"
-WIFI_PASSWORD = "SuaSenhaWiFi"
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
 MQTT_BROKER_IP = "192.168.1.100"
 MQTT_BROKER_PORT = "1883"
 ```
 
-### Teste do Sistema Completo
+### Complete System Test
 
 ```bash
-# 1. Testar sensor BME280
+# 1. Test BME280 sensor
 cd bme280-embassy/
 cargo run --release
 
-# 2. Testar conectividade WiFi
+# 2. Test WiFi connectivity
 cd ../wifi-embassy/
 cargo run --example wifi_test_new --release
 
-# 3. Configurar broker MQTT
+# 3. Setup MQTT broker
 sudo apt install mosquitto mosquitto-clients
 sudo systemctl start mosquitto
 
-# 4. Monitor MQTT (terminal separado)
-mosquitto_sub -h [SEU_IP] -p 1883 -t "esp32/#" -v
+# 4. MQTT monitor (separate terminal)
+mosquitto_sub -h [YOUR_IP] -p 1883 -t "esp32/#" -v
 
-# 5. Sistema IoT completo
+# 5. Complete IoT system
 cargo run --example wifi_mqtt_test --release
 ```
 
-## 📊 Dados Publicados no MQTT
+## 📊 MQTT Published Data
 
-### Sensor BME280 (esp32/sensor/bme280)
+### BME280 Sensor (esp32/sensor/bme280)
 ```json
 {
   "temperature": 23.2,
@@ -95,7 +95,7 @@ cargo run --example wifi_mqtt_test --release
 }
 ```
 
-### Status do Dispositivo (esp32/status)
+### Device Status (esp32/status)
 ```json
 {
   "status": "online",
@@ -110,40 +110,40 @@ cargo run --example wifi_mqtt_test --release
 ping
 ```
 
-## 📂 Estrutura de Arquivos
+## 📂 File Structure
 
 ```
 workspace/
-├── bme280-embassy/          # 🌡️ Sensor de temperatura/umidade/pressão
-│   ├── src/                 # Driver BME280 customizado + Embassy
-│   ├── examples/            # Exemplos de leitura
-│   └── README.md           # Documentação detalhada
-├── wifi-embassy/            # 📡 Conectividade WiFi robusta
+├── bme280-embassy/          # 🌡️ Temperature/humidity/pressure sensor
+│   ├── src/                 # Custom BME280 driver + Embassy
+│   ├── examples/            # Reading examples
+│   └── README.md           # Detailed documentation
+├── wifi-embassy/            # 📡 Robust WiFi connectivity
 │   ├── src/                 # WiFi manager + Embassy network stack
-│   ├── examples/            # Testes WiFi + integração MQTT
-│   └── README.md           # Documentação detalhada
-├── mqtt-embassy/            # 📨 Cliente MQTT assíncrono
-│   ├── src/                 # Cliente MQTT + estruturas JSON
-│   ├── examples/            # Testes MQTT
-│   └── README.md           # Documentação detalhada
-├── examples/                # 📚 Projetos de referência externos
-├── blinky/                 # 🏗️ Template base (esp-hal básico)
-├── CLAUDE.md               # 📖 Documentação completa do projeto
-├── .gitignore              # Exclusões git (target/, logs, etc.)
-└── README.md               # Esta documentação
+│   ├── examples/            # WiFi tests + MQTT integration
+│   └── README.md           # Detailed documentation
+├── mqtt-embassy/            # 📨 Asynchronous MQTT client
+│   ├── src/                 # MQTT client + JSON structures
+│   ├── examples/            # MQTT tests
+│   └── README.md           # Detailed documentation
+├── examples/                # 📚 External reference projects
+├── blinky/                 # 🏗️ Base template (basic esp-hal)
+├── CLAUDE.md               # 📖 Complete project documentation
+├── .gitignore              # Git exclusions (target/, logs, etc.)
+└── README.md               # This documentation
 ```
 
-## 🛠️ Tecnologias e Dependências
+## 🛠️ Technologies and Dependencies
 
-### Stack Tecnológico Principal
-- **Linguagem**: Rust (stable)
+### Main Technology Stack
+- **Language**: Rust (stable)
 - **Target**: riscv32imc-unknown-none-elf (ESP32-C3)
-- **Framework Async**: Embassy (executor 0.7 + time 0.4)
+- **Async Framework**: Embassy (executor 0.7 + time 0.4)
 - **HAL**: esp-hal 1.0.0-rc.0 (ESP32-C3 unstable features)
 - **WiFi**: esp-wifi 0.15.0 + smoltcp network stack
 - **Debugging**: RTT (Real-Time Transfer) via rtt-target
 
-### Dependências por Módulo
+### Dependencies by Module
 
 #### BME280 Embassy
 ```toml
@@ -171,72 +171,72 @@ serde-json-core = "0.6"
 heapless = "0.8"
 ```
 
-## 📋 Requisitos de Hardware
+## 📋 Hardware Requirements
 
 ### ESP32-C3 DevKit
-- **Microcontrolador**: ESP32-C3 (RISC-V single-core 160MHz)
-- **Conectividade**: WiFi 2.4GHz (não suporta 5GHz)
-- **GPIO**: 22 pinos digitais disponíveis
-- **I2C**: GPIO8(SDA), GPIO9(SCL) para sensor BME280
-- **Alimentação**: 3.3V via USB ou fonte externa
-- **Flash**: 4MB mínimo recomendado
+- **Microcontroller**: ESP32-C3 (RISC-V single-core 160MHz)
+- **Connectivity**: WiFi 2.4GHz (does not support 5GHz)
+- **GPIO**: 22 available digital pins
+- **I2C**: GPIO8(SDA), GPIO9(SCL) for BME280 sensor
+- **Power**: 3.3V via USB or external supply
+- **Flash**: 4MB minimum recommended
 
-### Sensor BME280 (Opcional)
-- **Interface**: I2C (endereço 0x76 ou 0x77)
-- **Medições**: Temperatura (-40°C a +85°C), Umidade (0-100% RH), Pressão (300-1100 hPa)
-- **Precisão**: ±1°C (temp), ±3% (umidade), ±1 hPa (pressão)
-- **Alimentação**: 3.3V, ~3.4μA modo sleep
+### BME280 Sensor (Optional)
+- **Interface**: I2C (address 0x76 or 0x77)
+- **Measurements**: Temperature (-40°C to +85°C), Humidity (0-100% RH), Pressure (300-1100 hPa)
+- **Precision**: ±1°C (temp), ±3% (humidity), ±1 hPa (pressure)
+- **Power**: 3.3V, ~3.4μA sleep mode
 
-### Infraestrutura de Rede
-- **WiFi**: Rede 2.4GHz com DHCP habilitado
-- **MQTT Broker**: Mosquitto ou similar (testado: 10.10.10.210:1883)
-- **Monitoramento**: Cliente mosquitto_sub para visualizar mensagens
+### Network Infrastructure
+- **WiFi**: 2.4GHz network with DHCP enabled
+- **MQTT Broker**: Mosquitto or similar (tested: 10.10.10.210:1883)
+- **Monitoring**: mosquitto_sub client to view messages
 
-### Ambiente de Desenvolvimento
-- **SO**: Linux/macOS/Windows com suporte USB
+### Development Environment
+- **OS**: Linux/macOS/Windows with USB support
 - **Rust**: stable toolchain + target riscv32imc-unknown-none-elf
-- **Debugging**: probe-rs para flash e RTT
-- **USB**: Cabo de dados (não apenas carregamento)
+- **Debugging**: probe-rs for flash and RTT
+- **USB**: Data cable (not just charging)
 
-## 🔧 Comandos de Desenvolvimento
+## 🔧 Development Commands
 
-### Build e Flash (Todos os Módulos)
+### Build and Flash (All Modules)
 ```bash
-# Build debug (compilação mais rápida)
+# Debug build (faster compilation)
 cargo build
 
-# Build release (otimizado, recomendado para ESP32)
+# Release build (optimized, recommended for ESP32)
 cargo build --release
 
-# Flash + monitor RTT (aplicação principal)
+# Flash + RTT monitor (main application)
 cargo run --release
 
-# Flash + monitor RTT (exemplo específico)
-cargo run --example [NOME_EXEMPLO] --release
+# Flash + RTT monitor (specific example)
+cargo run --example [EXAMPLE_NAME] --release
 
-# Limpeza de artefatos
+# Clean artifacts
 cargo clean
 
-# Verificação de código
+# Code verification
 cargo clippy
 cargo fmt
 ```
 
-### Comandos Específicos por Módulo
+### Module-Specific Commands
 
 #### BME280 Embassy
 ```bash
 cd bme280-embassy/
-cargo run --release                         # App principal
-cargo run --example basic_reading --release # Teste básico
+cargo run --release                         # Main app
+cargo run --example basic_reading --release # Basic test
 ```
 
 #### WiFi Embassy
 ```bash
 cd wifi-embassy/
-cargo run --example wifi_test --release      # Teste básico WiFi
-cargo run --example wifi_test_new --release  # Teste detalhado
-cargo run --example wifi_mqtt_test --release # Sistema completo
+cargo run --example wifi_test --release      # Basic WiFi test
+cargo run --example wifi_test_new --release  # Detailed test
+cargo run --example wifi_mqtt_test --release # Complete system
 ```
 
 #### MQTT Embassy
@@ -245,28 +245,28 @@ cd mqtt-embassy/
 cargo run --example mqtt_test_working --features examples --release
 ```
 
-## 🔗 Padrões de Integração Implementados
+## 🔗 Implemented Integration Patterns
 
-### Sistema IoT Completo
-O projeto demonstra integração completa entre todos os módulos:
+### Complete IoT System
+The project demonstrates complete integration between all modules:
 
 ```rust
-// Exemplo funcional em wifi-embassy/examples/wifi_mqtt_test.rs
+// Functional example in wifi-embassy/examples/wifi_mqtt_test.rs
 
-// 1. Inicializar Embassy + WiFi
+// 1. Initialize Embassy + WiFi
 let wifi_manager = WiFiManager::new(spawner, /* ... */).await?;
 let stack = wifi_manager.get_stack();
 
-// 2. Criar dados do sensor (mock ou real BME280)
+// 2. Create sensor data (mock or real BME280)
 let temperature = 23.5;
 let humidity = 68.2;
 let pressure = 1013.8;
 
-// 3. Conectar ao broker MQTT
+// 3. Connect to MQTT broker
 let mut socket = TcpSocket::new(*stack, &mut rx_buffer, &mut tx_buffer);
 socket.connect(("10.10.10.210".parse().unwrap(), 1883)).await?;
 
-// 4. Publicar dados via MQTT
+// 4. Publish data via MQTT
 let json_payload = format!(
     r#"{{"temperature":{:.1},"humidity":{:.1},"pressure":{:.1}}}"#,
     temperature, humidity, pressure
@@ -274,7 +274,7 @@ let json_payload = format!(
 socket.write_all(&mqtt_publish_packet).await?;
 ```
 
-### Padrões de Código Estabelecidos
+### Established Code Patterns
 
 #### Embassy Async Tasks
 ```rust
@@ -289,180 +289,180 @@ async fn sensor_task() {
 
 #[embassy_executor::task]
 async fn mqtt_task(wifi_manager: &'static WiFiManager) {
-    // Publicação MQTT periódica
+    // Periodic MQTT publishing
 }
 ```
 
-#### Configuração via Ambiente
+#### Environment Configuration
 ```rust
-const WIFI_SSID: &str = env!("WIFI_SSID", "Configure em .cargo/config.toml");
+const WIFI_SSID: &str = env!("WIFI_SSID", "Configure in .cargo/config.toml");
 const MQTT_BROKER: &str = env!("MQTT_BROKER_IP", "192.168.1.100");
 ```
 
-#### Error Handling Robusto
+#### Robust Error Handling
 ```rust
 match socket.connect(broker_addr).await {
-    Ok(()) => rprintln!("✅ Conectado ao broker"),
+    Ok(()) => rprintln!("✅ Connected to broker"),
     Err(e) => {
-        rprintln!("❌ Falha na conexão: {:?}", e);
-        return; // Retry no próximo ciclo
+        rprintln!("❌ Connection failed: {:?}", e);
+        return; // Retry on next cycle
     }
 }
 ```
 
 ## 🐛 Troubleshooting
 
-### Problemas Comuns e Soluções
+### Common Problems and Solutions
 
-#### Hardware e Conectividade
-1. **ESP32-C3 não conecta**:
+#### Hardware and Connectivity
+1. **ESP32-C3 won't connect**:
    ```bash
-   probe-rs list  # Deve mostrar o dispositivo
-   # Se não aparecer: verificar cabo USB (dados), pressionar BOOT+RST
+   probe-rs list  # Should show the device
+   # If not shown: check USB cable (data), press BOOT+RST
    ```
 
-2. **WiFi não conecta**:
+2. **WiFi won't connect**:
    ```bash
-   # Verificar credenciais em .cargo/config.toml
-   # Confirmar rede 2.4GHz (ESP32-C3 não suporta 5GHz)
-   # Testar SSID case-sensitive
+   # Check credentials in .cargo/config.toml
+   # Confirm 2.4GHz network (ESP32-C3 doesn't support 5GHz)
+   # Test case-sensitive SSID
    ```
 
-3. **DHCP falha**:
+3. **DHCP fails**:
    ```bash
-   # Verificar router funcionando
-   # Confirmar pool DHCP disponível
-   # Testar conectividade com outro dispositivo
+   # Check router functioning
+   # Confirm available DHCP pool
+   # Test connectivity with another device
    ```
 
-#### Desenvolvimento e Build
-4. **Build falha**:
+#### Development and Build
+4. **Build fails**:
    ```bash
    cargo clean
    rustup target add riscv32imc-unknown-none-elf
    cargo build --release
    ```
 
-5. **Embassy time driver erro**:
+5. **Embassy time driver error**:
    ```bash
-   # Erro: schedule_wake called before esp_hal_embassy::init()
-   # Solução: Chamar esp_hal_embassy::init() antes de WiFiManager::new()
+   # Error: schedule_wake called before esp_hal_embassy::init()
+   # Solution: Call esp_hal_embassy::init() before WiFiManager::new()
    ```
 
-#### MQTT e Rede
-6. **MQTT broker inacessível**:
+#### MQTT and Network
+6. **MQTT broker unreachable**:
    ```bash
    ping 10.10.10.210
    telnet 10.10.10.210 1883
    sudo systemctl status mosquitto
    ```
 
-7. **Mensagens MQTT não aparecem**:
+7. **MQTT messages don't appear**:
    ```bash
-   # Verificar tópicos: mosquitto_sub -h [BROKER] -t "#" -v
-   # Debug packet format no código ESP32
+   # Check topics: mosquitto_sub -h [BROKER] -t "#" -v
+   # Debug packet format in ESP32 code
    ```
 
-### Estratégias de Debug
+### Debug Strategies
 
 #### RTT Debugging
 ```rust
-// Adicionar debug detalhado
+// Add detailed debug
 rprintln!("WiFi Status: {:?}", wifi_status);
 rprintln!("IP Config: {:?}", stack.config_v4());
 rprintln!("MQTT Packet: {:02X?}", &packet[..20]);
 ```
 
-#### Teste Modular
+#### Modular Testing
 ```bash
-# 1. Verificar hardware básico
+# 1. Check basic hardware
 cd blinky/ && cargo run --release
 
-# 2. Testar sensor (se disponível)
+# 2. Test sensor (if available)
 cd ../bme280-embassy/ && cargo run --release
 
-# 3. Testar WiFi isoladamente
+# 3. Test WiFi in isolation
 cd ../wifi-embassy/ && cargo run --example wifi_test_new --release
 
-# 4. Sistema completo
+# 4. Complete system
 cargo run --example wifi_mqtt_test --release
 ```
 
-#### Monitor de Rede
+#### Network Monitor
 ```bash
-# Terminal 1: Monitor MQTT
+# Terminal 1: MQTT Monitor
 mosquitto_sub -h 10.10.10.210 -p 1883 -t "esp32/#" -v
 
-# Terminal 2: Executar ESP32
+# Terminal 2: Run ESP32
 cd wifi-embassy/
 cargo run --example wifi_mqtt_test --release
 
-# Terminal 3: Monitor de conectividade
-ping 10.10.10.214  # IP do ESP32
+# Terminal 3: Connectivity monitor
+ping 10.10.10.214  # ESP32 IP
 ```
 
-## 📈 Performance e Otimização
+## 📈 Performance and Optimization
 
-### Build e Runtime
-- **Release obrigatório**: Sempre usar `--release` para ESP32-C3 (builds debug são muito lentos)
-- **Heap allocation**: 72KB configurado para WiFi operations
-- **RTT minimal overhead**: Debugging RTT tem impacto mínimo na performance
-- **Network stack**: Operations são síncronas por design para compatibilidade MQTT
+### Build and Runtime
+- **Release mandatory**: Always use `--release` for ESP32-C3 (debug builds are very slow)
+- **Heap allocation**: 72KB configured for WiFi operations
+- **RTT minimal overhead**: RTT debugging has minimal performance impact
+- **Network stack**: Operations are synchronous by design for MQTT compatibility
 
-### Timing do Sistema IoT
-- **Sensor data**: Publicação a cada 30 segundos
-- **Heartbeat**: A cada 2.5 minutos (5 ciclos)
-- **Device status**: A cada 5 minutos (10 ciclos)
-- **WiFi reconnect**: Automático em caso de desconexão
-- **MQTT reconnect**: Nova conexão TCP a cada ciclo (robusto)
+### IoT System Timing
+- **Sensor data**: Publishing every 30 seconds
+- **Heartbeat**: Every 2.5 minutes (5 cycles)
+- **Device status**: Every 5 minutes (10 cycles)
+- **WiFi reconnect**: Automatic on disconnection
+- **MQTT reconnect**: New TCP connection each cycle (robust)
 
-## 🔮 Expansão Futura
+## 🔮 Future Expansion
 
-### Módulos Planejados
-- **web-server**: Interface web para monitoramento em tempo real
-- **main-app**: Aplicação final integrando todos os módulos
-- **sensor-advanced**: Múltiplos sensores I2C/SPI
-- **ble-simple**: Conectividade Bluetooth Low Energy como backup
+### Planned Modules
+- **web-server**: Web interface for real-time monitoring
+- **main-app**: Final application integrating all modules
+- **sensor-advanced**: Multiple I2C/SPI sensors
+- **ble-simple**: Bluetooth Low Energy connectivity as backup
 
-### Melhorias Potenciais
-- **Persistent MQTT**: Conexões MQTT persistentes (vs. reconnect a cada ciclo)
-- **Deep Sleep**: Economia de energia entre leituras
-- **OTA Updates**: Atualizações over-the-air
-- **Data buffering**: Buffer local para casos de desconexão temporária
-- **Time sync**: Sincronização de tempo via NTP
-- **TLS/SSL**: Conexões seguras MQTT
+### Potential Improvements
+- **Persistent MQTT**: Persistent MQTT connections (vs. reconnect each cycle)
+- **Deep Sleep**: Power saving between readings
+- **OTA Updates**: Over-the-air updates
+- **Data buffering**: Local buffer for temporary disconnection cases
+- **Time sync**: Time synchronization via NTP
+- **TLS/SSL**: Secure MQTT connections
 
-## 🎯 Status do Projeto
+## 🎯 Project Status
 
-### ✅ Implementado e Testado
-- [x] Sensor BME280 com compensação corrigida
-- [x] WiFi connectivity robusta com DHCP
-- [x] Cliente MQTT completo com JSON
-- [x] Pipeline IoT end-to-end funcional
-- [x] Documentação completa de todos os módulos
-- [x] Exemplos funcionais para cada componente
+### ✅ Implemented and Tested
+- [x] BME280 sensor with corrected compensation
+- [x] Robust WiFi connectivity with DHCP
+- [x] Complete MQTT client with JSON
+- [x] End-to-end functional IoT pipeline
+- [x] Complete documentation of all modules
+- [x] Functional examples for each component
 
-### 📊 Resultados Validados
-- **Hardware**: ESP32-C3 DevKit funcionando perfeitamente
-- **Sensor**: BME280 com leituras precisas (T: 23°C, H: 68%, P: 1013hPa)
-- **WiFi**: Conexão estável com IP 10.10.10.214
-- **MQTT**: Mensagens entregues com sucesso ao broker 10.10.10.210:1883
-- **Subscribers**: mosquitto_sub recebendo dados JSON estruturados
+### 📊 Validated Results
+- **Hardware**: ESP32-C3 DevKit working perfectly
+- **Sensor**: BME280 with accurate readings (T: 23°C, H: 68%, P: 1013hPa)
+- **WiFi**: Stable connection with IP 10.10.10.214
+- **MQTT**: Messages successfully delivered to broker 10.10.10.210:1883
+- **Subscribers**: mosquitto_sub receiving structured JSON data
 
-### 🏆 Objetivos Alcançados
-1. **Modularidade**: Cada componente funciona independentemente
-2. **Robustez**: Sistema resiliente a desconexões e falhas
-3. **Escalabilidade**: Arquitetura preparada para expansão
-4. **Documentação**: READMEs detalhados em cada módulo
-5. **Testabilidade**: Exemplos funcionais para validação
+### 🏆 Achieved Objectives
+1. **Modularity**: Each component works independently
+2. **Robustness**: System resilient to disconnections and failures
+3. **Scalability**: Architecture prepared for expansion
+4. **Documentation**: Detailed READMEs in each module
+5. **Testability**: Functional examples for validation
 
-## 📄 Licença
+## 📄 License
 
 MIT OR Apache-2.0
 
-## 👨‍💻 Autor
+## 👨‍💻 Author
 
 Marcelo Correa <mvcorrea@gmail.com>
 
-**Projeto TI0162 - Internet das Coisas**  
-**Sistema IoT Completo com ESP32-C3 + Rust + Embassy**
+**Project TI0162 - Internet of Things**  
+**Complete IoT System with ESP32-C3 + Rust + Embassy**

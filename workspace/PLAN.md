@@ -1,90 +1,90 @@
-# TI0162 - Internet das Coisas - Plano de Execução
+# TI0162 - Internet of Things - Execution Plan
 
-## Status do Projeto: 🚀 Em Desenvolvimento
+## Project Status: 🚀 In Development
 
-## Tasks Concluídas ✅
+## Completed Tasks ✅
 
-1. **Setup Inicial do Projeto**
-   - Clone do repositório base rust-esp32-tmpl
-   - Definição do projeto `blinky` como base de implementação
-   - Criação da estrutura de documentação (CLAUDE.md, PLAN.md)
-   - Definição da arquitetura modular baseada em blinky
+1. **Initial Project Setup**
+   - Clone of base repository rust-esp32-tmpl
+   - Definition of `blinky` project as implementation base
+   - Creation of documentation structure (CLAUDE.md, PLAN.md)
+   - Definition of modular architecture based on blinky
 
-## Tasks em Andamento 🔄
+## Tasks in Progress 🔄
 
-*Nenhuma task em andamento no momento*
+*No tasks in progress at the moment*
 
-## Tasks Pendentes 📋
+## Pending Tasks 📋
 
-2. **Módulo BME280 - Implementação**
-   - Criar diretório `bme280-module/` baseado na estrutura do `blinky`
-   - Copiar configuração base (Cargo.toml, build.rs) do projeto blinky
-   - Implementar driver BME280 usando Embassy sobre esp-hal
-   - Configurar I2C para comunicação com sensor
-   - Implementar leitura de temperatura, umidade e pressão
-   - Integrar com sistema RTT para debugging
-   - Criar estruturas de dados para os valores do sensor
+2. **BME280 Module - Implementation**
+   - Create `bme280-module/` directory based on `blinky` structure
+   - Copy base configuration (Cargo.toml, build.rs) from blinky project
+   - Implement BME280 driver using Embassy over esp-hal
+   - Configure I2C for sensor communication
+   - Implement temperature, humidity and pressure readings
+   - Integrate with RTT system for debugging
+   - Create data structures for sensor values
 
-3. **Módulo BME280 - Validação**
-   - Criar aplicação de teste para BME280
-   - Implementar saída dos valores no console
-   - Verificar precisão das leituras
-   - Documentar interface do módulo
+3. **BME280 Module - Validation**
+   - Create test application for BME280
+   - Implement value output to console
+   - Verify reading accuracy
+   - Document module interface
 
-4. **Módulo WiFi - Implementação**
-   - Criar diretório `wifi-module/`
-   - Implementar conexão WiFi usando Embassy
-   - Configurar conexão a access point local
-   - Implementar gestão de reconexão automática
+4. **WiFi Module - Implementation**
+   - Create `wifi-module/` directory
+   - Implement WiFi connection using Embassy
+   - Configure connection to local access point
+   - Implement automatic reconnection management
 
-5. **Módulo WiFi - Validação**
-   - Verificar aquisição de endereço IP via DHCP
-   - Implementar teste de ping para validar conectividade
-   - Criar logs de status da conexão
-   - Documentar configuração de rede
+5. **WiFi Module - Validation**
+   - Verify IP address acquisition via DHCP
+   - Implement ping test to validate connectivity
+   - Create connection status logs
+   - Document network configuration
 
-6. **Servidor Web - Implementação**
-   - Criar diretório `web-server/`
-   - Implementar servidor HTTP básico
-   - Criar página HTML para exibição dos dados BME280
-   - Integrar dados do sensor com interface web
+6. **Web Server - Implementation**
+   - Create `web-server/` directory
+   - Implement basic HTTP server
+   - Create HTML page to display BME280 data
+   - Integrate sensor data with web interface
 
-7. **Módulo MQTT - Implementação**
-   - Criar diretório `mqtt-module/`
-   - Implementar cliente MQTT usando Embassy
-   - Configurar conexão ao broker Mosquitto
-   - Implementar serialização JSON dos dados
+7. **MQTT Module - Implementation**
+   - Create `mqtt-module/` directory
+   - Implement MQTT client using Embassy
+   - Configure connection to Mosquitto broker
+   - Implement JSON serialization of data
 
-8. **Módulo MQTT - Validação**
-   - Configurar envio automático a cada 10 segundos
-   - Testar conectividade com broker
-   - Validar formato dos dados enviados
-   - Implementar handling de erros de conexão
+8. **MQTT Module - Validation**
+   - Configure automatic sending every 10 seconds
+   - Test connectivity with broker
+   - Validate format of sent data
+   - Implement connection error handling
 
-## Próximas Expansões 🔮
+## Future Expansions 🔮
 
-- Implementação de novos sensores
-- Dashboard web avançado
-- Armazenamento local de dados
+- Implementation of new sensors
+- Advanced web dashboard
+- Local data storage
 - OTA updates
-- Modos de baixo consumo
+- Low power modes
 
-## Notas de Desenvolvimento 📝
+## Development Notes 📝
 
-**Base de Implementação - Projeto `blinky`:**
-- Utilizar esp-hal v0.23.1 como HAL base
-- Manter estrutura RTT para debugging (rprintln!)
-- Copiar configurações base (Cargo.toml, build.rs)
-- Preservar inicialização de periféricos do esp-hal
+**Implementation Base - `blinky` Project:**
+- Use esp-hal v0.23.1 as base HAL
+- Maintain RTT structure for debugging (rprintln!)
+- Copy base configurations (Cargo.toml, build.rs)
+- Preserve esp-hal peripheral initialization
 
-**Desenvolvimento Modular:**
-- Cada módulo deve ser independente e reutilizável
-- Usar async/await extensively com Embassy sobre esp-hal
-- Implementar error handling robusto
-- Manter logging estruturado via RTT para debugging
-- Seguir convenções de código Rust
+**Modular Development:**
+- Each module should be independent and reusable
+- Use async/await extensively with Embassy over esp-hal
+- Implement robust error handling
+- Maintain structured logging via RTT for debugging
+- Follow Rust code conventions
 
-**Configuração Padrão Herdada:**
+**Inherited Standard Configuration:**
 ```toml
 [dependencies]
 esp-hal = { version = "0.23.1", features = ["esp32c3"] }
@@ -96,5 +96,5 @@ panic-rtt-target = "0.1"
 
 ---
 
-**Última atualização**: 2025-09-12  
-**Próxima revisão**: Após conclusão do módulo BME280
+**Last update**: 2025-09-12  
+**Next review**: After BME280 module completion
