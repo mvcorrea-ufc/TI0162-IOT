@@ -7,31 +7,31 @@ description = "WiFi connectivity module using Embassy async framework for ESP32-
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# ESP32-C3 Hardware Abstraction Layer (based on working examples)
-esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
-esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+# ESP32-C3 Hardware Abstraction Layer - from workspace
+esp-hal = { workspace = true }
+esp-hal-embassy = { workspace = true }
 
-# WiFi Hardware and Network Stack (from working wifi-simple-embassy)
-esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
-esp-alloc = { version = "0.8.0" }
+# WiFi Hardware and Network Stack - from workspace
+esp-wifi = { workspace = true }
+esp-alloc = { workspace = true }
 
-# Embassy Async Framework (from working examples)
-embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
-embassy-net = { version = "0.7", features = ["tcp", "udp", "dhcpv4", "medium-ethernet"] }
-embassy-time = { version = "0.4" }
+# Embassy Async Framework - from workspace
+embassy-executor = { workspace = true }
+embassy-net = { workspace = true }
+embassy-time = { workspace = true }
 
-# Static allocation and utilities
-static_cell = "2.0"
-heapless = "0.8"
+# Static allocation and utilities - from workspace
+static_cell = { workspace = true }
+heapless = { workspace = true }
 
-# For JSON formatting in MQTT example
-serde = { version = "1.0", default-features = false, optional = true }
-serde-json-core = { version = "0.6", optional = true }
-embedded-io-async = "0.6"
+# For JSON formatting in MQTT example - from workspace
+serde = { workspace = true, optional = true }
+serde-json-core = { workspace = true, optional = true }
+embedded-io-async = { workspace = true }
 
-# RTT debugging (following bme280-embassy pattern)
-rtt-target = "0.5"
-panic-rtt-target = "0.1"
+# RTT debugging - from workspace
+rtt-target = { workspace = true }
+panic-rtt-target = { workspace = true }
 
 [lib]
 name = "wifi_embassy"

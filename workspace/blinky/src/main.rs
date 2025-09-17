@@ -5,7 +5,7 @@ use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
 use esp_hal::{
     delay::Delay,
-    gpio::{Level, Output},
+    gpio::{Level, Output, OutputConfig},
     main,
 };
 
@@ -19,7 +19,7 @@ fn main() -> ! {
     rprintln!("esp32-c3 is booting!");
 
     // Set GPIO8 as an output, and set its state low initially.
-    let mut led = Output::new(peripherals.GPIO8, Level::Low);
+    let mut led = Output::new(peripherals.GPIO8, Level::Low, OutputConfig::default());
 
     led.set_high();
 

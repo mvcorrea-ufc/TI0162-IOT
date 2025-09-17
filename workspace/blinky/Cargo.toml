@@ -6,9 +6,14 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-esp-hal = { version = "0.23.1", features = ["esp32c3"] }
-esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
+# ESP32-C3 Hardware Abstraction Layer - from workspace
+esp-hal = { workspace = true }
+esp-rom-sys = { workspace = true }
+
+# Debugging - from workspace
+rtt-target = { workspace = true }
+panic-rtt-target = { workspace = true }
+
+# Legacy logging
 defmt = "0.3"
-rtt-target = "0.5"
-panic-rtt-target = "0.1"
 

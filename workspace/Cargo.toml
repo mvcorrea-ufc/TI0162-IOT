@@ -10,50 +10,55 @@ members = [
 ]
 
 [workspace.dependencies]
-# ESP32-C3 Hardware Abstraction Layer - 2025 best practices (ESP32-C3 has native atomics)
-esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3"] }
+# ESP32-C3 Hardware Abstraction Layer - WORKING VERSION (portable-atomic fixed!)
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
 esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
 
-# Embassy Async Framework
-embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
-embassy-time = { version = "0.4" }
-embassy-sync = { version = "0.7" }
-embassy-futures = { version = "0.1" }
+# Embassy Async Framework - EXACT WORKING VERSIONS with explicit features
+embassy-executor = { version = "0.7", default-features = false, features = ["task-arena-size-20480"] }
+embassy-time = { version = "0.4", default-features = false }
+embassy-sync = { version = "0.7.2", default-features = false }
+embassy-futures = { version = "0.1.2", default-features = false }
 
-# Critical section resolver - unified across workspace 
-critical-section = { version = "1.2", features = ["restore-state-u8"] }
+# Network and WiFi - for MQTT/WiFi modules (force compatible versions)
+embassy-net = { version = "0.7.1", default-features = false, features = ["proto-ipv4", "medium-ethernet", "tcp", "udp", "dhcpv4"] }
+smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
+esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
 
 # UART and async I/O
-embedded-io-async = "0.6"
-embedded-hal-async = "1.0"
+embedded-io-async = { version = "0.6" }
+embedded-hal-async = { version = "1.0" }
 
 # String processing and utilities
-heapless = "0.8"
-nb = "1.0"
-static_cell = "2.1"
+heapless = { version = "0.8" }
+static_cell = { version = "2.1" }
+nb = { version = "1.0" }
 
 # Memory allocation
 esp-alloc = { version = "0.8.0" }
 
-# Debugging and panic handling
-rtt-target = "0.5"
-panic-rtt-target = "0.1"
+# Debugging and panic handling - RTT standardized
+rtt-target = { version = "0.5" }
+panic-rtt-target = { version = "0.1" }
 
 # BME280 sensor
-bme280-rs = { version = "0.4", features = ["async"] }
+bme280-rs = { version = "0.3", features = ["async"] }
 
-# Serde for JSON serialization
+# JSON serialization for MQTT
 serde = { version = "1.0", default-features = false, features = ["derive"] }
-serde_json = { version = "1.0", default-features = false }
+serde-json-core = { version = "0.6" }
 
-# Network and WiFi (updated for main-app compatibility)
-embassy-net = { version = "0.7", features = ["tcp", "udp", "dhcpv4", "medium-ethernet"] }
-smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
+# Additional utilities
+critical-section = { version = "1.2", default-features = false }
+
+# Force portable-atomic configuration for ESP32-C3 (explicit features for single-core)
+portable-atomic = { version = "1.11", default-features = false, features = ["unsafe-assume-single-core"] }
 
 [workspace.metadata.esp-hal-settings]
 esp32c3_direct_boot = true
 
-# Unified profiles at workspace level to avoid warnings
+# Unified profiles at workspace level
 [profile.dev]
 opt-level = "z"
 debug = true
@@ -64,4 +69,3 @@ debug = false
 lto = true
 codegen-units = 1
 panic = "abort"
-

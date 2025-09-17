@@ -3,49 +3,52 @@ name = "main-app"
 version = "1.0.0"
 authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
 edition = "2021"
-description = "IoT Environmental Monitoring System - BME280 sensor with WiFi/MQTT Integration for ESP32-C3"
+description = "IoT Environmental Monitoring System - Complete ESP32-C3 Integration"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# Local IoT modules - all integrated
+# Local IoT modules - complete integration
 bme280-embassy = { path = "../bme280-embassy" }
 wifi-embassy = { path = "../wifi-embassy" }
 mqtt-embassy = { path = "../mqtt-embassy" }
 serial-console-embassy = { path = "../serial-console-embassy" }
 
-# ESP32-C3 Hardware Abstraction Layer - use workspace versions
+# ESP32-C3 Hardware Abstraction Layer - from workspace
 esp-hal = { workspace = true }
 esp-hal-embassy = { workspace = true }
+esp-rom-sys = { workspace = true }
 
-# Embassy Async Framework - use workspace versions
+# Embassy Async Framework - from workspace
 embassy-executor = { workspace = true }
 embassy-time = { workspace = true }
 embassy-sync = { workspace = true }
 embassy-futures = { workspace = true }
 
-# Critical section resolver will be resolved automatically by Embassy
+# Network and connectivity - from workspace
+embassy-net = { workspace = true }
+smoltcp = { workspace = true }
 
-# UART and async I/O - use workspace versions
+# I2C and async I/O - from workspace
 embedded-io-async = { workspace = true }
+embedded-hal-async = { workspace = true }
 
-# String processing and utilities - use workspace versions
+# String processing and utilities - from workspace
 heapless = { workspace = true }
-nb = { workspace = true }
 static_cell = { workspace = true }
 
-# Memory allocation - use workspace version
+# Memory allocation - from workspace
 esp-alloc = { workspace = true }
 
-# Debugging and panic handling - use workspace versions
+# JSON serialization for MQTT - from workspace
+serde = { workspace = true }
+serde-json-core = { workspace = true }
+
+# Debugging and panic handling - from workspace
 rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
 
-# Real WiFi and networking for pilot deployment (ESP32-C3 with critical-section atomics)
-esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
-embassy-net = { version = "0.7", features = ["tcp", "udp", "dhcpv4", "medium-ethernet"] }
-smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
-
-# portable-atomic will use patched version from workspace root
+# Force portable-atomic override (ESP32-C3 compatibility)
+portable-atomic = { workspace = true }
 
 [[bin]]
 name = "main"

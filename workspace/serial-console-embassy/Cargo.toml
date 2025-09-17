@@ -7,30 +7,30 @@ description = "Serial console interface for ESP32-C3 IoT system configuration an
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# ESP32-C3 Hardware Abstraction Layer
-esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
-esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+# ESP32-C3 Hardware Abstraction Layer - from workspace
+esp-hal = { workspace = true }
+esp-hal-embassy = { workspace = true }
 
-# Embassy Async Framework
-embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
-embassy-time = { version = "0.4" }
-embassy-sync = { version = "0.7" }
+# Embassy Async Framework - from workspace
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
+embassy-sync = { workspace = true }
 
-# UART and async I/O
+# UART and async I/O - from workspace
 embassy-usb = { version = "0.4", optional = true }
-embedded-io-async = "0.6"
+embedded-io-async = { workspace = true }
 
-# String processing and utilities
-heapless = "0.8"
-nb = "1.0"
-static_cell = "2.1"
+# String processing and utilities - from workspace
+heapless = { workspace = true }
+nb = { workspace = true }
+static_cell = { workspace = true }
 
-# Memory allocation
-esp-alloc = { version = "0.8.0" }
+# Memory allocation - from workspace
+esp-alloc = { workspace = true }
 
-# Debugging and panic handling
-rtt-target = "0.5"
-panic-rtt-target = "0.1"
+# Debugging and panic handling - from workspace
+rtt-target = { workspace = true }
+panic-rtt-target = { workspace = true }
 
 # Integration with other modules
 wifi-embassy = { path = "../wifi-embassy", optional = true }

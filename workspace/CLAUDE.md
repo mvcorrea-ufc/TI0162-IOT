@@ -499,7 +499,7 @@ embedded-hal-async = "1.0"
 ### 🚀 main-app Integrated System (Implementation Complete)
 **Complete IoT System Architecture - Real Hardware Implementation**:
 
-⚠️ **Known Build Issue (2025)**: ESP32-C3 `portable-atomic` dependency conflict with `unsafe-assume-single-core` feature being enabled by transitive dependencies while ESP32-C3 supports native atomic CAS operations. Implementation is complete but build blocked by ecosystem dependency conflict.
+✅ **Build Issue Resolved (2025)**: ESP32-C3 `portable-atomic` dependency conflict successfully resolved through workspace-level dependency management, explicit feature configuration, and proper target rustflags. Complete system now builds successfully via standardized workspace configuration.
 
 **Task Architecture**:
 ```rust
@@ -521,10 +521,11 @@ async fn main()               - Integrated system spawner
 - **Real Hardware Integration**: Actual BME280 I2C sensor communication
 - **Real Network Connectivity**: WiFi radio and TCP socket MQTT publishing
 - **Production Error Handling**: Automatic reconnection and fault recovery
-- **Environment Configuration**: WiFi and MQTT settings via config files
+- **Environment Configuration**: WiFi and MQTT settings via workspace .cargo/config.toml
 - **Zero Mock Data**: All sensor readings and network operations are real
 - **Live System Monitoring**: Real-time status via USB Serial/JTAG console
-- **Clean Build**: Zero warnings, zero compilation errors
+- **Clean Build**: Zero warnings, zero compilation errors through workspace standardization
+- **Workspace Dependency Management**: All modules use consistent esp-hal 1.0.0-rc.0 and embassy versions
 
 **Real Data Flow Pipeline**:
 ```
@@ -550,3 +551,103 @@ Real BME280 Hardware → I2C GPIO8/9 → sensor_task() → Embassy Signal → mq
 - **Signal-based IPC**: Embassy signals for inter-task communication
 - **Shared State Management**: Mutex-protected system coordination
 - **Resource Ownership**: Clear hardware resource allocation per module
+
+## ESP32-C3 portable-atomic Dependency Conflict Resolution (2025)
+
+### Problem Description
+ESP32-C3 projects using Embassy framework experienced a critical build error:
+```
+error: `portable_atomic_unsafe_assume_single_core` cfg (`unsafe-assume-single-core` feature) is not compatible with target that supports atomic CAS
+```
+
+This occurred due to Cargo workspace feature unification conflicts where different modules had incompatible portable-atomic feature requirements.
+
+### Root Cause Analysis
+1. **Target Confusion**: Rust compiler incorrectly detected ESP32-C3 as supporting atomic CAS operations
+2. **Workspace Feature Unification**: Cargo unified all portable-atomic features across workspace members, creating conflicts
+3. **Missing Target Configuration**: Workspace lacked proper ESP32-C3 target configuration and rustflags
+4. **Embassy Version Conflicts**: Different embassy crate versions enabled conflicting portable-atomic features
+
+### Working Solution Implementation
+
+#### 1. Workspace-Level Dependency Standardization
+File: `workspace/Cargo.toml`
+```toml
+[workspace.dependencies]
+# ESP32-C3 Hardware Abstraction Layer - WORKING VERSION (portable-atomic fixed!)
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+
+# Embassy Async Framework - EXACT WORKING VERSIONS with explicit features
+embassy-executor = { version = "0.7", default-features = false, features = ["task-arena-size-20480"] }
+embassy-time = { version = "0.4", default-features = false }
+embassy-sync = { version = "0.7.2", default-features = false }
+embassy-futures = { version = "0.1.2", default-features = false }
+
+# Network and WiFi - for MQTT/WiFi modules (force compatible versions)
+embassy-net = { version = "0.7.1", default-features = false, features = ["proto-ipv4", "medium-ethernet", "tcp", "udp", "dhcpv4"] }
+
+# Force portable-atomic configuration for ESP32-C3 (explicit features for single-core)
+portable-atomic = { version = "1.11", default-features = false, features = ["unsafe-assume-single-core"] }
+```
+
+#### 2. Target Configuration with Rustflags
+File: `workspace/.cargo/config.toml`
+```toml
+[target.riscv32imc-unknown-none-elf]
+runner = "probe-rs run --chip=esp32c3 --preverify --always-print-stacktrace --no-location --catch-hardfault"
+
+[build]
+target = "riscv32imc-unknown-none-elf"
+rustflags = [
+    "-C", "force-frame-pointers",
+    "--cfg", "portable_atomic_unsafe_assume_single_core"
+]
+
+[unstable]
+build-std = ["core"]
+
+[env]
+# WiFi Configuration
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
+
+# MQTT Configuration  
+MQTT_BROKER_IP = "10.10.10.210"
+MQTT_BROKER_PORT = "1883"
+MQTT_CLIENT_ID = "esp32-c3-iot-system"
+MQTT_TOPIC_PREFIX = "esp32"
+```
+
+#### 3. Module Dependency Updates
+All workspace members updated to use workspace dependencies:
+```toml
+[dependencies]
+esp-hal = { workspace = true }
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
+embassy-sync = { workspace = true }
+portable-atomic = { workspace = true }
+```
+
+### Key Success Factors
+1. **Exact Version Matching**: Using precise versions that were proven to work individually
+2. **Explicit Feature Control**: Disabling default features and explicitly enabling only required ones
+3. **Rustflag Configuration**: Adding `--cfg portable_atomic_unsafe_assume_single_core` to force proper configuration
+4. **Workspace Centralization**: Managing all dependencies at workspace level to prevent version conflicts
+5. **Target-Specific Settings**: Proper ESP32-C3 target configuration in .cargo/config.toml
+
+### Build Verification
+```bash
+# Test individual modules
+cargo build -p blinky --release
+cargo build -p bme280-embassy --release
+cargo build -p wifi-embassy --release
+cargo build -p mqtt-embassy --release
+cargo build -p serial-console-embassy --release
+
+# Test complete integrated system
+cargo build -p main-app --release
+```
+
+All builds now succeed with zero warnings and zero compilation errors.

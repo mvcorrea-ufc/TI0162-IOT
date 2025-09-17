@@ -6,28 +6,27 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# Use workspace versions to avoid conflicts
+# ESP32-C3 Hardware Abstraction Layer - from workspace
 esp-hal = { workspace = true }
 esp-hal-embassy = { workspace = true }
+esp-rom-sys = { workspace = true }
 
-# Embassy framework from workspace
+# Embassy framework - from workspace
 embassy-executor = { workspace = true }
 embassy-time = { workspace = true }
 
-# Debugging from workspace
+# I2C Async Support - from workspace
+embedded-hal-async = { workspace = true }
+
+# BME280 sensor - from workspace
+bme280-rs = { workspace = true }
+
+# Debugging - from workspace
 rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
 
-# I2C Async Support from workspace
-embedded-hal-async = { workspace = true }
-
 # Legacy dependencies (will be phased out)
 defmt = "0.3"
-esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
-esp-println = { version = "0.13.0", features = ["esp32c3"] }
-esp-backtrace = { version = "0.15.0", features = ["esp32c3", "panic-handler", "exception-handler", "println"] }
-
-
 
 [[example]]
 name = "basic_reading"
