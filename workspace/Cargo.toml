@@ -10,12 +10,9 @@ members = [
 ]
 
 [workspace.dependencies]
-# ESP32-C3 Hardware Abstraction Layer - latest versions
-esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+# ESP32-C3 Hardware Abstraction Layer - 2025 best practices (ESP32-C3 has native atomics)
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3"] }
 esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
-
-# Override portable-atomic to disable single-core assumption for ESP32-C3
-portable-atomic = { version = "1.11", default-features = false }
 
 # Embassy Async Framework
 embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }

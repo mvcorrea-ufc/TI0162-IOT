@@ -496,8 +496,10 @@ embedded-hal-async = "1.0"
 - **No External Hardware**: Built-in USB Serial/JTAG controller
 - **Command Interface**: help, status, info, sensor, wifi, mqtt
 
-### 🚀 main-app Integrated System (Pilot Ready)
+### 🚀 main-app Integrated System (Implementation Complete)
 **Complete IoT System Architecture - Real Hardware Implementation**:
+
+⚠️ **Known Build Issue (2025)**: ESP32-C3 `portable-atomic` dependency conflict with `unsafe-assume-single-core` feature being enabled by transitive dependencies while ESP32-C3 supports native atomic CAS operations. Implementation is complete but build blocked by ecosystem dependency conflict.
 
 **Task Architecture**:
 ```rust

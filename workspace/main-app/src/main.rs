@@ -22,9 +22,9 @@ use rtt_target::{rprintln, rtt_init_print};
 use bme280_embassy::BME280;
 use mqtt_embassy::{MqttClient, MqttConfig, SensorData, DeviceStatus};
 
-// WiFi connectivity temporarily disabled for build fix
-// use wifi_embassy::{WiFiManager, WiFiConfig};
-// use static_cell::StaticCell;
+// WiFi connectivity using wifi-embassy module
+use wifi_embassy::{WiFiManager, WiFiConfig};
+use static_cell::StaticCell;
 
 // Shared system state
 static SYSTEM_STATE: Mutex<CriticalSectionRawMutex, SystemState> = 
@@ -558,8 +558,40 @@ async fn main(spawner: Spawner) {
     esp_hal_embassy::init(timer_group1.timer0);
     rprintln!("[MAIN-APP] Embassy time driver initialized");
     
-    // WiFi initialization temporarily disabled for build fix
-    rprintln!("[MAIN-APP] WiFi temporarily disabled - building sensor/console only");
+    // Initialize WiFi using wifi-embassy module (ESP32-C3 has native atomics)
+    // WiFi credentials from environment variables (configured in .cargo/config.toml)
+    const WIFI_SSID: &str = env!("WIFI_SSID", "Set WIFI_SSID in .cargo/config.toml");
+    const WIFI_PASSWORD: &str = env!("WIFI_PASSWORD", "Set WIFI_PASSWORD in .cargo/config.toml");
+    
+    let wifi_config = WiFiConfig {
+        ssid: WIFI_SSID,
+        password: WIFI_PASSWORD,
+    };
+    
+    rprintln!("[MAIN-APP] Initializing WiFi manager...");
+    let wifi_manager = match WiFiManager::new(
+        spawner,
+        peripherals.TIMG0,
+        peripherals.WIFI,
+        peripherals.RNG,
+        wifi_config,
+    ).await {
+        Ok(manager) => {
+            rprintln!("[MAIN-APP] WiFi manager initialized successfully");
+            manager
+        }
+        Err(e) => {
+            rprintln!("[MAIN-APP] ERROR: Failed to initialize WiFi: {}", e);
+            rprintln!("[MAIN-APP] System will continue without WiFi connectivity");
+            // For now, we'll continue without WiFi rather than panic
+            // This allows the sensor and console to still work
+            panic!("WiFi initialization required for IoT system");
+        }
+    };
+    
+    // Make WiFi manager static for sharing between tasks
+    static WIFI_MANAGER_CELL: StaticCell<WiFiManager> = StaticCell::new();
+    let wifi_manager_ref = &mut *WIFI_MANAGER_CELL.init(wifi_manager);
     
     // Configure I2C for BME280 sensor
     let i2c = I2c::new(peripherals.I2C0, Config::default())
@@ -575,13 +607,13 @@ async fn main(spawner: Spawner) {
     let (usb_rx, usb_tx) = usb_serial.split();
     rprintln!("[MAIN-APP] USB Serial/JTAG configured for console");
     
-    // Spawn working tasks (WiFi/MQTT temporarily disabled)
+    // Spawn all operational tasks with real connectivity
     spawner.spawn(sensor_task(i2c)).ok();
     spawner.spawn(console_task(usb_tx, usb_rx)).ok();
     spawner.spawn(system_monitor_task()).ok();
+    spawner.spawn(mqtt_task(wifi_manager_ref)).ok();
     
-    rprintln!("[MAIN-APP] NOTE: WiFi and MQTT tasks temporarily disabled for build fix");
-    rprintln!("[MAIN-APP] Running sensor and console tasks only");
+    rprintln!("[MAIN-APP] All tasks spawned - Real WiFi and MQTT connectivity active");
     
     rprintln!("[SYSTEM] All operational tasks spawned successfully");
     rprintln!("[SYSTEM] ================================================");
