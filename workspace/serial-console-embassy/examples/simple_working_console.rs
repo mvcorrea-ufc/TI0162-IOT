@@ -12,7 +12,7 @@ use esp_hal::{
     timer::timg::TimerGroup,
     Async,
 };
-use embedded_io_async::{Read, Write};
+// use embedded_io_async::{Read, Write}; // Unused imports
 
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};

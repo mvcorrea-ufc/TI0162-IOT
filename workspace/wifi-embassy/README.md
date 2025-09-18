@@ -66,20 +66,169 @@ cargo install probe-rs --features cli
 probe-rs list
 ```
 
-### Basic Connectivity Test
+## Build Instructions
 
+### Building from Workspace Root
 ```bash
-# Navigate to the module
-cd wifi-embassy/
+# Navigate to workspace root
+cd workspace/
 
-# Basic WiFi test
+# Build wifi-embassy module from workspace
+cargo build -p wifi-embassy --release
+
+# Build specific examples from workspace
+cargo build -p wifi-embassy --example simple_connect --release
+cargo build -p wifi-embassy --example wifi_test --release
+cargo build -p wifi-embassy --example wifi_test_new --release
+cargo build -p wifi-embassy --example wifi_mqtt_test --release
+
+# Run examples from workspace
+cargo run -p wifi-embassy --example simple_connect --release
+cargo run -p wifi-embassy --example wifi_test --release
+cargo run -p wifi-embassy --example wifi_test_new --release
+cargo run -p wifi-embassy --example wifi_mqtt_test --release
+```
+
+### Building from Module Folder
+```bash
+# Navigate to wifi-embassy module
+cd workspace/wifi-embassy/
+
+# Build library module from module folder
+cargo build --release
+
+# Build examples from module folder
+cargo build --example simple_connect --release
+cargo build --example wifi_test --release
+cargo build --example wifi_test_new --release
+cargo build --example wifi_mqtt_test --release
+
+# Run examples from module folder
+cargo run --example simple_connect --release
 cargo run --example wifi_test --release
+cargo run --example wifi_test_new --release
+cargo run --example wifi_mqtt_test --release
+```
 
-# Test with detailed network information
+### Integration into Your Project
+
+#### Method 1: Add as Dependency
+Add to your `Cargo.toml`:
+```toml
+[dependencies]
+wifi-embassy = { path = "../wifi-embassy" }
+
+# Required WiFi dependencies
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
+esp-alloc = { version = "0.8.0" }
+embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
+embassy-net = { version = "0.7", features = ["tcp", "udp", "dhcpv4", "medium-ethernet"] }
+embassy-time = { version = "0.4" }
+```
+
+Configure WiFi credentials in your `.cargo/config.toml`:
+```toml
+[env]
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
+```
+
+#### Method 2: Copy Source Files
+```bash
+# Copy WiFi manager to your project
+cp workspace/wifi-embassy/src/wifi_manager.rs your-project/src/
+
+# Add to your main.rs:
+mod wifi_manager;
+use wifi_manager::{WiFiManager, WiFiConfig};
+```
+
+#### Method 3: Use as Library Module
+```rust
+use wifi_embassy::{WiFiManager, WiFiConfig};
+
+#[esp_hal_embassy::main]
+async fn main(spawner: Spawner) {
+    let wifi_config = WiFiConfig {
+        ssid: env!("WIFI_SSID"),
+        password: env!("WIFI_PASSWORD"),
+    };
+    
+    let wifi_manager = WiFiManager::new(
+        spawner,
+        peripherals.TIMG0,
+        peripherals.WIFI,
+        peripherals.RNG,
+        wifi_config,
+    ).await.unwrap();
+    
+    // WiFi is connected and ready to use
+    let stack = wifi_manager.get_stack();
+}
+```
+
+## Testing Instructions
+
+### Network Setup Test
+```bash
+# 1. Configure your WiFi credentials
+# Edit .cargo/config.toml with your network details
+
+# 2. Verify network requirements
+# - 2.4GHz WiFi network (ESP32-C3 doesn't support 5GHz)
+# - DHCP server available on router
+# - No MAC address filtering blocking ESP32-C3
+```
+
+### Build Verification
+```bash
+# Test workspace build
+cd workspace/
+cargo check -p wifi-embassy
+cargo build -p wifi-embassy --release
+cargo build -p wifi-embassy --example wifi_test_new --release
+
+# Test module build
+cd workspace/wifi-embassy/
+cargo check
+cargo build --release
+cargo build --example wifi_test_new --release
+```
+
+### Runtime Testing
+```bash
+# Test basic WiFi connectivity
 cargo run --example wifi_test_new --release
 
-# Integrated WiFi + MQTT test
+# Expected output:
+# WiFi Connected Successfully!
+# IP Address: 10.10.10.214
+# Gateway: Some(10.10.10.1)
+# Subnet: /24
+
+# Test WiFi + MQTT integration
 cargo run --example wifi_mqtt_test --release
+
+# Expected: WiFi connection + MQTT broker connection + data publishing
+```
+
+### Network Integration Testing
+```bash
+# Test network connectivity from host
+ping [ESP32_IP_ADDRESS]  # Should respond if WiFi connected
+
+# Monitor MQTT traffic (if testing MQTT)
+mosquitto_sub -h [BROKER_IP] -p 1883 -t "esp32/#" -v
+```
+
+### Code Quality
+```bash
+# Code verification
+cargo clippy  # Check for warnings
+cargo fmt     # Format code
+cargo clean   # Clean build artifacts
 ```
 
 ### Programmatic Usage

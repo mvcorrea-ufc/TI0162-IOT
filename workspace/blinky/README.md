@@ -33,18 +33,96 @@ rtt-target = "0.5"
 panic-rtt-target = "0.1"
 ```
 
-## Usage
+## Build Instructions
 
-### Build and Run
+### Building from Workspace Root
 ```bash
-# Navigate to module
-cd workspace/blinky
+# Navigate to workspace root
+cd workspace/
 
-# Build release version (recommended)
+# Build blinky module from workspace
+cargo build -p blinky --release
+
+# Run blinky module from workspace
+cargo run -p blinky --release
+```
+
+### Building from Module Folder
+```bash
+# Navigate to blinky module
+cd workspace/blinky/
+
+# Build from module folder
 cargo build --release
 
-# Flash and run with live console output
+# Run from module folder
 cargo run --release
+```
+
+### Integration into Your Project
+
+#### Method 1: Copy Module Structure
+```bash
+# Copy the entire blinky module to your project
+cp -r workspace/blinky/ your-project/
+
+# Modify Cargo.toml with your project details
+# Update src/main.rs with your application logic
+```
+
+#### Method 2: Use as Workspace Dependency
+Add to your `Cargo.toml`:
+```toml
+[dependencies]
+blinky = { path = "../blinky" }
+```
+
+#### Method 3: Use as Template Base
+```bash
+# Create new project based on blinky structure
+cargo new --bin your-esp32-project
+cd your-esp32-project/
+
+# Copy configuration files
+cp ../workspace/blinky/Cargo.toml .
+cp ../workspace/blinky/build.rs .
+cp -r ../workspace/blinky/.cargo .
+
+# Copy and modify main.rs as needed
+cp ../workspace/blinky/src/main.rs src/
+```
+
+## Testing Instructions
+
+### Hardware Connection Test
+```bash
+# 1. Connect ESP32-C3 via USB
+# 2. Verify device detection
+probe-rs list
+
+# Expected output: ESP32-C3 device found
+```
+
+### Build Test
+```bash
+# Test build from workspace
+cd workspace/
+cargo check -p blinky
+cargo build -p blinky --release
+
+# Test build from module
+cd workspace/blinky/
+cargo check
+cargo build --release
+```
+
+### Runtime Test
+```bash
+# Flash and monitor output
+cargo run --release
+
+# Expected: LED blinking + RTT console messages
+# "status: High" / "status: Low" every 500ms
 ```
 
 ### Expected Output

@@ -96,17 +96,200 @@ probe-rs list
 ping 10.10.10.210
 ```
 
-### MQTT Test
+## Build Instructions
 
+### Building from Workspace Root
 ```bash
-# Navigate to module
-cd mqtt-embassy/
+# Navigate to workspace root
+cd workspace/
 
-# Terminal 1: MQTT Monitor (before running ESP32)
-mosquitto_sub -h 10.10.10.210 -p 1883 -t "esp32/#" -v
+# Build mqtt-embassy module from workspace
+cargo build -p mqtt-embassy --release
 
-# Terminal 2: Run ESP32
+# Build specific examples from workspace (requires features)
+cargo build -p mqtt-embassy --example basic_mqtt --features examples --release
+cargo build -p mqtt-embassy --example mqtt_test_working --features examples --release
+cargo build -p mqtt-embassy --example mqtt_test --features examples --release
+
+# Run examples from workspace
+cargo run -p mqtt-embassy --example basic_mqtt --features examples --release
+cargo run -p mqtt-embassy --example mqtt_test_working --features examples --release
+cargo run -p mqtt-embassy --example mqtt_test --features examples --release
+```
+
+### Building from Module Folder
+```bash
+# Navigate to mqtt-embassy module
+cd workspace/mqtt-embassy/
+
+# Build library module from module folder
+cargo build --release
+
+# Build examples from module folder (requires features)
+cargo build --example basic_mqtt --features examples --release
+cargo build --example mqtt_test_working --features examples --release
+cargo build --example mqtt_test --features examples --release
+
+# Run examples from module folder
+cargo run --example basic_mqtt --features examples --release
 cargo run --example mqtt_test_working --features examples --release
+cargo run --example mqtt_test --features examples --release
+```
+
+### Integration into Your Project
+
+#### Method 1: Add as Dependency
+Add to your `Cargo.toml`:
+```toml
+[dependencies]
+mqtt-embassy = { path = "../mqtt-embassy" }
+
+# Required MQTT dependencies
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+wifi-embassy = { path = "../wifi-embassy" }
+embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
+embassy-time = { version = "0.4" }
+embedded-io-async = "0.6"
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde-json-core = "0.6"
+heapless = "0.8"
+```
+
+Configure MQTT broker in your `.cargo/config.toml`:
+```toml
+[env]
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
+MQTT_BROKER_IP = "10.10.10.210"
+MQTT_BROKER_PORT = "1883"
+MQTT_CLIENT_ID = "esp32-c3-iot"
+MQTT_TOPIC_PREFIX = "esp32"
+```
+
+#### Method 2: Copy Source Files
+```bash
+# Copy MQTT components to your project
+cp workspace/mqtt-embassy/src/mqtt_client.rs your-project/src/
+cp workspace/mqtt-embassy/src/message.rs your-project/src/
+
+# Add to your main.rs:
+mod mqtt_client;
+mod message;
+use mqtt_client::{MqttClient, MqttConfig};
+use message::{SensorData, DeviceStatus};
+```
+
+#### Method 3: Use as Library Module
+```rust
+use mqtt_embassy::{MqttClient, MqttConfig, SensorData};
+use wifi_embassy::WiFiManager;
+
+#[embassy_executor::task]
+async fn mqtt_task(wifi_manager: &'static WiFiManager) {
+    let mqtt_config = MqttConfig::default();
+    let client = MqttClient::new(mqtt_config);
+    let stack = wifi_manager.get_stack();
+    
+    let sensor_data = SensorData::new(23.5, 68.2, 1013.8);
+    
+    let mut rx_buffer = [0u8; 1024];
+    let mut tx_buffer = [0u8; 1024];
+    
+    match client.connect(stack, &mut rx_buffer, &mut tx_buffer).await {
+        Ok(mut socket) => {
+            client.publish_sensor_data(&mut socket, &sensor_data).await.unwrap();
+        }
+        Err(e) => rprintln!("MQTT Error: {}", e),
+    }
+}
+```
+
+## Testing Instructions
+
+### MQTT Broker Setup
+```bash
+# 1. Install Mosquitto MQTT broker
+sudo apt install mosquitto mosquitto-clients    # Linux
+brew install mosquitto                           # macOS
+
+# 2. Configure broker to accept connections
+sudo nano /etc/mosquitto/mosquitto.conf
+# Add these lines:
+listener 1883 0.0.0.0
+allow_anonymous true
+
+# 3. Start broker
+sudo systemctl start mosquitto    # Linux
+brew services start mosquitto     # macOS
+
+# 4. Test broker connectivity
+ping [BROKER_IP]
+telnet [BROKER_IP] 1883
+```
+
+### Build Verification
+```bash
+# Test workspace build
+cd workspace/
+cargo check -p mqtt-embassy
+cargo build -p mqtt-embassy --release
+cargo build -p mqtt-embassy --example mqtt_test_working --features examples --release
+
+# Test module build
+cd workspace/mqtt-embassy/
+cargo check
+cargo build --release
+cargo build --example mqtt_test_working --features examples --release
+```
+
+### Runtime Testing
+```bash
+# Terminal 1: Start MQTT monitor (before running ESP32)
+mosquitto_sub -h [BROKER_IP] -p 1883 -t "esp32/#" -v
+
+# Terminal 2: Run MQTT test (choose one)
+cargo run --example basic_mqtt --features examples --release          # Simple MQTT with simulated data
+cargo run --example mqtt_test_working --features examples --release   # Full integration test
+
+# Expected ESP32 output:
+# WiFi Connected Successfully!
+# MQTT Task: ✅ Connected to MQTT broker successfully!
+# MQTT Task: ✅ Sensor data published to topic 'esp32/sensor/bme280'
+
+# Expected MQTT monitor output:
+# esp32/sensor/bme280 {"temperature":22.1,"humidity":68.0,"pressure":1013.3,"reading":1}
+# esp32/heartbeat ping
+# esp32/status {"status":"online","uptime":300,"free_heap":48000,"wifi_rssi":-38}
+```
+
+### Integration Testing with WiFi
+```bash
+# Test complete WiFi + MQTT integration
+cd workspace/wifi-embassy/
+cargo run --example wifi_mqtt_test --release
+
+# Expected: Full WiFi connection + MQTT publishing pipeline
+```
+
+### MQTT Protocol Testing
+```bash
+# Monitor all topics
+mosquitto_sub -h [BROKER_IP] -t "#" -v
+
+# Monitor specific topic
+mosquitto_sub -h [BROKER_IP] -t "esp32/sensor/bme280" -v
+
+# Test broker with manual publish
+mosquitto_pub -h [BROKER_IP] -t "test/topic" -m "hello world"
+```
+
+### Code Quality
+```bash
+# Code verification
+cargo clippy  # Check for warnings
+cargo fmt     # Format code
+cargo clean   # Clean build artifacts
 ```
 
 ### Programmatic Usage

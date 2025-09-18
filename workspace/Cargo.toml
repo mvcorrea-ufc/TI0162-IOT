@@ -4,6 +4,7 @@ members = [
     "blinky",
     "bme280-embassy",
     "wifi-embassy", 
+    "wifi-synchronous",
     "mqtt-embassy",
     "serial-console-embassy",
     "main-app",
@@ -15,20 +16,21 @@ esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
 esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
 esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
 
-# Embassy Async Framework - EXACT WORKING VERSIONS with explicit features
+# Embassy Async Framework - ESP-HAL-EMBASSY 0.9.0 COMPATIBLE VERSIONS with explicit features
 embassy-executor = { version = "0.7", default-features = false, features = ["task-arena-size-20480"] }
 embassy-time = { version = "0.4", default-features = false }
-embassy-sync = { version = "0.7.2", default-features = false }
+embassy-sync = { version = "0.6.2", default-features = false }
 embassy-futures = { version = "0.1.2", default-features = false }
 
-# Network and WiFi - for MQTT/WiFi modules (force compatible versions)
-embassy-net = { version = "0.7.1", default-features = false, features = ["proto-ipv4", "medium-ethernet", "tcp", "udp", "dhcpv4"] }
+# Network and WiFi - for MQTT/WiFi modules (ESP-HAL-EMBASSY 0.9.0 compatible versions)
+embassy-net = { version = "0.6", default-features = false, features = ["proto-ipv4", "medium-ethernet", "tcp", "udp", "dhcpv4"] }
 smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
 esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
 
 # UART and async I/O
 embedded-io-async = { version = "0.6" }
 embedded-hal-async = { version = "1.0" }
+embassy-usb = { version = "0.3", default-features = false }
 
 # String processing and utilities
 heapless = { version = "0.8" }

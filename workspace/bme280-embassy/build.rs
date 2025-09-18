@@ -1,3 +1,4 @@
 fn main() {
-    println!("cargo:rustc-link-arg-bins=-Tlinkall.x");
+    // Library crate - only need linker args for examples (no binary targets)
+    println!("cargo:rustc-link-arg-examples=-Tlinkall.x");
 }

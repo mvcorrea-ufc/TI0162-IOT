@@ -2,6 +2,6 @@
 // Based on wifi-simple-embassy build configuration
 
 fn main() {
-    // Add linker arguments for examples and binaries
-    println!("cargo:rustc-link-arg=-Tlinkall.x");
+    // Add linker arguments for examples (library only module)
+    println!("cargo:rustc-link-arg-examples=-Tlinkall.x");
 }

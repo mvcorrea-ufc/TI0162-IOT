@@ -3,13 +3,21 @@ runner = "probe-rs run --chip=esp32c3 --preverify --always-print-stacktrace --no
 
 [build]
 target = "riscv32imc-unknown-none-elf"
-rustflags = ["-C", "force-frame-pointers"]
+rustflags = [
+    "-C", "force-frame-pointers",
+    "--cfg", "portable_atomic_unsafe_assume_single_core"
+]
 
 [unstable]
 build-std = ["core"]
 
 [env]
-# WiFi Access Point Credentials - UPDATE THESE WITH YOUR NETWORK
-WIFI_SSID = "FamiliaFeliz-2Ghz"
-WIFI_PASSWORD = "ines#sara"
+# WiFi Configuration
+WIFI_SSID = "YourWiFiNetwork"
+WIFI_PASSWORD = "YourWiFiPassword"
 
+# MQTT Configuration  
+MQTT_BROKER_IP = "10.10.10.210"
+MQTT_BROKER_PORT = "1883"
+MQTT_CLIENT_ID = "esp32-c3-iot-system"
+MQTT_TOPIC_PREFIX = "esp32"

@@ -50,3 +50,7 @@ path = "examples/mqtt_test.rs"
 [[example]]
 name = "mqtt_test_working"
 path = "examples/mqtt_test_working.rs"
+
+[[example]]
+name = "basic_mqtt"
+path = "examples/basic_mqtt.rs"

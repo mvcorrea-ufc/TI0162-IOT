@@ -84,27 +84,140 @@ cargo install probe-rs --features cli
 probe-rs list
 ```
 
-### Build Commands
+## Build Instructions
 
+### Building from Workspace Root
 ```bash
-# Navigate to the module
-cd bme280-embassy/
+# Navigate to workspace root
+cd workspace/
 
-# Build only (check compilation)
+# Build bme280-embassy module from workspace
+cargo build -p bme280-embassy --release
+
+# Build specific examples from workspace
+cargo build -p bme280-embassy --example basic_reading --release
+cargo build -p bme280-embassy --example full_system --release
+
+# Run examples from workspace (no main application - library only)
+cargo run -p bme280-embassy --example basic_reading --release
+cargo run -p bme280-embassy --example full_system --release
+```
+
+### Building from Module Folder
+```bash
+# Navigate to bme280-embassy module
+cd workspace/bme280-embassy/
+
+# Build main application from module folder
 cargo build --release
 
-# Build + Flash + Monitor (main application)
+# Build examples from module folder
+cargo build --example basic_reading --release
+cargo build --example full_system --release
+
+# Run examples from module folder (no main application - library only)
+cargo run --example basic_reading --release
+cargo run --example full_system --release
+```
+
+### Integration into Your Project
+
+#### Method 1: Add as Dependency
+Add to your `Cargo.toml`:
+```toml
+[dependencies]
+bme280-embassy = { path = "../bme280-embassy" }
+
+# Required Embassy dependencies
+embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
+embassy-time = "0.4.0"
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+embedded-hal-async = "1.0"
+```
+
+#### Method 2: Copy Source Files
+```bash
+# Copy BME280 driver to your project
+cp workspace/bme280-embassy/src/bme280.rs your-project/src/
+cp workspace/bme280-embassy/src/i2c_device.rs your-project/src/
+
+# Add to your main.rs:
+mod bme280;
+mod i2c_device;
+use bme280::BME280;
+```
+
+#### Method 3: Use as Library Module
+```rust
+// In your main.rs or lib.rs
+use bme280_embassy::{BME280, Measurements};
+
+#[embassy_executor::task]
+async fn sensor_task(mut i2c: I2c<'static, esp_hal::peripherals::I2C0>) {
+    let mut bme280 = BME280::new(&mut i2c);
+    let measurements = bme280.read_measurements().await.unwrap();
+    // Use temperature, humidity, pressure data
+}
+```
+
+## Testing Instructions
+
+### Hardware Setup Test
+```bash
+# 1. Connect BME280 sensor to ESP32-C3
+# GPIO8 -> SDA, GPIO9 -> SCL, 3.3V -> VCC, GND -> GND
+
+# 2. Verify hardware connection
+probe-rs list  # Check ESP32-C3 detection
+```
+
+### Build Verification
+```bash
+# Test workspace build
+cd workspace/
+cargo check -p bme280-embassy
+cargo build -p bme280-embassy --release
+cargo build -p bme280-embassy --example basic_reading --release
+
+# Test module build  
+cd workspace/bme280-embassy/
+cargo check
+cargo build --release
+cargo build --example basic_reading --release
+```
+
+### Runtime Testing
+```bash
+# Test main application
 cargo run --release
 
-# Build + Flash + Monitor (basic example)
+# Expected output:
+# BME280 Embassy: Sensor initialized successfully
+# BME280 Embassy: T: 23.2°C, H: 68.5%, P: 1013.8 hPa
+
+# Test basic hardware detection example
 cargo run --example basic_reading --release
+# Expected: I2C scan, chip ID verification, LED blinking
 
-# Build cleanup
-cargo clean
+# Test complete sensor system example
+cargo run --example full_system --release
+# Expected: Full async sensor readings with debug info
+```
 
+### Integration Testing
+```bash
+# Test with other modules (example)
+cd workspace/
+cargo build -p main-app --release  # Integrated system test
+```
+
+### Code Quality
+```bash
 # Code verification
-cargo clippy
-cargo fmt
+cargo clippy  # Check for warnings
+cargo fmt     # Format code
+cargo clean   # Clean build artifacts
 ```
 
 ### Expected Output

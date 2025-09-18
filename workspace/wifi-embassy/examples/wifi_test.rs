@@ -31,7 +31,7 @@ const WIFI_PASSWORD: &str = env!("WIFI_PASSWORD", "Set WIFI_PASSWORD in .cargo/c
 #[esp_hal_embassy::main]
 async fn main(spawner: Spawner) {
     // Initialize heap allocator (required for WiFi)
-    esp_alloc::heap_allocator!(72 * 1024);
+    esp_alloc::heap_allocator!(size: 72 * 1024);
     
     // Initialize RTT for console output (following bme280-embassy pattern)
     rtt_init_print!();

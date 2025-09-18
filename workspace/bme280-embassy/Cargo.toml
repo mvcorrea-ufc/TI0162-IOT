@@ -21,13 +21,18 @@ embedded-hal-async = { workspace = true }
 # BME280 sensor - from workspace
 bme280-rs = { workspace = true }
 
+# Memory allocation - from workspace
+esp-alloc = { workspace = true }
+
 # Debugging - from workspace
 rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
 
-# Legacy dependencies (will be phased out)
-defmt = "0.3"
 
 [[example]]
 name = "basic_reading"
 path = "examples/basic_reading.rs"
+
+[[example]]
+name = "full_system"
+path = "examples/full_system.rs"

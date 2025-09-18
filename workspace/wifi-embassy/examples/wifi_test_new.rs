@@ -70,7 +70,7 @@ async fn main(spawner: Spawner) {
     rprintln!("Hardware initialized, starting WiFi...");
 
     // Initialize WiFi manager (TIMG1 already used for Embassy above)
-    let mut wifi_manager = match WiFiManager::new(
+    let wifi_manager = match WiFiManager::new(
         spawner,
         peripherals.TIMG0,
         peripherals.WIFI,

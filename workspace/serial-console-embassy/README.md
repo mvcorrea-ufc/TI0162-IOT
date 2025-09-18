@@ -49,26 +49,174 @@ GPIO21 (TX) --> RX
 GND         --- GND
 ```
 
-## 🚀 Quick Start
+## Build Instructions
 
-### Installation and Execution
-
+### Building from Workspace Root
 ```bash
-# Navigate to module
-cd serial-console-embassy/
+# Navigate to workspace root
+cd workspace/
 
-# ✅ USB Serial/JTAG Console (RECOMMENDED)
+# Build serial-console-embassy module from workspace
+cargo build -p serial-console-embassy --release
+
+# Build specific examples from workspace
+cargo build -p serial-console-embassy --example simple_working_console --release
+cargo build -p serial-console-embassy --example direct_usb_console --release
+cargo build -p serial-console-embassy --example basic_console --release
+
+# Run examples from workspace
+cargo run -p serial-console-embassy --example simple_working_console --release
+cargo run -p serial-console-embassy --example direct_usb_console --release
+cargo run -p serial-console-embassy --example basic_console --release
+
+# Run with full features from workspace
+cargo run -p serial-console-embassy --example system_console --features full --release
+```
+
+### Building from Module Folder
+```bash
+# Navigate to serial-console-embassy module
+cd workspace/serial-console-embassy/
+
+# Build library module from module folder
+cargo build --release
+
+# Build examples from module folder
+cargo build --example simple_working_console --release
+cargo build --example direct_usb_console --release
+cargo build --example basic_console --release
+
+# Run examples from module folder
+cargo run --example simple_working_console --release
 cargo run --example direct_usb_console --release
-
-# Basic UART console (alternative)
 cargo run --example basic_console --release
 
-# USB bridging console (experimental)
-cargo run --example usb_bridge_console --release
-
-# Complete IoT integration console
+# Run with features from module folder
 cargo run --example system_console --features full --release
 ```
+
+### Integration into Your Project
+
+#### Method 1: Add as Dependency
+Add to your `Cargo.toml`:
+```toml
+[dependencies]
+serial-console-embassy = { path = "../serial-console-embassy" }
+
+# Required Embassy dependencies
+embassy-executor = { version = "0.7", features = ["task-arena-size-32768"] }
+embassy-time = { version = "0.4" }
+embassy-sync = { version = "0.7" }
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+heapless = "0.8"
+embedded-io-async = "0.6"
+```
+
+Configure environment in your `.cargo/config.toml`:
+```toml
+[env]
+WIFI_SSID = "ESP32-Test"
+WIFI_PASSWORD = "password123"
+MQTT_BROKER_IP = "192.168.1.100"
+MQTT_BROKER_PORT = "1883"
+```
+
+#### Method 2: Copy Source Files
+```bash
+# Copy console components to your project
+cp workspace/serial-console-embassy/src/console.rs your-project/src/
+cp workspace/serial-console-embassy/src/commands.rs your-project/src/
+cp workspace/serial-console-embassy/src/config.rs your-project/src/
+
+# Add to your main.rs:
+mod console;
+mod commands;
+mod config;
+use console::SerialConsole;
+```
+
+#### Method 3: Use as Library Module
+```rust
+use serial_console_embassy::{SerialConsole, ConsoleConfig};
+
+#[embassy_executor::task]
+async fn console_task(uart: uart::Uart<'static, esp_hal::peripherals::UART0, uart::Async>) {
+    let config = ConsoleConfig::default();
+    let mut console = SerialConsole::new(uart, config);
+    console.run().await;
+}
+```
+
+## Testing Instructions
+
+### Hardware Setup Test
+```bash
+# 1. Connect ESP32-C3 via USB-C
+# Direct USB Serial/JTAG access (no additional hardware needed)
+
+# 2. Verify device detection
+ls /dev/ttyACM*    # Linux/macOS
+# OR check Device Manager on Windows for COM ports
+```
+
+### Build Verification
+```bash
+# Test workspace build
+cd workspace/
+cargo check -p serial-console-embassy
+cargo build -p serial-console-embassy --release
+cargo build -p serial-console-embassy --example simple_working_console --release
+
+# Test module build
+cd workspace/serial-console-embassy/
+cargo check
+cargo build --release
+cargo build --example simple_working_console --release
+```
+
+### Runtime Testing
+```bash
+# Test basic console functionality
+cargo run --example simple_working_console --release
+
+# Expected: Console starts, waits for serial input
+
+# Test USB Serial/JTAG console (recommended)
+cargo run --example direct_usb_console --release
+
+# Expected: Interactive console with command prompt
+```
+
+### Serial Terminal Testing
+```bash
+# Connect to console via serial terminal
+picocom /dev/ttyACM0 -b 115200
+
+# Test basic commands in console:
+# help          - Shows available commands
+# status        - Shows system status
+# info          - Shows hardware information
+# clear         - Clears screen
+```
+
+### Integration Testing
+```bash
+# Test console with full IoT system integration
+cargo run --example system_console --features full --release
+
+# Expected: Console with WiFi/MQTT/sensor integration commands
+```
+
+### Code Quality
+```bash
+# Code verification
+cargo clippy  # Check for warnings
+cargo fmt     # Format code
+cargo clean   # Clean build artifacts
+```
+
+## 🚀 Quick Start
 
 ### Connect via Serial Terminal
 

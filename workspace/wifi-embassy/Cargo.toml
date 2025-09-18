@@ -38,6 +38,10 @@ name = "wifi_embassy"
 path = "src/lib.rs"
 
 [[example]]
+name = "simple_connect"
+path = "examples/simple_connect.rs"
+
+[[example]]
 name = "wifi_test"
 path = "examples/wifi_test.rs"
 
