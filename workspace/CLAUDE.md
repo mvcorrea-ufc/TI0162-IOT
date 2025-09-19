@@ -651,3 +651,165 @@ cargo build -p main-app --release
 ```
 
 All builds now succeed with zero warnings and zero compilation errors.
+
+# Claude Code - ESP32-C3 IoT Testing Infrastructure Implementation
+
+## Current Implementation Status
+
+### Phase 1: Testing Infrastructure (In Progress)
+
+I am implementing comprehensive testing infrastructure for the ESP32-C3 IoT system. Here's the current status:
+
+#### ✅ Completed Tasks
+
+1. **Enhanced iot-common Error System Tests**
+   - Created comprehensive test suite with 21 tests covering all error types
+   - Tests validate error codes, context chaining, memory bounds, and no_std compatibility
+   - All tests pass successfully
+
+2. **Mock Infrastructure Implementation**
+   - Created complete mock infrastructure in `/workspace/iot-common/src/testing.rs`
+   - Implemented mocks for:
+     - `MockI2c`: BME280 sensor communication testing
+     - `MockUart`: Serial console testing
+     - `MockWiFiStack`: WiFi connectivity testing
+     - `MockMqttClient`: MQTT message publishing testing
+   - Added pre-configured test scenarios for common use cases
+
+#### 🔄 Currently Working On
+
+**Mock Infrastructure Testing** - Validating all mock components work correctly
+
+#### 📋 Next Tasks
+
+1. Implement unit tests for bme280-embassy module
+2. Implement unit tests for wifi-embassy module  
+3. Implement unit tests for mqtt-embassy module
+4. Implement unit tests for serial-console-embassy module
+5. Create integration tests for complete data flow
+6. Set up embedded testing framework
+7. Create CI/CD pipeline configuration
+8. Document testing best practices
+
+## Important Technical Decision: Testing Target Architecture
+
+### Why We Use x86_64-apple-darwin for Testing
+
+**Question**: Why are we using x86_64-apple-darwin as target when working on embedded systems running on ESP32-C3?
+
+**Answer**: This is a deliberate and necessary architectural decision for embedded testing:
+
+#### 1. **Host-Target Testing Strategy**
+- **Host Testing (x86_64-apple-darwin)**: Tests business logic, error handling, and algorithms without hardware dependencies
+- **Target Testing (riscv32imc-unknown-none-elf)**: Tests actual hardware integration and embedded-specific functionality
+
+#### 2. **Testing Pyramid for Embedded Systems**
+```
+┌─────────────────────────────────────┐
+│ Integration Tests (Target Hardware) │  ← Fewer, expensive
+├─────────────────────────────────────┤
+│ Unit Tests with Mocks (Host)        │  ← Many, fast
+└─────────────────────────────────────┘
+```
+
+#### 3. **Benefits of Host Testing**
+- **Fast Execution**: Tests run in milliseconds instead of minutes
+- **Rich Debugging**: Full std library, better error messages, debugging tools
+- **CI/CD Friendly**: No hardware dependencies for automated testing
+- **Mock Infrastructure**: Can simulate hardware behavior precisely
+- **Memory Safety**: Can test memory bounds without embedded constraints
+
+#### 4. **What We Test on Host vs Target**
+
+**Host Testing (x86_64-apple-darwin)**:
+- ✅ Error handling logic and error code validation
+- ✅ Business logic algorithms (BME280 calculations, MQTT message formatting)
+- ✅ Memory bounds and no_std compatibility
+- ✅ Mock hardware interactions
+- ✅ Configuration parsing and validation
+- ✅ Protocol implementations (without actual hardware)
+
+**Target Testing (ESP32-C3)**:
+- ✅ Actual I2C communication with BME280
+- ✅ Real WiFi connection establishment
+- ✅ MQTT publishing over real network
+- ✅ UART console on actual hardware
+- ✅ Memory usage and stack constraints
+- ✅ Real-time performance characteristics
+
+#### 5. **Our Mock Strategy**
+The mock infrastructure I've implemented provides:
+- **Behavioral Testing**: Mocks simulate correct hardware behavior
+- **Error Simulation**: Can inject failures to test error handling
+- **State Verification**: Can verify correct sequences of operations
+- **Performance Testing**: Can measure algorithm performance without I/O
+
+#### 6. **Industry Best Practice**
+This approach follows embedded systems testing best practices:
+- **Automotive (ISO 26262)**: Requires both host and target testing
+- **Aerospace (DO-178C)**: Mandates multiple testing levels
+- **Medical (IEC 62304)**: Requires comprehensive unit testing
+
+### Example Testing Flow
+
+```rust
+// Host test (x86_64-apple-darwin)
+#[test]
+fn test_bme280_calibration_calculation() {
+    let mut mock_i2c = MockI2c::new();
+    mock_i2c.expect_read_register(0xD0, 0x60); // Chip ID
+    
+    let mut sensor = BME280::new(&mut mock_i2c);
+    // Test calibration algorithm without hardware
+}
+
+// Target test (ESP32-C3) 
+#[cfg(target_arch = "riscv32")]
+#[test]
+fn test_bme280_real_hardware() {
+    let mut i2c = setup_real_i2c();
+    let mut sensor = BME280::new(&mut i2c);
+    // Test actual hardware communication
+}
+```
+
+## Current Test Results
+
+- **iot-common tests**: ✅ 21/21 tests passing
+- **Mock infrastructure**: ✅ 3/3 tests passing  
+- **Total coverage**: Comprehensive error handling and mock infrastructure
+
+## Technical Implementation Details
+
+### Mock Infrastructure Architecture
+
+The testing infrastructure provides:
+
+1. **MockI2c**: 
+   - Simulates BME280 register reads/writes
+   - Supports expectation verification
+   - Error injection for testing failure scenarios
+
+2. **MockUart**:
+   - Buffers input/output for console testing
+   - String-based command simulation
+   - Error simulation for UART failures
+
+3. **MockWiFiStack**:
+   - Simulates connection establishment
+   - DHCP configuration simulation
+   - Network failure scenarios
+
+4. **MockMqttClient**:
+   - Message publishing verification
+   - Connection state management
+   - Publish failure simulation
+
+### Next Steps
+
+1. Implement module-specific tests using the mock infrastructure
+2. Create integration tests that combine multiple mocks
+3. Set up target testing for actual ESP32-C3 hardware
+4. Establish CI/CD pipeline with both host and target testing
+
+This dual-target approach ensures both code correctness and hardware compatibility while maintaining fast development cycles.

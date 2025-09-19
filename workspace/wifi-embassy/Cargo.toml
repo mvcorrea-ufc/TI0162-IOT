@@ -6,6 +6,11 @@ edition = "2021"
 description = "WiFi connectivity module using Embassy async framework for ESP32-C3"
 license = "MIT OR Apache-2.0"
 
+[features]
+default = []
+# Enable IoT Container integration
+container = ["async-trait"]
+
 [dependencies]
 # ESP32-C3 Hardware Abstraction Layer - from workspace
 esp-hal = { workspace = true }
@@ -32,6 +37,11 @@ embedded-io-async = { workspace = true }
 # RTT debugging - from workspace
 rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
+
+# IoT Container integration (optional)
+iot-container = { path = "../iot-container", default-features = false, optional = true }
+iot-common = { path = "../iot-common", default-features = false }
+async-trait = { version = "0.1", optional = true }
 
 [lib]
 name = "wifi_embassy"

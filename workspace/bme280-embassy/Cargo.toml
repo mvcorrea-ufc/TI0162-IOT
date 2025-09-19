@@ -5,6 +5,13 @@ authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
 
+[features]
+default = []
+# Enable testing utilities
+testing = ["iot-common/testing"]
+# Enable IoT Container integration
+container = ["async-trait"]
+
 [dependencies]
 # ESP32-C3 Hardware Abstraction Layer - from workspace
 esp-hal = { workspace = true }
@@ -27,6 +34,20 @@ esp-alloc = { workspace = true }
 # Debugging - from workspace
 rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
+
+# Common utilities and error handling - from workspace
+iot-common = { path = "../iot-common", default-features = false }
+
+# Hardware abstraction layer
+iot-hal = { path = "../iot-hal", default-features = false, features = ["esp32c3"] }
+
+# IoT Container integration (optional)
+iot-container = { path = "../iot-container", default-features = false, optional = true }
+async-trait = { version = "0.1", optional = true }
+
+[dev-dependencies]
+# Testing dependencies - enable std for testing on host
+# No embedded dependencies for host testing
 
 
 [[example]]

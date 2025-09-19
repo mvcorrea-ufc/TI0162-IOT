@@ -28,36 +28,161 @@ macro_rules! mk_static {
     }};
 }
 
-/// WiFi configuration structure
+/// WiFi network configuration
+/// 
+/// Contains the necessary parameters for connecting to a WiFi network.
+/// The strings must be static to ensure they remain valid for the lifetime
+/// of the WiFi connection.
+/// 
+/// # Examples
+/// 
+/// ```rust
+/// use wifi_embassy::WiFiConfig;
+/// 
+/// // Using environment variables (recommended)
+/// let config = WiFiConfig {
+///     ssid: env!("WIFI_SSID"),
+///     password: env!("WIFI_PASSWORD"),
+/// };
+/// 
+/// // Using static strings
+/// let config = WiFiConfig {
+///     ssid: "MyNetwork",
+///     password: "MyPassword",
+/// };
+/// ```
+/// 
+/// # Security Notes
+/// 
+/// - Passwords should be loaded from environment variables, not hardcoded
+/// - Supports WPA2-Personal and WPA3-Personal security
+/// - SSID and password are case-sensitive
 #[derive(Debug, Clone)]
 pub struct WiFiConfig {
+    /// Network SSID (Service Set Identifier)
+    /// 
+    /// Must be the exact network name as broadcast by the access point.
+    /// Maximum length: 32 characters (IEEE 802.11 standard).
     pub ssid: &'static str,
+    
+    /// Network password/passphrase
+    /// 
+    /// For WPA2/WPA3 networks, this is the network passphrase.
+    /// Minimum length: 8 characters, Maximum length: 63 characters.
     pub password: &'static str,
 }
 
-/// WiFi connection information
+/// WiFi connection status and network information
+/// 
+/// Contains detailed information about the current WiFi connection,
+/// including IP configuration obtained through DHCP.
+/// 
+/// # Examples
+/// 
+/// ```rust
+/// # use wifi_embassy::{WiFiManager, ConnectionInfo};
+/// # let wifi_manager: WiFiManager = unimplemented!();
+/// if let Some(info) = wifi_manager.get_connection_info() {
+///     println!("IP: {}", info.ip_address);
+///     println!("Gateway: {:?}", info.gateway);
+///     println!("Subnet: /{}", info.subnet_prefix);
+/// }
+/// ```
 #[derive(Debug, Clone)]
 pub struct ConnectionInfo {
-    /// IP address assigned via DHCP
+    /// IP address assigned to this device via DHCP
+    /// 
+    /// This is the IPv4 address that other devices can use to
+    /// communicate with this ESP32-C3 device.
     pub ip_address: embassy_net::Ipv4Address,
-    /// Gateway IP address
+    
+    /// Gateway IP address (typically the router)
+    /// 
+    /// This is the IP address of the router/gateway that provides
+    /// internet access. `None` if no gateway is configured.
     pub gateway: Option<embassy_net::Ipv4Address>,
-    /// DNS servers
+    
+    /// DNS server addresses
+    /// 
+    /// List of DNS servers provided by DHCP, used for domain
+    /// name resolution. Maximum of 3 servers supported.
     pub dns_servers: heapless::Vec<embassy_net::Ipv4Address, 3>,
-    /// Subnet prefix length
+    
+    /// Subnet prefix length (e.g., 24 for /24 subnet)
+    /// 
+    /// Indicates the size of the local network subnet.
+    /// Common values: 24 (/24 = 255.255.255.0), 16 (/16 = 255.255.0.0)
     pub subnet_prefix: u8,
 }
 
-/// WiFi manager errors
+/// WiFi-specific error types
+/// 
+/// These errors provide specific context for different types of WiFi failures,
+/// making it easier to diagnose and handle connection issues.
+/// 
+/// # Error Categories
+/// 
+/// - **Hardware**: Issues with ESP32-C3 WiFi hardware or drivers
+/// - **Configuration**: Invalid network settings or credentials
+/// - **Connection**: Network communication failures
+/// - **DHCP**: IP address assignment failures
+/// 
+/// # Examples
+/// 
+/// ```rust
+/// use wifi_embassy::{WiFiManager, WiFiError};
+/// 
+/// match WiFiManager::new(/* ... */).await {
+///     Err(WiFiError::Configuration(msg)) => {
+///         println!("Check WiFi credentials: {}", msg);
+///     }
+///     Err(WiFiError::Connection(msg)) => {
+///         println!("Network connection failed: {}", msg);
+///     }
+///     Ok(manager) => {
+///         println!("WiFi connected successfully");
+///     }
+///     Err(e) => {
+///         println!("WiFi error: {}", e);
+///     }
+/// }
+/// ```
 #[derive(Debug)]
 pub enum WiFiError {
     /// Hardware initialization failed
+    /// 
+    /// Indicates problems with:
+    /// - ESP32-C3 WiFi hardware
+    /// - Driver initialization
+    /// - Memory allocation for WiFi stack
+    /// - Timer or RNG peripheral issues
     HardwareInit(&'static str),
+    
     /// WiFi configuration failed
+    /// 
+    /// Indicates problems with:
+    /// - Invalid SSID or password
+    /// - Unsupported security type
+    /// - Network configuration errors
+    /// - Embassy initialization issues
     Configuration(&'static str),
-    /// Connection failed
+    
+    /// Connection to WiFi network failed
+    /// 
+    /// Indicates problems with:
+    /// - Network unreachable or weak signal
+    /// - Authentication failure (wrong password)
+    /// - Network capacity (too many connected devices)
+    /// - Incompatible network settings
     Connection(&'static str),
-    /// DHCP failed
+    
+    /// DHCP IP address assignment failed
+    /// 
+    /// Indicates problems with:
+    /// - DHCP server not responding
+    /// - No available IP addresses in DHCP pool
+    /// - Network configuration conflicts
+    /// - Router DHCP service disabled
     Dhcp(&'static str),
 }
 
@@ -72,10 +197,75 @@ impl core::fmt::Display for WiFiError {
     }
 }
 
-/// WiFi manager using Embassy async framework
+/// WiFi connectivity manager using Embassy async framework
+/// 
+/// The `WiFiManager` handles all aspects of WiFi connectivity including:
+/// - Hardware initialization and configuration
+/// - Network connection establishment
+/// - DHCP IP address acquisition
+/// - Connection monitoring and status reporting
+/// - Network stack management for TCP/UDP operations
+/// 
+/// # Lifecycle
+/// 
+/// 1. **Initialization**: Hardware setup and Embassy integration
+/// 2. **Connection**: WiFi network authentication and association
+/// 3. **DHCP**: IP address acquisition from router
+/// 4. **Ready**: Network stack available for applications
+/// 5. **Monitoring**: Continuous connection health monitoring
+/// 
+/// # Examples
+/// 
+/// ```no_run
+/// use wifi_embassy::{WiFiManager, WiFiConfig};
+/// use embassy_executor::Spawner;
+/// 
+/// #[esp_hal_embassy::main]
+/// async fn main(spawner: Spawner) {
+///     let peripherals = esp_hal::init(esp_hal::Config::default());
+///     esp_hal_embassy::init(peripherals.TIMG1);
+///     
+///     let config = WiFiConfig {
+///         ssid: env!("WIFI_SSID"),
+///         password: env!("WIFI_PASSWORD"),
+///     };
+///     
+///     let manager = WiFiManager::new(
+///         spawner,
+///         peripherals.TIMG0,
+///         peripherals.WIFI,
+///         peripherals.RNG,
+///         config,
+///     ).await.unwrap();
+///     
+///     // WiFi is connected and ready
+///     let stack = manager.get_stack();
+///     
+///     // Use stack for network operations
+/// }
+/// ```
+/// 
+/// # Network Stack Access
+/// 
+/// The `WiFiManager` provides access to the Embassy network stack through
+/// `get_stack()`, which can be used for:
+/// 
+/// - TCP socket operations
+/// - UDP communications  
+/// - DNS resolution
+/// - MQTT client connections
+/// - HTTP client requests
+/// 
+/// # Thread Safety
+/// 
+/// The `WiFiManager` is designed to be used from a single async task.
+/// The network stack it provides can be shared across multiple tasks safely.
 pub struct WiFiManager {
+    /// Embassy network stack for TCP/UDP operations
     stack: &'static Stack<'static>,
+    /// Current connection information (None if disconnected)
     connection_info: Option<ConnectionInfo>,
+    /// WiFi network configuration
     config: WiFiConfig,
 }
 

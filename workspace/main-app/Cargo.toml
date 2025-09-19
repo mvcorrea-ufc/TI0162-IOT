@@ -8,10 +8,15 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 # Local IoT modules - complete integration
-bme280-embassy = { path = "../bme280-embassy" }
-wifi-embassy = { path = "../wifi-embassy" }
-mqtt-embassy = { path = "../mqtt-embassy" }
-serial-console-embassy = { path = "../serial-console-embassy" }
+bme280-embassy = { path = "../bme280-embassy", features = ["container"] }
+wifi-embassy = { path = "../wifi-embassy", features = ["container"] }
+mqtt-embassy = { path = "../mqtt-embassy", features = ["container"] }
+serial-console-embassy = { path = "../serial-console-embassy", features = ["container"] }
+
+# IoT Container dependency injection system
+iot-container = { path = "../iot-container", features = ["esp32c3"] }
+iot-hal = { path = "../iot-hal", features = ["esp32c3"] }
+iot-common = { path = "../iot-common" }
 
 # ESP32-C3 Hardware Abstraction Layer - from workspace
 esp-hal = { workspace = true }
@@ -53,3 +58,14 @@ portable-atomic = { workspace = true }
 [[bin]]
 name = "main"
 path = "src/main.rs"
+
+[[bin]]
+name = "main_container"
+path = "src/main_container.rs"
+
+[features]
+default = ["container"]
+# Use the new dependency injection container
+container = []
+# Use mock implementations for testing
+mock = ["iot-container/mock"]

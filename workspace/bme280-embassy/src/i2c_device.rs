@@ -1,8 +1,9 @@
-use embedded_hal_async::i2c::I2c;
+use iot_hal::I2cInterface;
+use iot_common::IoTError;
 
 pub struct I2cDevice<'a, I2C>
 where
-    I2C: I2c,
+    I2C: I2cInterface,
 {
     i2c: &'a mut I2C,
     address: u8,
@@ -10,7 +11,7 @@ where
 
 impl<'a, I2C> I2cDevice<'a, I2C>
 where
-    I2C: I2c,
+    I2C: I2cInterface,
 {
     /// Create a new I2C device instance
     pub fn new(i2c: &'a mut I2C, address: u8) -> Self {
@@ -37,26 +38,26 @@ where
     }
 
     /// Read a single register (async)
-    pub async fn read_register(&mut self, reg: u8) -> Result<u8, I2C::Error> {
+    pub async fn read_register(&mut self, reg: u8) -> Result<u8, IoTError> {
         let mut data = [0u8; 1];
         self.i2c.write_read(self.address, &[reg], &mut data).await?;
         Ok(data[0])
     }
 
     /// Read multiple registers (async)
-    pub async fn read_registers(&mut self, reg: u8, data: &mut [u8]) -> Result<(), I2C::Error> {
+    pub async fn read_registers(&mut self, reg: u8, data: &mut [u8]) -> Result<(), IoTError> {
         self.i2c.write_read(self.address, &[reg], data).await?;
         Ok(())
     }
 
     /// Write to a register (async)
-    pub async fn write_register(&mut self, reg: u8, value: u8) -> Result<(), I2C::Error> {
+    pub async fn write_register(&mut self, reg: u8, value: u8) -> Result<(), IoTError> {
         self.i2c.write(self.address, &[reg, value]).await?;
         Ok(())
     }
 
     /// Write multiple values to a register (async)
-    pub async fn write_registers(&mut self, reg: u8, values: &[u8]) -> Result<(), I2C::Error> {
+    pub async fn write_registers(&mut self, reg: u8, values: &[u8]) -> Result<(), IoTError> {
         let mut buffer = [0u8; 32]; // Adjust size as needed
         buffer[0] = reg;
         

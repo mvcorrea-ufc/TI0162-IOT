@@ -8,6 +8,10 @@ members = [
     "mqtt-embassy",
     "serial-console-embassy",
     "main-app",
+    "iot-common",
+    "iot-hal",
+    "iot-performance",
+    "bme280-tests",
 ]
 
 [workspace.dependencies]

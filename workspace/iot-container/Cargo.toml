@@ -1,0 +1,52 @@
+[package]
+name = "iot-container"
+version = "1.0.0"
+edition = "2021"
+authors = ["IoT System Development Team"]
+description = "Dependency Injection Container for ESP32-C3 IoT Environmental Monitoring System"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/your-org/iot-system"
+documentation = "https://docs.rs/iot-container"
+readme = "README.md"
+keywords = ["esp32", "embedded", "iot", "dependency-injection", "embassy"]
+categories = ["embedded", "no-std", "async"]
+
+[dependencies]
+# Core async runtime (using workspace versions for consistency)
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
+embassy-sync = { workspace = true }
+embassy-futures = { workspace = true }
+
+# Hardware abstraction
+iot-hal = { path = "../iot-hal" }
+iot-common = { path = "../iot-common" }
+
+# Async trait support
+async-trait = "0.1"
+
+# Embedded collections for no-std
+heapless = "0.8"
+
+# Serialization for configuration
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+
+# Memory allocation for container
+linked_list_allocator = { version = "0.10", optional = true }
+
+[dependencies.esp-hal]
+workspace = true
+optional = true
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+env_logger = "0.11"
+
+[features]
+default = ["esp32c3"]
+esp32c3 = ["esp-hal"]
+std = ["linked_list_allocator"]
+mock = []
+testing = ["iot-common/testing"]
+
+# Examples removed - will be added when implemented

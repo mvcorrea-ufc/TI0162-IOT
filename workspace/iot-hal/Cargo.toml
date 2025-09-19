@@ -1,0 +1,38 @@
+[package]
+name = "iot-hal"
+version = "0.1.0"
+edition = "2021"
+authors = ["ESP32-C3 IoT Team"]
+description = "Hardware Abstraction Layer for ESP32-C3 IoT Environmental Monitoring System"
+
+[features]
+default = ["esp32c3"]
+esp32c3 = ["esp-hal", "esp-hal-embassy", "embassy-time", "static_cell"]
+mock = ["tokio"]
+
+[dependencies]
+# Core embedded HAL traits
+embedded-hal = "1.0"
+embedded-hal-async = "1.0"
+embedded-io-async = "0.6"
+
+# Async trait support (required for trait definitions)
+async-trait = "0.1"
+
+# Error handling
+iot-common = { path = "../iot-common" }
+
+# ESP32-C3 specific dependencies (only for esp32c3 feature)
+esp-hal = { workspace = true, optional = true }
+esp-hal-embassy = { workspace = true, optional = true }
+embassy-time = { workspace = true, optional = true }
+static_cell = { workspace = true, optional = true }
+
+# Mock testing dependencies (only for mock feature)
+tokio = { version = "1.0", optional = true, features = ["full"] }
+
+# Common dependencies
+heapless = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"

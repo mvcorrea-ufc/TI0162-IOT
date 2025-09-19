@@ -37,6 +37,11 @@ wifi-embassy = { path = "../wifi-embassy", optional = true }
 mqtt-embassy = { path = "../mqtt-embassy", optional = true }
 bme280-embassy = { path = "../bme280-embassy", optional = true }
 
+# IoT Container integration (optional)
+iot-container = { path = "../iot-container", default-features = false, optional = true }
+iot-common = { path = "../iot-common", default-features = false }
+async-trait = { version = "0.1", optional = true }
+
 [features]
 default = []
 wifi = ["dep:wifi-embassy"]
@@ -44,6 +49,8 @@ mqtt = ["dep:mqtt-embassy"]
 sensor = ["dep:bme280-embassy"]
 usb = ["dep:embassy-usb"]
 full = ["wifi", "mqtt", "sensor"]
+# Enable IoT Container integration
+container = ["async-trait"]
 
 [[example]]
 name = "basic_console"

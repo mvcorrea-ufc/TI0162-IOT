@@ -1,0 +1,50 @@
+[package]
+name = "iot-common"
+version = "0.1.0"
+edition = "2021"
+authors = ["IoT Team <iot@example.com>"]
+description = "Common utilities and error handling for ESP32-C3 IoT system"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/example/iot-system"
+
+[features]
+default = []
+# Enable additional debugging features
+debug = []
+# Enable std for testing
+std = []
+# Enable testing utilities and mock infrastructure
+testing = ["embassy-time"]
+
+[dependencies]
+# Core embedded dependencies
+heapless = { version = "0.8", default-features = false, features = ["serde"] }
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+nb = "1.0"
+
+# Optional dependencies for specific error contexts
+embedded-hal = { version = "1.0", optional = true }
+embedded-io = { version = "0.6", optional = true }
+
+# Optional dependencies for testing
+embassy-time = { version = "0.4", default-features = false, optional = true }
+
+[dev-dependencies]
+# Test dependencies - enable std for testing on host
+
+[package.metadata.docs.rs]
+all-features = true
+targets = ["thumbv7em-none-eabihf"]
+
+# Ensure no_std compatibility
+[lib]
+name = "iot_common"
+path = "src/lib.rs"
+
+[[example]]
+name = "error_handling"
+path = "examples/error_handling.rs"
+
+[[example]]
+name = "error_conversion"
+path = "examples/error_conversion.rs"

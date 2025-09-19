@@ -35,9 +35,16 @@ smoltcp = { workspace = true, optional = true }
 # WiFi Embassy integration (for working example)
 wifi-embassy = { path = "../wifi-embassy", optional = true }
 
+# IoT Container integration (optional)
+iot-container = { path = "../iot-container", default-features = false, optional = true }
+iot-common = { path = "../iot-common", default-features = false }
+async-trait = { version = "0.1", optional = true }
+
 [features]
 default = []
 examples = ["esp-hal", "esp-wifi", "esp-alloc", "esp-hal-embassy", "static_cell", "panic-rtt-target", "smoltcp", "wifi-embassy"]
+# Enable IoT Container integration
+container = ["async-trait"]
 
 [lib]
 name = "mqtt_embassy"

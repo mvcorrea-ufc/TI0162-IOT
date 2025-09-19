@@ -12,9 +12,17 @@ extern crate alloc;
 pub mod mqtt_client;
 pub mod message;
 
+// IoT Container trait implementation (optional feature)
+#[cfg(feature = "container")]
+mod trait_impl;
+
 // Re-export main types
 pub use mqtt_client::{MqttClient, MqttConfig, MqttError};
 pub use message::{MqttMessage, SensorData, DeviceStatus};
+
+// Re-export container integration when available
+#[cfg(feature = "container")]
+pub use trait_impl::{MqttContainerAdapter, create_container_message_publisher, create_container_message_publisher_with_heartbeat};
 
 // Re-export Embassy types for convenience
 pub use embassy_executor::Spawner;

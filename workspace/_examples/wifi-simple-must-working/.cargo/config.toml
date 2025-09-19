@@ -1,0 +1,13 @@
+[target.riscv32imc-unknown-none-elf]
+runner = "probe-rs run --chip=esp32c3"
+
+[build]
+target = "riscv32imc-unknown-none-elf"
+
+[env]
+# WiFi credentials - Replace with your network details
+WIFI_SSID = "FamiliaFeliz-2Ghz"
+WIFI_PASSWORD = "ines#sara"
+
+# Portable atomic configuration
+CARGO_CFG_PORTABLE_ATOMIC_UNSAFE_ASSUME_SINGLE_CORE = ""

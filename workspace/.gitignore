@@ -76,4 +76,4 @@ coverage.xml
 *.rej
 
 # Examples and reference projects (not part of main IoT system)
-examples/
+examples/_examples/
