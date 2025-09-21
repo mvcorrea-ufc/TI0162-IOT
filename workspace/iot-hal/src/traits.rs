@@ -3,12 +3,11 @@
 //! Core trait definitions for hardware platform abstraction.
 //! These traits enable dependency injection, testing, and platform portability.
 
-use embedded_hal_async::i2c::I2c;
-use embedded_io_async::{Read, Write};
-use embedded_hal::digital::OutputPin;
+// Imports for hardware abstraction traits
 use embassy_time::Duration;
 use iot_common::IoTError;
 use async_trait::async_trait;
+use alloc::boxed::Box;
 
 /// Core hardware platform abstraction trait
 /// 
@@ -221,6 +220,7 @@ pub trait HardwarePlatform {
 /// 
 /// Provides async I2C operations with unified error handling.
 /// Supports both read and write operations with proper addressing.
+#[async_trait(?Send)]
 pub trait I2cInterface {
     /// Read data from I2C device
     /// 
@@ -264,6 +264,7 @@ pub trait I2cInterface {
 }
 
 /// UART transmitter interface for output operations
+#[async_trait(?Send)]
 pub trait UartTxInterface {
     /// Write data to UART
     /// 
@@ -289,6 +290,7 @@ pub trait UartTxInterface {
 }
 
 /// UART receiver interface for input operations
+#[async_trait(?Send)]
 pub trait UartRxInterface {
     /// Read data from UART
     /// 
@@ -312,6 +314,7 @@ pub trait UartRxInterface {
 }
 
 /// GPIO interface for digital pin control
+#[async_trait(?Send)]
 pub trait GpioInterface {
     /// Set pin to high level
     /// 
@@ -358,6 +361,7 @@ pub trait TimerInterface {
     /// # Returns
     /// 
     /// Returns when delay period has elapsed
+    #[allow(async_fn_in_trait)]
     async fn delay(&mut self, duration: Duration);
 
     /// Get current timestamp

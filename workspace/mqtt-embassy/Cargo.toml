@@ -44,7 +44,7 @@ async-trait = { version = "0.1", optional = true }
 default = []
 examples = ["esp-hal", "esp-wifi", "esp-alloc", "esp-hal-embassy", "static_cell", "panic-rtt-target", "smoltcp", "wifi-embassy"]
 # Enable IoT Container integration
-container = ["async-trait"]
+container = ["iot-container", "async-trait"]
 
 [lib]
 name = "mqtt_embassy"

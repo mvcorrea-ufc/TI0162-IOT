@@ -3,6 +3,8 @@
 //! Provides robust WiFi connectivity with automatic reconnection and DHCP support.
 //! Based on proven examples from the workspace and following the bme280-embassy pattern.
 
+extern crate alloc;
+
 use embassy_executor::Spawner;
 use embassy_net::{Config as NetConfig, Stack, StackResources, Runner};
 use embassy_time::{Duration, Timer};
@@ -63,13 +65,13 @@ pub struct WiFiConfig {
     /// 
     /// Must be the exact network name as broadcast by the access point.
     /// Maximum length: 32 characters (IEEE 802.11 standard).
-    pub ssid: &'static str,
+    pub ssid: heapless::String<32>,
     
     /// Network password/passphrase
     /// 
     /// For WPA2/WPA3 networks, this is the network passphrase.
     /// Minimum length: 8 characters, Maximum length: 63 characters.
-    pub password: &'static str,
+    pub password: heapless::String<64>,
 }
 
 /// WiFi connection status and network information
@@ -310,9 +312,16 @@ impl WiFiManager {
         );
         rprintln!("[WIFI] WiFi hardware initialized");
 
+        // Add a small delay to ensure WiFi peripheral is ready after restart
+        embassy_time::Timer::after(embassy_time::Duration::from_millis(100)).await;
+
         // Create WiFi controller and interfaces (from working examples)
+        rprintln!("[WIFI] Creating WiFi controller...");
         let (controller, interfaces) = esp_wifi::wifi::new(esp_wifi_ctrl, wifi)
-            .map_err(|_| WiFiError::HardwareInit("Failed to create WiFi controller"))?;
+            .map_err(|e| {
+                rprintln!("[WIFI] WiFi controller creation failed: {:?}", e);
+                WiFiError::HardwareInit("Failed to create WiFi controller")
+            })?;
         let device = interfaces.sta;
         rprintln!("[WIFI] WiFi controller created");
 
@@ -330,7 +339,7 @@ impl WiFiManager {
         rprintln!("[WIFI] Network stack created with DHCP");
 
         // Spawn background tasks (from working examples)
-        spawner.spawn(wifi_connection_task(controller, config.ssid, config.password))
+        spawner.spawn(wifi_connection_task(controller, config.ssid.clone(), config.password.clone()))
             .map_err(|_| WiFiError::Configuration("Failed to spawn WiFi task"))?;
         spawner.spawn(network_task(runner))
             .map_err(|_| WiFiError::Configuration("Failed to spawn network task"))?;
@@ -448,8 +457,8 @@ impl WiFiManager {
 #[embassy_executor::task]
 async fn wifi_connection_task(
     mut controller: WifiController<'static>,
-    ssid: &'static str,
-    password: &'static str,
+    ssid: heapless::String<32>,
+    password: heapless::String<64>,
 ) {
     rprintln!("[WIFI] Starting connection task for SSID: {}", ssid);
     
@@ -466,8 +475,8 @@ async fn wifi_connection_task(
         
         if !matches!(controller.is_started(), Ok(true)) {
             let client_config = Configuration::Client(ClientConfiguration {
-                ssid: ssid.try_into().unwrap(),
-                password: password.try_into().unwrap(),
+                ssid: alloc::string::String::from(ssid.as_str()),
+                password: alloc::string::String::from(password.as_str()),
                 ..Default::default()
             });
             controller.set_configuration(&client_config).unwrap();

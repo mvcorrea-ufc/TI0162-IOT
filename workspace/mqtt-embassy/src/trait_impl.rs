@@ -4,9 +4,14 @@
 //! for the MQTT client, enabling seamless integration with the dependency injection
 //! container system.
 
+#![no_std]
+
+extern crate alloc;
+use alloc::format;
+use alloc::boxed::Box;
+
 use async_trait::async_trait;
 use embassy_time::Instant;
-use core::net::Ipv4Addr;
 
 use iot_common::IoTError;
 
@@ -14,7 +19,7 @@ use iot_common::IoTError;
 #[cfg(feature = "container")]
 use iot_container::traits::{MessagePublisher, SensorData as ContainerSensorData, DeviceStatus as ContainerDeviceStatus, EmbeddedString};
 
-use crate::mqtt_client::{MqttClient, MqttConfig, MqttError};
+use crate::mqtt_client::{MqttClient, MqttError};
 use crate::message::{SensorData, DeviceStatus, MqttMessage};
 
 /// Adapter that implements the IoT Container MessagePublisher trait for MqttClient
@@ -257,7 +262,7 @@ impl MqttContainerAdapter {
     /// * `Err(IoTError)` - Connection failed
     async fn connect_to_broker(
         &mut self, 
-        stack: &'static embassy_net::Stack<embassy_net::driver::Driver<'static>>
+        stack: &'static embassy_net::Stack<'_, embassy_net::driver::Driver<'static>>
     ) -> Result<(), IoTError> {
         self.connection_attempts += 1;
         

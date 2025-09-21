@@ -72,7 +72,7 @@ pub struct TimingMeasurement {
 #[derive(Debug, Clone)]
 pub struct TimingData {
     /// Measurements by category
-    measurements: FnvIndexMap<TimingCategory, Vec<TimingMeasurement, 32>, 10>,
+    measurements: FnvIndexMap<TimingCategory, Vec<TimingMeasurement, 32>, 16>,
     
     /// Total number of measurements recorded
     total_measurements: u32,
@@ -85,13 +85,13 @@ pub struct TimingData {
 #[derive(Debug, Clone)]
 pub struct TimingStatistics {
     /// Statistics per timing category
-    category_stats: FnvIndexMap<TimingCategory, CategoryStatistics, 10>,
+    category_stats: FnvIndexMap<TimingCategory, CategoryStatistics, 16>,
     
     /// Overall timing analysis
     overall_stats: OverallStatistics,
     
     /// Analysis timestamp
-    analysis_time: Instant,
+    _analysis_time: Instant,
 }
 
 /// Statistical data for a specific timing category
@@ -254,7 +254,7 @@ impl TimingData {
         TimingStatistics {
             category_stats,
             overall_stats,
-            analysis_time: Instant::now(),
+            _analysis_time: Instant::now(),
         }
     }
     
@@ -338,7 +338,7 @@ impl TimingData {
         }
         
         // Simple linear trend analysis
-        let first_time = measurements[0].timestamp;
+        let _first_time = measurements[0].timestamp;
         let mut sum_x = 0.0f32;
         let mut sum_y = 0.0f32;
         let mut sum_xy = 0.0f32;

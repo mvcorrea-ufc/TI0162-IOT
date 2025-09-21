@@ -7,14 +7,15 @@ description = "IoT Environmental Monitoring System - Complete ESP32-C3 Integrati
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# Local IoT modules - complete integration
-bme280-embassy = { path = "../bme280-embassy", features = ["container"] }
-wifi-embassy = { path = "../wifi-embassy", features = ["container"] }
-mqtt-embassy = { path = "../mqtt-embassy", features = ["container"] }
-serial-console-embassy = { path = "../serial-console-embassy", features = ["container"] }
+# Local IoT modules - basic integration (container features disabled)
+bme280-embassy = { path = "../bme280-embassy" }
+wifi-embassy = { path = "../wifi-embassy" }
+mqtt-embassy = { path = "../mqtt-embassy" }
+serial-console-embassy = { path = "../serial-console-embassy" }
+iot-performance = { path = "../iot-performance", features = ["esp32c3"] }
 
-# IoT Container dependency injection system
-iot-container = { path = "../iot-container", features = ["esp32c3"] }
+# IoT Container dependency injection system - TEMPORARILY DISABLED
+# iot-container = { path = "../iot-container", features = ["esp32c3"] }
 iot-hal = { path = "../iot-hal", features = ["esp32c3"] }
 iot-common = { path = "../iot-common" }
 
@@ -41,8 +42,11 @@ embedded-hal-async = { workspace = true }
 heapless = { workspace = true }
 static_cell = { workspace = true }
 
-# Memory allocation - from workspace
+# Memory allocation and storage - from workspace
 esp-alloc = { workspace = true }
+esp-storage = { workspace = true }
+embedded-storage = { workspace = true }
+sequential-storage = { workspace = true }
 
 # JSON serialization for MQTT - from workspace
 serde = { workspace = true }
@@ -59,13 +63,14 @@ portable-atomic = { workspace = true }
 name = "main"
 path = "src/main.rs"
 
-[[bin]]
-name = "main_container"
-path = "src/main_container.rs"
+# Disabled until iot-container is available
+# [[bin]]
+# name = "main_container"
+# path = "src/main_container.rs"
 
 [features]
-default = ["container"]
-# Use the new dependency injection container
-container = []
-# Use mock implementations for testing
-mock = ["iot-container/mock"]
+default = []
+# Use the new dependency injection container - TEMPORARILY DISABLED
+# container = []
+# Use mock implementations for testing - TEMPORARILY DISABLED
+# mock = ["iot-container/mock"]

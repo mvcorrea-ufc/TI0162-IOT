@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  esp32c3-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.deployment
+    container_name: esp32c3-iot-deployment
+    privileged: true  # Required for USB device access
+    volumes:
+      - .:/workspace
+      - /dev:/dev  # USB device passthrough
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0  # ESP32-C3 USB CDC
+      - /dev/ttyUSB0:/dev/ttyUSB0  # Alternative USB serial
+    environment:
+      # WiFi Configuration
+      - WIFI_SSID=YourWiFiNetwork
+      - WIFI_PASSWORD=YourWiFiPassword
+      
+      # MQTT Configuration  
+      - MQTT_BROKER_IP=192.168.1.100
+      - MQTT_BROKER_PORT=1883
+      - MQTT_CLIENT_ID=esp32c3-iot-001
+      - MQTT_TOPIC_PREFIX=iot/sensors
+      
+      # Sensor Configuration
+      - SENSOR_TYPE=BME280
+      - SENSOR_INTERVAL_SEC=10
+      
+      # Hardware Configuration
+      - I2C_SDA_PIN=8
+      - I2C_SCL_PIN=9
+      - STATUS_LED_PIN=3
+      - UART_BAUD_RATE=115200
+    working_dir: /workspace
+    tty: true
+    stdin_open: true
+    
+  # Optional: MQTT Broker for local testing
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mqtt-config:/mosquitto/config
+    command: mosquitto -c /mosquitto/config/mosquitto.conf

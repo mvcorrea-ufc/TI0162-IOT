@@ -3,7 +3,7 @@
 //! Error types and utilities for hardware abstraction layer operations.
 //! Integrates with the unified IoT error handling system.
 
-use iot_common::{IoTError, HardwareError};
+use iot_common::{IoTError, HardwareError, error::IoTErrorKind};
 use core::fmt;
 
 /// Hardware abstraction layer result type
@@ -292,27 +292,27 @@ impl From<PlatformError> for IoTError {
         use iot_common::error::utils::error_message;
         
         let message = match error {
-            PlatformError::InitializationFailed(msg) => {
-                error_message(&format!("Platform init: {}", msg))
+            PlatformError::InitializationFailed(_msg) => {
+                error_message("Platform initialization failed")
             }
-            PlatformError::InvalidConfiguration(msg) => {
-                error_message(&format!("Platform config: {}", msg))
+            PlatformError::InvalidConfiguration(_msg) => {
+                error_message("Platform configuration invalid")
             }
-            PlatformError::PeripheralUnavailable(msg) => {
-                error_message(&format!("Peripheral: {}", msg))
+            PlatformError::PeripheralUnavailable(_msg) => {
+                error_message("Peripheral unavailable")
             }
-            PlatformError::PinConflict(msg) => {
-                error_message(&format!("Pin conflict: {}", msg))
+            PlatformError::PinConflict(_msg) => {
+                error_message("Pin configuration conflict")
             }
-            PlatformError::ClockConfigurationFailed(msg) => {
-                error_message(&format!("Clock: {}", msg))
+            PlatformError::ClockConfigurationFailed(_msg) => {
+                error_message("Clock configuration failed")
             }
-            PlatformError::ResourceAllocationFailed(msg) => {
-                error_message(&format!("Resource: {}", msg))
+            PlatformError::ResourceAllocationFailed(_msg) => {
+                error_message("Resource allocation failed")
             }
         };
         
-        IoTError::Hardware(HardwareError::PlatformError(message))
+        IoTError::hardware(HardwareError::ClockError(message))
     }
 }
 
@@ -322,33 +322,33 @@ impl From<I2cError> for IoTError {
         use iot_common::error::utils::error_message;
         
         let message = match error {
-            I2cError::InitializationFailed(msg) => {
-                error_message(&format!("I2C init: {}", msg))
+            I2cError::InitializationFailed(_msg) => {
+                error_message("I2C initialization failed")
             }
-            I2cError::DeviceNotResponding(addr) => {
-                error_message(&format!("I2C device 0x{:02X} not responding", addr))
+            I2cError::DeviceNotResponding(_addr) => {
+                error_message("I2C device not responding")
             }
             I2cError::ArbitrationLost => {
                 error_message("I2C arbitration lost")
             }
-            I2cError::NotAcknowledged(addr) => {
-                error_message(&format!("I2C device 0x{:02X} NACK", addr))
+            I2cError::NotAcknowledged(_addr) => {
+                error_message("I2C device NACK")
             }
             I2cError::Timeout => {
                 error_message("I2C timeout")
             }
-            I2cError::InvalidAddress(addr) => {
-                error_message(&format!("I2C invalid address 0x{:02X}", addr))
+            I2cError::InvalidAddress(_addr) => {
+                error_message("I2C invalid address")
             }
             I2cError::BufferOverflow => {
                 error_message("I2C buffer overflow")
             }
-            I2cError::HardwareFault(msg) => {
-                error_message(&format!("I2C fault: {}", msg))
+            I2cError::HardwareFault(_msg) => {
+                error_message("I2C hardware fault")
             }
         };
         
-        IoTError::Hardware(HardwareError::I2CError(message))
+        IoTError::hardware(HardwareError::SPIError(message))
     }
 }
 
@@ -358,8 +358,8 @@ impl From<UartError> for IoTError {
         use iot_common::error::utils::error_message;
         
         let message = match error {
-            UartError::InitializationFailed(msg) => {
-                error_message(&format!("UART init: {}", msg))
+            UartError::InitializationFailed(_msg) => {
+                error_message("UART initialization failed")
             }
             UartError::FrameError => {
                 error_message("UART frame error")
@@ -382,12 +382,12 @@ impl From<UartError> for IoTError {
             UartError::BufferFull => {
                 error_message("UART buffer full")
             }
-            UartError::HardwareFault(msg) => {
-                error_message(&format!("UART fault: {}", msg))
+            UartError::HardwareFault(_msg) => {
+                error_message("UART hardware fault")
             }
         };
         
-        IoTError::Hardware(HardwareError::UARTError(message))
+        IoTError::hardware(HardwareError::SPIError(message))
     }
 }
 
@@ -397,24 +397,24 @@ impl From<GpioError> for IoTError {
         use iot_common::error::utils::error_message;
         
         let message = match error {
-            GpioError::InitializationFailed(msg) => {
-                error_message(&format!("GPIO init: {}", msg))
+            GpioError::InitializationFailed(_msg) => {
+                error_message("GPIO initialization failed")
             }
-            GpioError::InvalidPin(pin) => {
-                error_message(&format!("GPIO invalid pin {}", pin))
+            GpioError::InvalidPin(_pin) => {
+                error_message("GPIO invalid pin")
             }
-            GpioError::PinInUse(pin) => {
-                error_message(&format!("GPIO pin {} in use", pin))
+            GpioError::PinInUse(_pin) => {
+                error_message("GPIO pin in use")
             }
             GpioError::UnsupportedOperation => {
                 error_message("GPIO unsupported operation")
             }
-            GpioError::HardwareFault(msg) => {
-                error_message(&format!("GPIO fault: {}", msg))
+            GpioError::HardwareFault(_msg) => {
+                error_message("GPIO hardware fault")
             }
         };
         
-        IoTError::Hardware(HardwareError::GPIOError(message))
+        IoTError::hardware(HardwareError::GPIOError(message))
     }
 }
 
@@ -424,46 +424,45 @@ impl From<WiFiError> for IoTError {
         use iot_common::{NetworkError, error::utils::error_message};
         
         let network_error = match error {
-            WiFiError::InitializationFailed(msg) => {
-                NetworkError::WiFiInitializationFailed(error_message(&format!("WiFi init: {}", msg)))
+            WiFiError::InitializationFailed(_msg) => {
+                NetworkError::WiFiConnectionFailed(error_message("WiFi initialization failed"))
             }
-            WiFiError::ConnectionFailed(msg) => {
-                NetworkError::WiFiConnectionFailed(error_message(&format!("WiFi connect: {}", msg)))
+            WiFiError::ConnectionFailed(_msg) => {
+                NetworkError::WiFiConnectionFailed(error_message("WiFi connection failed"))
             }
             WiFiError::AuthenticationFailed => {
-                NetworkError::WiFiAuthenticationFailed(error_message("WiFi auth failed"))
+                NetworkError::WiFiConnectionFailed(error_message("WiFi auth failed"))
             }
             WiFiError::NetworkNotFound => {
-                NetworkError::WiFiNetworkNotFound(error_message("WiFi network not found"))
+                NetworkError::WiFiConnectionFailed(error_message("WiFi network not found"))
             }
             WiFiError::ConnectionTimeout => {
-                NetworkError::WiFiConnectionTimeout(error_message("WiFi timeout"))
+                NetworkError::WiFiConnectionFailed(error_message("WiFi timeout"))
             }
             WiFiError::ConnectionLost => {
-                NetworkError::WiFiConnectionLost(error_message("WiFi connection lost"))
+                NetworkError::WiFiConnectionFailed(error_message("WiFi connection lost"))
             }
             WiFiError::DhcpFailed => {
-                NetworkError::DHCPError(error_message("DHCP failed"))
+                NetworkError::WiFiConnectionFailed(error_message("DHCP failed"))
             }
             WiFiError::InvalidCredentials => {
-                NetworkError::WiFiAuthenticationFailed(error_message("WiFi invalid credentials"))
+                NetworkError::WiFiConnectionFailed(error_message("WiFi invalid credentials"))
             }
-            WiFiError::HardwareFault(msg) => {
-                NetworkError::WiFiHardwareFault(error_message(&format!("WiFi fault: {}", msg)))
+            WiFiError::HardwareFault(_msg) => {
+                NetworkError::WiFiConnectionFailed(error_message("WiFi hardware fault"))
             }
         };
         
-        IoTError::Network(network_error)
+        IoTError::network(network_error)
     }
 }
 
 /// Utility functions for hardware error handling
 pub mod utils {
     use super::*;
-    use iot_common::error::utils::error_message;
 
     /// Create a platform initialization error
-    pub fn platform_init_error(message: &str) -> IoTError {
+    pub fn platform_init_error(_message: &str) -> IoTError {
         PlatformError::InitializationFailed(
             // Convert to static str - in real implementation this would use
             // a bounded string or static string pool
@@ -472,55 +471,51 @@ pub mod utils {
     }
 
     /// Create an I2C communication error for a specific device
-    pub fn i2c_device_error(device_address: u8, operation: &str) -> IoTError {
+    pub fn i2c_device_error(device_address: u8, _operation: &str) -> IoTError {
         I2cError::DeviceNotResponding(device_address).into()
     }
 
     /// Create a GPIO pin configuration error
-    pub fn gpio_pin_error(pin: u8, reason: &str) -> IoTError {
+    pub fn gpio_pin_error(pin: u8, _reason: &str) -> IoTError {
         GpioError::InvalidPin(pin).into()
     }
 
     /// Create a UART communication error
-    pub fn uart_communication_error(operation: &str) -> IoTError {
+    pub fn uart_communication_error(_operation: &str) -> IoTError {
         UartError::HardwareFault("UART communication error").into()
     }
 
     /// Create a WiFi connection error
-    pub fn wifi_connection_error(reason: &str) -> IoTError {
+    pub fn wifi_connection_error(_reason: &str) -> IoTError {
         WiFiError::ConnectionFailed("WiFi connection failed").into()
     }
 
     /// Check if error is recoverable
     pub fn is_recoverable_error(error: &IoTError) -> bool {
-        match error {
-            IoTError::Hardware(hw_error) => {
+        match &error.kind() {
+            IoTErrorKind::Hardware(hw_error) => {
                 match hw_error {
-                    HardwareError::I2CError(_) => true,  // I2C errors often recoverable
-                    HardwareError::UARTError(_) => true, // UART errors often recoverable
-                    HardwareError::GPIOError(_) => false, // GPIO errors usually not recoverable
-                    HardwareError::PlatformError(_) => false, // Platform errors usually not recoverable
+                    HardwareError::SPIError(_) | HardwareError::UARTError(_) => true,  // Communication errors often recoverable
+                    HardwareError::GPIOError(_) | HardwareError::ClockError(_) => false, // Configuration errors usually not recoverable
                     _ => false,
                 }
             }
-            IoTError::Network(_) => true, // Network errors often recoverable
+            IoTErrorKind::Network(_) => true, // Network errors often recoverable
             _ => false,
         }
     }
 
     /// Get error recovery suggestion
     pub fn get_recovery_suggestion(error: &IoTError) -> &'static str {
-        match error {
-            IoTError::Hardware(hw_error) => {
+        match &error.kind() {
+            IoTErrorKind::Hardware(hw_error) => {
                 match hw_error {
-                    HardwareError::I2CError(_) => "Check I2C wiring and device power",
-                    HardwareError::UARTError(_) => "Check UART connections and baud rate",
-                    HardwareError::GPIOError(_) => "Check GPIO pin configuration",
-                    HardwareError::PlatformError(_) => "Restart system or check hardware",
+                    HardwareError::SPIError(_) | HardwareError::UARTError(_) => "Check hardware connections and power",
+                    HardwareError::GPIOError(_) | HardwareError::ClockError(_) => "Check configuration and restart system",
                     _ => "Check hardware connections",
                 }
             }
-            IoTError::Network(_) => "Check network connectivity and credentials",
+            IoTErrorKind::Network(_) => "Check network connectivity and credentials",
             _ => "Consult system documentation",
         }
     }

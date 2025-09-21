@@ -12,7 +12,7 @@ use core::fmt::Write;
 use crate::timing::{TimingCategory, TimingData, TimingStatistics};
 use crate::memory::{MemoryTracker, MemorySnapshot, MemoryRegion};
 use crate::baseline::{PerformanceBaseline, BaselineComparison};
-use iot_common::{IoTError, IoTResult};
+use iot_common::IoTResult;
 
 /// Main performance monitoring coordinator
 /// 

@@ -17,12 +17,19 @@
 //!
 //! ```no_run
 //! use bme280_embassy::{BME280, Measurements};
-//! use esp_hal::i2c::I2c;
+//! use esp_hal::i2c::master::{I2c, Config as I2cConfig};
 //! use embassy_time::{Timer, Duration};
 //!
 //! #[embassy_executor::task]
-//! async fn sensor_task(mut i2c: I2c<'static, esp_hal::peripherals::I2C0>) {
-//!     let mut sensor = BME280::new(&mut i2c);
+//! async fn sensor_task() {
+//!     let peripherals = esp_hal::init(esp_hal::Config::default());
+//!     
+//!     let mut i2c = I2c::new(peripherals.I2C0, I2cConfig::default())
+//!         .unwrap()
+//!         .with_sda(peripherals.GPIO8)
+//!         .with_scl(peripherals.GPIO9);
+//!         
+//!     let mut sensor = BME280::new(&mut i2c, 0x76);
 //!     
 //!     // Initialize sensor
 //!     sensor.init().await.unwrap();
@@ -55,7 +62,7 @@
 //! | 3.3V         | VCC        | Power       |
 //! | GND          | GND        | Ground      |
 //!
-//! **Important**: Add 4.7kΩ pull-up resistors on SDA and SCL lines.
+//! **Important**: Most BME280 modules have built-in pull-up resistors. External pull-ups are usually not needed.
 //!
 //! ## Sensor Specifications
 //!
@@ -74,15 +81,10 @@
 //! use iot_common::{IoTResult, IoTError};
 //! 
 //! async fn sensor_with_error_handling() -> IoTResult<f32> {
-//!     let mut sensor = BME280::new(&mut i2c);
+//!     let mut sensor = BME280::new(&mut i2c, 0x76);
 //!     
 //!     let measurements = sensor.read_measurements().await
-//!         .map_err(|e| IoTError::sensor(
-//!             iot_common::SensorError::I2CError(
-//!                 iot_common::error::utils::error_message("BME280 read failed")
-//!             )
-//!         ))
-//!         .with_context("Environmental data collection")?;
+//!         .map_err(|e| IoTError::from(e))?;
 //!     
 //!     Ok(measurements.temperature)
 //! }
@@ -93,14 +95,6 @@
 mod i2c_device;
 mod bme280;
 
-// IoT Container trait implementation (optional feature)
-#[cfg(feature = "container")]
-mod trait_impl;
-
 // Re-export types that should be accessible to users
 pub use bme280::{BME280, Measurements, CalibrationData};
 pub use i2c_device::I2cDevice;
-
-// Re-export container integration when available
-#[cfg(feature = "container")]
-pub use trait_impl::{BME280ContainerAdapter, create_container_sensor, create_container_sensor_with_interval};

@@ -8,8 +8,7 @@ use heapless::{Vec, String};
 use core::fmt::Write;
 
 use crate::timing::{TimingStatistics, TimingCategory};
-use crate::memory::{MemorySnapshot, MemoryAnalysis};
-use crate::baseline::{BaselineComparison, PerformanceGrade};
+use crate::memory::MemorySnapshot;
 
 /// Comprehensive performance analyzer
 pub struct PerformanceAnalyzer {

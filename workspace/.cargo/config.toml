@@ -13,11 +13,14 @@ build-std = ["core"]
 
 [env]
 # WiFi Configuration
-WIFI_SSID = "YourWiFiNetwork"
-WIFI_PASSWORD = "YourWiFiPassword"
+WIFI_SSID = "FamiliaFeliz-2Ghz"
+WIFI_PASSWORD = "ines#sara"
 
 # MQTT Configuration  
 MQTT_BROKER_IP = "10.10.10.210"
 MQTT_BROKER_PORT = "1883"
-MQTT_CLIENT_ID = "esp32-c3-iot-system"
+MQTT_CLIENT_ID = "esp32-c3-iot-system-v2"
 MQTT_TOPIC_PREFIX = "esp32"
+
+# Embassy Task Arena Size - Override for WiFi+MQTT
+EMBASSY_EXECUTOR_TASK_ARENA_SIZE = "65536"

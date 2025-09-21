@@ -12,7 +12,7 @@ use embassy_time::{Duration, Timer};
 use embedded_io_async::Write;
 use rtt_target::rprintln;
 
-use crate::message::{MqttMessage, SensorData, DeviceStatus, MqttPayload};
+use crate::message::{MqttMessage, SensorData, DeviceStatus};
 
 /// MQTT client configuration
 #[derive(Debug, Clone)]
@@ -206,6 +206,9 @@ impl MqttClient {
         socket.write_all(&publish_packet).await
             .map_err(|_| MqttError::IoError("Failed to send PUBLISH packet"))?;
         
+        // Add delay to ensure message delivery to subscribers before connection closes
+        embassy_time::Timer::after(embassy_time::Duration::from_millis(100)).await;
+        
         rprintln!("[MQTT] Message published successfully");
         Ok(())
     }
@@ -216,8 +219,8 @@ impl MqttClient {
         socket: &mut TcpSocket<'a>, 
         sensor_data: &SensorData
     ) -> Result<(), MqttError> {
-        let payload = MqttPayload::new(sensor_data.clone());
-        let json_str = payload.to_json()
+        // Use simple sensor data JSON instead of complex nested structure
+        let json_str = sensor_data.to_json()
             .map_err(|e| MqttError::SerializationError(e))?;
         
         let topic = "esp32/sensor/bme280";

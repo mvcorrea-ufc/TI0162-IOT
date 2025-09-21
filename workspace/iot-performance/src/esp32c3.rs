@@ -3,11 +3,9 @@
 //! Platform-specific performance monitoring capabilities that leverage
 //! ESP32-C3 hardware features for detailed performance analysis.
 
-use embassy_time::{Duration, Instant};
+use embassy_time::Instant;
 use heapless::Vec;
 
-#[cfg(feature = "esp32c3")]
-use esp_hal::peripherals::SYSTIMER;
 
 /// ESP32-C3 specific performance counters and monitoring
 pub struct Esp32C3PerformanceCounters {
@@ -19,7 +17,7 @@ pub struct Esp32C3PerformanceCounters {
     cpu_cycles_enabled: bool,
     
     /// Last CPU cycle count
-    last_cpu_cycles: u64,
+    _last_cpu_cycles: u64,
     
     /// Interrupt latency measurements
     interrupt_latencies: Vec<u32, 16>,
@@ -111,7 +109,7 @@ impl Esp32C3PerformanceCounters {
             #[cfg(feature = "esp32c3")]
             systimer: None,
             cpu_cycles_enabled: false,
-            last_cpu_cycles: 0,
+            _last_cpu_cycles: 0,
             interrupt_latencies: Vec::new(),
             cache_metrics: CacheMetrics {
                 hit_rate: 0.0,

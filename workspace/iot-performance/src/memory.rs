@@ -5,7 +5,6 @@
 
 use embassy_time::Instant;
 use heapless::Vec;
-use core::ptr;
 
 /// Memory regions that can be monitored
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -75,7 +74,7 @@ pub struct MemoryTracker {
     all_time_peaks: MemoryPeaks,
     
     /// Memory allocation tracking (if enabled)
-    allocation_tracking: bool,
+    _allocation_tracking: bool,
     
     /// Fragmentation analysis data
     fragmentation_data: FragmentationData,
@@ -210,7 +209,7 @@ impl MemoryTracker {
                 heap_peak_time: initial_snapshot.timestamp,
                 stack_peak_time: initial_snapshot.timestamp,
             },
-            allocation_tracking: true,
+            _allocation_tracking: true,
             fragmentation_data: FragmentationData {
                 largest_free_block: 0,
                 free_block_count: 0,

@@ -91,8 +91,7 @@
 
 #![no_std]
 
-// Only require alloc for mock features (testing)
-#[cfg(feature = "mock")]
+// Require alloc for async_trait Box usage and mock features
 extern crate alloc;
 
 // Core modules
@@ -110,7 +109,7 @@ pub mod mock;
 // Re-export core types
 pub use traits::{HardwarePlatform, I2cInterface, UartTxInterface, UartRxInterface, GpioInterface, TimerInterface, WiFiInterface, WiFiConnectionInfo};
 pub use config::{HardwareConfig, I2cConfig, UartConfig, WiFiConfig as HalWiFiConfig};
-pub use error::{HardwareError, HardwareResult};
+pub use error::{HardwareResult};
 
 // Re-export platform implementations
 #[cfg(feature = "esp32c3")]

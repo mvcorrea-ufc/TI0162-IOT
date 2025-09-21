@@ -8,7 +8,9 @@ members = [
     "mqtt-embassy",
     "serial-console-embassy",
     "main-app",
+    "simple-iot",
     "iot-common",
+    "iot-container",
     "iot-hal",
     "iot-performance",
     "bme280-tests",
@@ -41,8 +43,11 @@ heapless = { version = "0.8" }
 static_cell = { version = "2.1" }
 nb = { version = "1.0" }
 
-# Memory allocation
+# Memory allocation and storage
 esp-alloc = { version = "0.8.0" }
+esp-storage = { version = "0.3.0", features = ["esp32c3"] }
+embedded-storage = { version = "0.3.1" }
+sequential-storage = { version = "3.0.0" }
 
 # Debugging and panic handling - RTT standardized
 rtt-target = { version = "0.5" }

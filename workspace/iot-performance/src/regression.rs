@@ -4,12 +4,12 @@
 //! architectural improvements don't introduce performance regressions.
 
 use embassy_time::{Duration, Instant};
-use heapless::{Vec, String, FnvIndexMap};
+use heapless::{Vec, String};
 use core::fmt::Write;
 
 use crate::timing::{TimingStatistics, TimingCategory};
 use crate::memory::MemorySnapshot;
-use crate::baseline::{PerformanceBaseline, BaselineComparison, BaselineStatus};
+use crate::baseline::PerformanceBaseline;
 
 /// Automated performance regression tester
 pub struct RegressionTester {
@@ -560,7 +560,7 @@ impl RegressionTester {
         timing_stats: &TimingStatistics,
         _memory_snapshot: &MemorySnapshot,
         metric_results: &mut Vec<MetricRegressionResult, 16>,
-        regressions: &mut Vec<DetectedRegression, 8>,
+        _regressions: &mut Vec<DetectedRegression, 8>,
     ) {
         // Test system efficiency
         let current_efficiency = timing_stats.get_overall_stats().efficiency_ratio;

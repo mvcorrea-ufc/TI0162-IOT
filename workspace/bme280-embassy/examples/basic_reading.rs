@@ -3,22 +3,32 @@
 
 use panic_rtt_target as _;
 use rtt_target::{rprintln, rtt_init_print};
+
+use embassy_executor::Spawner;
+use embassy_time::{Timer, Duration};
+
 use esp_hal::{
     delay::Delay,
     gpio::{Level, Output, OutputConfig},
     i2c::master::{I2c, Config as I2cConfig},
-    main,
 };
 
-#[main]
-fn main() -> ! {
+use bme280_embassy::{BME280, I2cDevice};
+
+#[esp_hal_embassy::main]
+async fn main(_spawner: Spawner) {
     // Initialize RTT for console output
     rtt_init_print!();
     
-    rprintln!("ESP32-C3 BME280 Basic Reading Test");
-    rprintln!("==================================");
+    rprintln!("🌡️ ESP32-C3 BME280 Embassy - Basic Reading Test");
+    rprintln!("================================================");
 
     let peripherals = esp_hal::init(esp_hal::Config::default());
+    
+    // Initialize Embassy time driver
+    let timer_group1 = esp_hal::timer::timg::TimerGroup::new(peripherals.TIMG1);
+    esp_hal_embassy::init(timer_group1.timer0);
+    
     let delay = Delay::new();
     
     // Set up LED (GPIO3) for status indication
@@ -30,51 +40,66 @@ fn main() -> ! {
         .with_sda(peripherals.GPIO8)
         .with_scl(peripherals.GPIO9);
 
-    rprintln!("I2C initialized - SDA: GPIO8, SCL: GPIO9");
+    rprintln!("✅ I2C initialized - SDA: GPIO8, SCL: GPIO9");
     
     // Test I2C communication by scanning for BME280
-    rprintln!("Scanning for BME280 sensor...");
+    rprintln!("🔍 Scanning for BME280 sensor...");
     
-    // BME280 addresses: 0x76 (primary) or 0x77 (secondary)
-    let bme280_addrs = [0x76, 0x77];
-    let mut found_addr = None;
+    // Create I2C device abstraction for BME280
+    let i2c_device = I2cDevice::new(&mut i2c, 0x76);
+    let mut sensor = BME280::new(i2c_device);
     
-    for &addr in &bme280_addrs {
-        if i2c.transaction(addr, &mut []).is_ok() {
-            rprintln!("Found BME280 at address: 0x{:02X}", addr);
-            found_addr = Some(addr);
-            break;
-        }
-    }
-    
-    match found_addr {
-        Some(addr) => {
-            rprintln!("[PASS] BME280 detected at 0x{:02X}", addr);
+    // Try to initialize the sensor
+    match sensor.init().await {
+        Ok(()) => {
+            rprintln!("✅ BME280 sensor initialized successfully!");
             
-            // Try to read BME280 chip ID (register 0xD0 should return 0x60)
-            let mut chip_id = [0u8];
-            if i2c.write_read(addr, &[0xD0], &mut chip_id).is_ok() {
-                if chip_id[0] == 0x60 {
-                    rprintln!("[PASS] BME280 chip ID verified: 0x{:02X}", chip_id[0]);
-                } else {
-                    rprintln!("[WARN] Unexpected chip ID: 0x{:02X} (expected 0x60)", chip_id[0]);
-                }
-            } else {
-                rprintln!("[WARN] Could not read chip ID");
+            // Display calibration data for debugging
+            if let Some(calib) = sensor.get_calibration_data() {
+                rprintln!("📊 Calibration data loaded:");
+                rprintln!("   Temperature: T1={}, T2={}, T3={}", calib.dig_t1, calib.dig_t2, calib.dig_t3);
+                rprintln!("   Pressure: P1={}, P2={}, P3={}", calib.dig_p1, calib.dig_p2, calib.dig_p3);
+                rprintln!("   Humidity: H1={}, H2={}, H3={}", calib.dig_h1, calib.dig_h2, calib.dig_h3);
             }
-        },
-        None => {
-            rprintln!("[INFO] No BME280 found at standard addresses (0x76, 0x77)");
-            rprintln!("[INFO] Check wiring: SDA=GPIO8, SCL=GPIO9");
+            
+            // Start measurement loop
+            rprintln!("🚀 Starting measurement loop...");
+            
+            loop {
+                led.toggle();
+                
+                match sensor.read_measurements().await {
+                    Ok(measurements) => {
+                        rprintln!("📊 BME280 Measurements:");
+                        rprintln!("   🌡️  Temperature: {:.2}°C", measurements.temperature);
+                        rprintln!("   💧 Humidity: {:.2}% RH", measurements.humidity);
+                        rprintln!("   🌊 Pressure: {:.2} hPa", measurements.pressure);
+                        rprintln!("   ✅ Reading successful");
+                    }
+                    Err(e) => {
+                        rprintln!("❌ Sensor error: {:?}", e);
+                    }
+                }
+                
+                // Wait 5 seconds between readings
+                Timer::after(Duration::from_secs(5)).await;
+            }
         }
-    }
-    
-    rprintln!("Test completed - blinking LED to indicate success");
-
-    // Simple blink loop like blinky
-    loop {
-        led.toggle();
-        delay.delay_millis(500);
-        rprintln!("BME280 test running... LED toggled");
+        Err(e) => {
+            rprintln!("❌ BME280 initialization failed: {:?}", e);
+            rprintln!("💡 Check wiring: SDA=GPIO8, SCL=GPIO9, VCC=3.3V, GND=GND");
+            rprintln!("💡 Try different I2C address: 0x77 instead of 0x76");
+            
+            // Error blink pattern
+            loop {
+                for _ in 0..3 {
+                    led.set_high();
+                    delay.delay_millis(200);
+                    led.set_low();
+                    delay.delay_millis(200);
+                }
+                delay.delay_millis(1000);
+            }
+        }
     }
 }
