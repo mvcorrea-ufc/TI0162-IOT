@@ -1,0 +1,42 @@
+[package]
+name = "main-nodeps"
+version = "1.0.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+description = "Zero-dependency ESP32-C3 IoT Application - Ultra-minimal sensor reading"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# ESP32-C3 Hardware Abstraction Layer - MINIMAL CONFIGURATION
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable", "rt"], default-features = false }
+
+# NO EMBASSY NEEDED - Pure blocking/synchronous implementation
+
+# Memory allocation - minimal heap only
+esp-alloc = { version = "0.8.0", default-features = false }
+
+# Debugging via RTT - minimal features
+rtt-target = { version = "0.5", default-features = false }
+panic-rtt-target = { version = "0.1", default-features = false }
+
+# Utilities - absolute minimum
+static_cell = { version = "2.1", default-features = false }
+heapless = { version = "0.8", default-features = false }
+critical-section = { version = "1.1", default-features = false }
+
+# Force minimal portable-atomic for ESP32-C3 optimization
+portable-atomic = { version = "1.11", default-features = false, features = ["unsafe-assume-single-core"] }
+
+# WiFi support for synchronous implementation - with network stack for real DHCP
+esp-wifi = { workspace = true }
+smoltcp = { workspace = true }
+blocking-network-stack = { git = "https://github.com/bjoernQ/blocking-network-stack.git", rev = "b3ecefc222d8806edd221f266999ca339c52d34e", default-features = false, features = ["dhcpv4", "tcp"] }
+embedded-io = { version = "0.6", default-features = false }
+
+[[bin]]
+name = "main-nodeps"
+path = "src/main.rs"
+
+# Zero external crate dependencies for maximum performance
+# All functionality implemented via direct hardware access
+# Profiles configured at workspace level with RTT preservation
