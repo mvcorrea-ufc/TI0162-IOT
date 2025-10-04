@@ -5,19 +5,20 @@ authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
 edition = "2021"
 description = "IoT Environmental Monitoring System - Complete ESP32-C3 Integration"
 license = "MIT OR Apache-2.0"
+default-run = "main"
 
 [dependencies]
-# Local IoT modules - basic integration (container features disabled)
-bme280-embassy = { path = "../bme280-embassy" }
-wifi-embassy = { path = "../wifi-embassy" }
-mqtt-embassy = { path = "../mqtt-embassy" }
-serial-console-embassy = { path = "../serial-console-embassy" }
-iot-performance = { path = "../iot-performance", features = ["esp32c3"] }
+# Local IoT modules - full integration with complete feature set
+bme280-embassy = { path = "../../drivers/bme280-embassy" }
+wifi-embassy = { path = "../../drivers/wifi-embassy" }
+mqtt-embassy = { path = "../../drivers/mqtt-embassy" }
+serial-console-embassy = { path = "../../drivers/serial-console-embassy" }
+iot-performance = { path = "../../core/iot-performance", features = ["esp32c3"] }
 
-# IoT Container dependency injection system - TEMPORARILY DISABLED
-# iot-container = { path = "../iot-container", features = ["esp32c3"] }
-iot-hal = { path = "../iot-hal", features = ["esp32c3"] }
-iot-common = { path = "../iot-common" }
+# IoT Container dependency injection system - FULL FEATURED APPLICATION
+iot-container = { path = "../../core/iot-container", features = ["esp32c3"] }
+iot-hal = { path = "../../core/iot-hal", features = ["esp32c3"] }
+iot-common = { path = "../../core/iot-common" }
 
 # ESP32-C3 Hardware Abstraction Layer - from workspace
 esp-hal = { workspace = true }
@@ -59,18 +60,19 @@ panic-rtt-target = { workspace = true }
 # Force portable-atomic override (ESP32-C3 compatibility)
 portable-atomic = { workspace = true }
 
+# Primary IoT application with real hardware integration (DEFAULT)
 [[bin]]
 name = "main"
 path = "src/main.rs"
 
-# Disabled until iot-container is available
-# [[bin]]
-# name = "main_container"
-# path = "src/main_container.rs"
+# Dependency injection architecture demonstration (Example/Educational)
+[[bin]]
+name = "main_container"
+path = "src/main_container.rs"
 
 [features]
 default = []
-# Use the new dependency injection container - TEMPORARILY DISABLED
-# container = []
-# Use mock implementations for testing - TEMPORARILY DISABLED
-# mock = ["iot-container/mock"]
+# Use the new dependency injection container - FULL FEATURED APPLICATION
+container = []
+# Use mock implementations for testing
+mock = ["iot-container/mock"]

@@ -1,19 +1,40 @@
 [workspace]
 resolver = "2"
 members = [
-    "blinky",
-    "bme280-embassy",
-    "wifi-embassy", 
-    "wifi-synchronous",
-    "mqtt-embassy",
-    "serial-console-embassy",
-    "main-app",
-    "simple-iot",
-    "iot-common",
-    "iot-container",
-    "iot-hal",
-    "iot-performance",
-    "bme280-tests",
+    # ==== APPLICATION LAYER ====
+    # NO DEPENDENCIES (main-nodeps must stay isolated)
+    "apps/main-nodeps",
+    # Minimal Dependencies Application Layer
+    "apps/main-min",
+    # Full Dependencies Application Layer - Complete IoT Platform
+    "apps/main-app",
+    
+    # ==== CORE MODULES ====
+    "core/iot-common",
+    "core/iot-config", 
+    "core/iot-container",
+    "core/iot-hal",
+    "core/iot-performance",
+    "core/iot-storage",
+    
+    # ==== DRIVER MODULES ====
+    "drivers/bme280-embassy",
+    "drivers/mqtt-embassy",
+    "drivers/serial-console-embassy", 
+    "drivers/wifi-embassy",
+    
+    # Note: Supporting modules (blinky, examples, tests) are 
+    # standalone and build independently with their own dependencies
+]
+
+# Exclude supporting modules so they build independently
+exclude = [
+    "supporting/modules/esp32c3-hardware-validator",
+    "supporting/modules/esp32c3-environmental-monitor",
+    "supporting/modules/esp32c3-blocking-wifi",
+    "supporting/modules/bme280-algorithms-test",
+    "supporting/modules/esp32c3-embassy-wifi",
+    "supporting/modules/esp32c3-modular-wifi"
 ]
 
 [workspace.dependencies]
@@ -62,6 +83,7 @@ serde-json-core = { version = "0.6" }
 
 # Additional utilities
 critical-section = { version = "1.2", default-features = false }
+async-trait = { version = "0.1", default-features = false }
 
 # Force portable-atomic configuration for ESP32-C3 (explicit features for single-core)
 portable-atomic = { version = "1.11", default-features = false, features = ["unsafe-assume-single-core"] }

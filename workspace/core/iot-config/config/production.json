@@ -1,0 +1,64 @@
+{
+  "wifi": {
+    "ssid": "ProductionNetwork",
+    "password": "SecureProductionPassword456",
+    "timeout_seconds": 15,
+    "retry_attempts": 5,
+    "auto_reconnect": true
+  },
+  "mqtt": {
+    "broker_ip": "192.168.1.100",
+    "broker_port": 1883,
+    "client_id": "esp32c3-prod-sensor",
+    "topic_prefix": "production/sensors",
+    "sensor_topic": "production/sensors/bme280",
+    "status_topic": "production/sensors/status",
+    "heartbeat_topic": "production/sensors/heartbeat",
+    "sensor_interval_secs": 30,
+    "heartbeat_interval_secs": 60,
+    "status_interval_secs": 120
+  },
+  "sensor": {
+    "i2c_address": 118,
+    "reading_interval_secs": 30,
+    "calibration_enabled": true,
+    "temperature_offset": -0.5,
+    "humidity_offset": 2.0,
+    "pressure_offset": 0.0
+  },
+  "console": {
+    "enabled": false,
+    "baud_rate": 115200,
+    "command_timeout_ms": 10000,
+    "history_size": 5,
+    "prompt": "prod> "
+  },
+  "system": {
+    "performance_monitoring": false,
+    "status_led_enabled": true,
+    "debug_output": false,
+    "heap_size": 49152,
+    "task_stack_size": 4096,
+    "watchdog_timeout_secs": 120
+  },
+  "storage": {
+    "flash_offset": 3145728,
+    "backup_enabled": true,
+    "wear_leveling": true,
+    "compression": true
+  },
+  "features": {
+    "wifi_enabled": true,
+    "mqtt_enabled": true,
+    "console_enabled": false,
+    "performance_enabled": false,
+    "container_enabled": false,
+    "storage_enabled": true
+  },
+  "hardware": {
+    "i2c_sda_pin": 8,
+    "i2c_scl_pin": 9,
+    "status_led_pin": 3,
+    "i2c_frequency_hz": 100000
+  }
+}

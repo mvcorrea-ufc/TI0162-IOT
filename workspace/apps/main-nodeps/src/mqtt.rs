@@ -26,7 +26,7 @@ use crate::config::NodepsConfig;
 use blocking_network_stack::Stack;
 use esp_wifi::wifi::WifiDevice;
 use core::net::Ipv4Addr;
-use smoltcp::wire::IpAddress;
+// Removed unused import
 use embedded_io::{Read, Write};
 use alloc::vec::Vec;
 
@@ -53,12 +53,8 @@ impl MqttConfig {
     }
 }
 
-/// Simple MQTT message structure
-#[derive(Debug)]
-pub struct MqttMessage {
-    pub topic: &'static str,
-    pub payload: &'static str,
-}
+// Removed MqttMessage struct - not used in the working implementation
+// The code uses SensorReading directly for typed sensor data
 
 /// Sensor data structure for MQTT publishing
 #[derive(Debug, Clone)]
@@ -86,42 +82,6 @@ impl SimpleMqttClient {
         }
     }
 
-    /// Publish sensor data to MQTT broker (simplified logging)
-    pub fn publish_sensor_data(
-        &mut self,
-        sensor_data: &SensorReading,
-    ) -> Result<(), &'static str> {
-        // MQTT BROKER IP FORMATTING FIX:
-        // Previous bug: Used {}:{} format which displayed "10:1883" (missing octets)
-        // Fixed: Use {}.{}.{}.{}:{} to show full IP "10.10.10.210:1883"
-        // This was a critical user-reported issue preventing proper broker identification
-        rprintln!("[MQTT] Publishing sensor data to broker {}.{}.{}.{}:{}", 
-                 self.config.broker_ip[0], self.config.broker_ip[1], 
-                 self.config.broker_ip[2], self.config.broker_ip[3], 
-                 self.config.broker_port);
-
-        // Create JSON payload
-        let json_payload = format!(
-            "{{\"temperature\":{:.2},\"pressure\":{:.2},\"humidity\":{:.2},\"reading\":{}}}",
-            sensor_data.temperature,
-            sensor_data.pressure, 
-            sensor_data.humidity,
-            sensor_data.count
-        );
-
-        // Create topic
-        let topic = format!("{}/sensor/bme280", self.config.topic_prefix);
-
-        // Log MQTT message (TCP implementation will be added later)
-        rprintln!("[MQTT] Topic: {} | Payload: {}", topic, json_payload);
-        
-        // Create proper MQTT PUBLISH packet for verification
-        let publish_packet = self.create_simple_mqtt_publish(&topic, &json_payload);
-        rprintln!("[MQTT] PUBLISH packet created ({} bytes) - ready for TCP transmission", publish_packet.len());
-        
-        self.connected = true;
-        Ok(())
-    }
     
     /// Publish sensor data via REAL TCP socket to MQTT broker  
     pub fn publish_sensor_data_tcp<'a>(
@@ -132,8 +92,9 @@ impl SimpleMqttClient {
         rprintln!("[MQTT] Publishing sensor #{} via REAL TCP to broker", sensor_data.count);
         
         let topic = format!("{}/sensor/bme280", self.config.topic_prefix);
+        // TODO: Remove 'app' field in production - used for development debugging only
         let json_payload = format!(
-            "{{\"temperature\":{:.2},\"pressure\":{:.2},\"humidity\":{:.2},\"reading\":{}}}",
+            "{{\"temperature\":{:.2},\"pressure\":{:.2},\"humidity\":{:.2},\"reading\":{},\"app\":\"main-nodeps\"}}",
             sensor_data.temperature, sensor_data.pressure, sensor_data.humidity, sensor_data.count
         );
         
@@ -189,7 +150,11 @@ impl SimpleMqttClient {
         // Create TCP socket with static buffer allocation (pattern from wifi-simple-must-working)
         static mut MQTT_RX_BUFFER: [u8; 1536] = [0u8; 1536];
         static mut MQTT_TX_BUFFER: [u8; 1536] = [0u8; 1536];
-        let (rx_buffer, tx_buffer) = unsafe { (&mut MQTT_RX_BUFFER, &mut MQTT_TX_BUFFER) };
+        let (rx_buffer, tx_buffer) = unsafe { 
+            let rx_ptr = &raw mut MQTT_RX_BUFFER;
+            let tx_ptr = &raw mut MQTT_TX_BUFFER;
+            (&mut *rx_ptr, &mut *tx_ptr)
+        };
         let mut socket = stack.get_socket(rx_buffer, tx_buffer);
         
         // Connect to MQTT broker using blocking-network-stack API (exact working pattern)
@@ -200,6 +165,9 @@ impl SimpleMqttClient {
         
         socket.open(remote_addr, self.config.broker_port)
             .map_err(|_| "Failed to connect to broker")?;
+        
+        // Update connection state
+        self.tcp_connected = true;
         
         // Send MQTT CONNECT packet
         let connect_packet = self.create_mqtt_connect();
@@ -240,34 +208,18 @@ impl SimpleMqttClient {
         // Properly disconnect the socket
         socket.disconnect();
         
+        // Update connection state after successful publish
+        self.connected = true;
+        self.tcp_connected = false; // Disconnected after publish
+        
         // Final stack processing after disconnect
         stack.work();
         
-        rprintln!("[MQTT] ✓ {} published successfully", msg_type);
+        rprintln!("[MQTT] ✓ {} published successfully (connection_status: mqtt={}, tcp={})", 
+                 msg_type, self.connected, self.tcp_connected);
         Ok(())
     }
 
-    /// Publish heartbeat message (simplified logging)
-    pub fn publish_heartbeat(
-        &mut self,
-        count: u32,
-    ) -> Result<(), &'static str> {
-        let topic = format!("{}/heartbeat", self.config.topic_prefix);
-        let payload = "ping";
-        
-        rprintln!("[MQTT] Publishing heartbeat #{}", count);
-        rprintln!("[MQTT] Topic: {} | Payload: {}", topic, payload);
-        
-        // Create proper MQTT PUBLISH packet for verification
-        let publish_packet = self.create_simple_mqtt_publish(&topic, payload);
-        rprintln!("[MQTT] PUBLISH packet created ({} bytes) - ready for TCP transmission", publish_packet.len());
-        
-        // TODO: Replace this with actual TCP publishing via stack reference
-        rprintln!("[MQTT] ✓ Heartbeat #{} formatted - awaiting TCP implementation", count);
-        
-        self.connected = true;
-        Ok(())
-    }
 
     /// Publish heartbeat via REAL TCP socket to MQTT broker
     pub fn publish_heartbeat_tcp<'a>(
@@ -282,6 +234,28 @@ impl SimpleMqttClient {
         
         // Use the common TCP implementation
         self.publish_via_tcp(stack, &topic, payload, &format!("heartbeat #{}", count))
+    }
+
+    /// REAL TCP publishing of device status information
+    pub fn publish_status_tcp<'a>(
+        &mut self,
+        stack: &mut Stack<'a, WifiDevice<'a>>,
+        status_count: u32,
+        uptime_seconds: u32,
+        free_heap_bytes: u32,
+        wifi_rssi: i8,
+    ) -> Result<(), &'static str> {
+        rprintln!("[MQTT] Publishing status #{} via REAL TCP", status_count);
+        
+        let topic = format!("{}/status", self.config.topic_prefix);
+        // TODO: Remove 'app' field in production - used for development debugging only
+        let json_payload = format!(
+            "{{\"status\":\"online\",\"uptime\":{},\"free_heap\":{},\"wifi_rssi\":{},\"app\":\"main-nodeps\"}}",
+            uptime_seconds, free_heap_bytes, wifi_rssi
+        );
+        
+        // Use the same TCP implementation as sensor data and heartbeat
+        self.publish_via_tcp(stack, &topic, &json_payload, &format!("status #{}", status_count))
     }
 
     /// Create MQTT CONNECT packet (proper MQTT 3.1.1 format)
@@ -366,8 +340,4 @@ impl SimpleMqttClient {
         packet
     }
 
-    /// Check if connected
-    pub fn is_connected(&self) -> bool {
-        self.connected
-    }
 }

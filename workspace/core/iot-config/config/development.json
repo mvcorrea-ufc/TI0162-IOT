@@ -1,0 +1,64 @@
+{
+  "wifi": {
+    "ssid": "DevNetwork",
+    "password": "DevPassword123",
+    "timeout_seconds": 5,
+    "retry_attempts": 2,
+    "auto_reconnect": true
+  },
+  "mqtt": {
+    "broker_ip": "10.10.10.210",
+    "broker_port": 1883,
+    "client_id": "esp32c3-dev-001",
+    "topic_prefix": "dev/esp32",
+    "sensor_topic": "dev/esp32/sensor/bme280",
+    "status_topic": "dev/esp32/status",
+    "heartbeat_topic": "dev/esp32/heartbeat",
+    "sensor_interval_secs": 30,
+    "heartbeat_interval_secs": 60,
+    "status_interval_secs": 120
+  },
+  "sensor": {
+    "i2c_address": 118,
+    "reading_interval_secs": 30,
+    "calibration_enabled": true,
+    "temperature_offset": 0.0,
+    "humidity_offset": 0.0,
+    "pressure_offset": 0.0
+  },
+  "console": {
+    "enabled": true,
+    "baud_rate": 115200,
+    "command_timeout_ms": 3000,
+    "history_size": 20,
+    "prompt": "dev-esp32> "
+  },
+  "system": {
+    "performance_monitoring": true,
+    "status_led_enabled": true,
+    "debug_output": true,
+    "heap_size": 65536,
+    "task_stack_size": 8192,
+    "watchdog_timeout_secs": 60
+  },
+  "storage": {
+    "flash_offset": 3145728,
+    "backup_enabled": true,
+    "wear_leveling": true,
+    "compression": false
+  },
+  "features": {
+    "wifi_enabled": true,
+    "mqtt_enabled": true,
+    "console_enabled": true,
+    "performance_enabled": true,
+    "container_enabled": true,
+    "storage_enabled": true
+  },
+  "hardware": {
+    "i2c_sda_pin": 8,
+    "i2c_scl_pin": 9,
+    "status_led_pin": 3,
+    "i2c_frequency_hz": 100000
+  }
+}

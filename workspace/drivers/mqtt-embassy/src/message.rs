@@ -43,17 +43,48 @@ impl<'a> MqttMessage<'a> {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SensorData {
     pub temperature: f32,  // °C
+    pub pressure: f32,     // hPa (matching main-nodeps field order)
     pub humidity: f32,     // %
-    pub pressure: f32,     // hPa
+    pub reading: u32,      // Reading counter (matching main-nodeps format)
+    // TODO: Remove 'app' field in production - used for development debugging only
+    pub app: String<32>,   // Source application identifier (temporary for debugging)
 }
 
 impl SensorData {
-    /// Create new sensor data
+    /// Create new sensor data (deprecated - use new_with_app instead)
     pub fn new(temperature: f32, humidity: f32, pressure: f32) -> Self {
         Self {
             temperature,
-            humidity,
             pressure,
+            humidity,
+            reading: 0,  // Default to 0, should be set explicitly
+            // TODO: Remove 'app' field in production
+            app: String::try_from("unknown").unwrap_or_default(),
+        }
+    }
+    
+    /// Create new sensor data with reading counter (matching main-nodeps format)
+    pub fn new_with_reading(temperature: f32, humidity: f32, pressure: f32, reading: u32) -> Self {
+        Self {
+            temperature,
+            pressure,
+            humidity,
+            reading,
+            // TODO: Remove 'app' field in production
+            app: String::try_from("unknown").unwrap_or_default(),
+        }
+    }
+    
+    /// Create new sensor data with app identification (for development debugging)
+    /// TODO: Remove this method in production - merge back to new_with_reading
+    pub fn new_with_app(temperature: f32, humidity: f32, pressure: f32, reading: u32, app_name: &str) -> Self {
+        Self {
+            temperature,
+            pressure,
+            humidity,
+            reading,
+            // TODO: Remove 'app' field in production
+            app: String::try_from(app_name).unwrap_or_else(|_| String::try_from("toolong").unwrap_or_default()),
         }
     }
     
@@ -70,10 +101,12 @@ pub struct DeviceStatus {
     pub uptime: u32,            // seconds
     pub free_heap: u32,         // bytes
     pub wifi_rssi: i8,          // dBm
+    // TODO: Remove 'app' field in production - used for development debugging only
+    pub app: String<32>,        // Source application identifier (temporary for debugging)
 }
 
 impl DeviceStatus {
-    /// Create new device status
+    /// Create new device status (deprecated - use new_with_app instead)
     pub fn new(status: &str, uptime: u32, free_heap: u32, wifi_rssi: i8) -> Self {
         let mut status_str = String::new();
         status_str.push_str(status).ok();
@@ -83,6 +116,24 @@ impl DeviceStatus {
             uptime,
             free_heap,
             wifi_rssi,
+            // TODO: Remove 'app' field in production
+            app: String::try_from("unknown").unwrap_or_default(),
+        }
+    }
+    
+    /// Create new device status with app identification (for development debugging)
+    /// TODO: Remove this method in production - merge back to new
+    pub fn new_with_app(status: &str, uptime: u32, free_heap: u32, wifi_rssi: i8, app_name: &str) -> Self {
+        let mut status_str = String::new();
+        status_str.push_str(status).ok();
+        
+        Self {
+            status: status_str,
+            uptime,
+            free_heap,
+            wifi_rssi,
+            // TODO: Remove 'app' field in production
+            app: String::try_from(app_name).unwrap_or_else(|_| String::try_from("toolong").unwrap_or_default()),
         }
     }
     

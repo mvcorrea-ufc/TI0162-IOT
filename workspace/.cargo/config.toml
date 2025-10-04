@@ -22,5 +22,8 @@ MQTT_BROKER_PORT = "1883"
 MQTT_CLIENT_ID = "esp32-c3-iot-system-v2"
 MQTT_TOPIC_PREFIX = "esp32"
 
+# Device Configuration for main-app container
+DEVICE_ID = "esp32c3-main-app-001"
+
 # Embassy Task Arena Size - Override for WiFi+MQTT
 EMBASSY_EXECUTOR_TASK_ARENA_SIZE = "65536"

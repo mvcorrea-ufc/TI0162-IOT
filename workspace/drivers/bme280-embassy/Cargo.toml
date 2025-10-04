@@ -35,7 +35,7 @@ rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
 
 # Common utilities and error handling - from workspace
-iot-common = { path = "../iot-common", default-features = false }
+iot-common = { path = "../../core/iot-common", default-features = false }
 
 # Hardware abstraction layer - FIXED: Using direct esp-hal instead of broken iot-hal
 # iot-hal = { path = "../iot-hal", default-features = false, features = ["esp32c3"] }

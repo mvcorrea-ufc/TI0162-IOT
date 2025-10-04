@@ -228,6 +228,27 @@ fn run_main_sensor_loop(
             }
         }
         
+        // Status report every ~30 seconds (600 * 50ms = 30s) - offset from heartbeat
+        // Heartbeat at 150, 450, 750, Status at 300, 900, 1500, etc.
+        if loop_count % 600 == 300 {
+            let status_count = ((loop_count / 600) + 1) as u32;
+            let uptime_secs = ((loop_count * 50) / 1000) as u32; // Convert 50ms cycles to seconds
+            let free_heap = NodepsConfig::heap_size();
+            
+            rprintln!("=== System Status #{} ===", status_count);
+            rprintln!("Uptime: {}s, Free heap: {} bytes, Readings: {}", uptime_secs, free_heap, reading_count);
+            
+            // Publish status to MQTT via TCP
+            match mqtt_client.publish_status_tcp(stack, status_count, uptime_secs, free_heap as u32, -42) {
+                Ok(_) => {
+                    rprintln!("[MQTT] ✓ Status #{} published via TCP to broker", status_count);
+                }
+                Err(e) => {
+                    rprintln!("[MQTT] ✗ Failed to publish status via TCP: {}", e);
+                }
+            }
+        }
+        
         // CRITICAL NETWORKING DOCUMENTATION:
         // The stack.work() call below is MANDATORY for ALL network functionality.
         // 

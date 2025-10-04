@@ -77,3 +77,6 @@ coverage.xml
 
 # Examples and reference projects (not part of main IoT system)
 examples/_examples/
+
+# Archive folder containing historical documentation
+archive/

@@ -1,0 +1,47 @@
+[package]
+name = "iot-storage"
+version = "0.1.0"
+edition = "2021"
+description = "Storage abstraction layer for ESP32-C3 IoT applications with flash memory support"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Core dependencies for no_std embedded development
+heapless = { workspace = true }
+serde = { workspace = true }
+serde-json-core = { workspace = true }
+nb = { workspace = true }
+
+# IoT system dependencies
+iot-common = { path = "../iot-common" }
+
+# Central configuration management
+iot-config = { path = "../iot-config", default-features = false }
+
+# ESP32-C3 storage dependencies
+esp-storage = { workspace = true }
+embedded-storage = { workspace = true }
+sequential-storage = { workspace = true }
+
+# Async support
+embassy-time = { workspace = true }
+async-trait = { workspace = true }
+
+[features]
+default = ["esp32c3-flash"]
+esp32c3-flash = []
+wear-leveling = []
+encryption = []
+compression = []
+
+[dev-dependencies]
+# Test dependencies
+tokio = { version = "1.0", features = ["rt", "rt-multi-thread", "macros", "time"] }
+tokio-test = "0.4"
+criterion = "0.5"
+proptest = "1.0"
+env_logger = "0.11"
+serial_test = "3.0"
+
+# Mock and testing utilities
+mockall = "0.12"

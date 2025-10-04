@@ -1,0 +1,36 @@
+[package]
+name = "esp32c3-blocking-wifi"
+version = "0.1.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+description = "Synchronous blocking WiFi connectivity module for ESP32-C3"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# ESP32-C3 Hardware Abstraction Layer - standalone module dependencies
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+
+# WiFi Hardware and Network Stack - standalone module dependencies
+esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
+esp-alloc = { version = "0.8.0" }
+
+# Synchronous networking stack
+smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
+heapless = { version = "0.8" }
+blocking-network-stack = { git = "https://github.com/bjoernQ/blocking-network-stack.git", rev = "b3ecefc222d8806edd221f266999ca339c52d34e", default-features = false, features = ["dhcpv4", "tcp"] }
+
+# Debugging - standalone module dependencies
+rtt-target = { version = "0.5" }
+panic-rtt-target = { version = "0.1" }
+
+[lib]
+name = "esp32c3_blocking_wifi"
+path = "src/lib.rs"
+
+[[example]]
+name = "simple_wifi_sync"
+path = "examples/simple_wifi_sync.rs"
+
+[[example]]
+name = "wifi_manager_sync"
+path = "examples/wifi_manager_sync.rs"

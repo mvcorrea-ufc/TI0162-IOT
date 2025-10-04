@@ -39,8 +39,8 @@ rtt-target = { workspace = true }
 panic-rtt-target = { workspace = true }
 
 # IoT Container integration (optional)
-iot-container = { path = "../iot-container", default-features = false, optional = true }
-iot-common = { path = "../iot-common", default-features = false }
+iot-container = { path = "../../core/iot-container", default-features = false, optional = true }
+iot-common = { path = "../../core/iot-common", default-features = false }
 async-trait = { version = "0.1", optional = true }
 
 [lib]

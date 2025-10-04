@@ -539,11 +539,14 @@ async fn mqtt_task(wifi_manager: &'static WiFiManager) {
                          reading.temperature, reading.humidity, reading.pressure);
                 published_readings += 1;
             
-                // Create sensor data for MQTT publishing
-                let sensor_data = SensorData::new(
+                // Create sensor data for MQTT publishing with app identification
+                // TODO: Remove 'app' field in production - use new_with_reading instead
+                let sensor_data = SensorData::new_with_app(
                     reading.temperature,
                     reading.humidity,
-                    reading.pressure
+                    reading.pressure,
+                    reading.count,
+                    "main-app"  // Source identification for debugging
                 );
                 
                 // Attempt MQTT connection and publishing
@@ -596,11 +599,13 @@ async fn mqtt_task(wifi_manager: &'static WiFiManager) {
         // Status report every 12 cycles (12 * 10s = 2 minutes)
         if heartbeat_counter % 12 == 0 {
             let state = SYSTEM_STATE.lock().await;
-            let device_status = DeviceStatus::new(
+            // TODO: Remove 'app' field in production - use new instead
+            let device_status = DeviceStatus::new_with_app(
                 "online",
                 (heartbeat_counter * 10) as u32, // Uptime in seconds (10s per cycle)
                 32768, // Free heap estimation
                 -42,   // WiFi RSSI estimation
+                "main-app"  // Source identification for debugging
             );
             
             if let Ok(mut socket) = mqtt_client.connect(stack, &mut rx_buffer, &mut tx_buffer).await {

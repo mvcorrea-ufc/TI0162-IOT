@@ -1,0 +1,78 @@
+{
+  "wifi": {
+    "ssid": "IoT_Network",
+    "password": "ChangeThisPassword123",
+    "timeout_seconds": 10,
+    "retry_attempts": 3,
+    "auto_reconnect": true
+  },
+  "mqtt": {
+    "broker_ip": "192.168.1.100",
+    "broker_port": 1883,
+    "client_id": "esp32c3-iot-default",
+    "topic_prefix": "esp32",
+    "sensor_topic": "esp32/sensor/bme280",
+    "status_topic": "esp32/status",
+    "heartbeat_topic": "esp32/heartbeat",
+    "sensor_interval_secs": 30,
+    "heartbeat_interval_secs": 60,
+    "status_interval_secs": 120
+  },
+  "sensors": {
+    "bme280_primary": {
+      "sensor_type": "BME280",
+      "i2c_address": 118,
+      "reading_interval_secs": 30,
+      "calibration_enabled": true,
+      "temperature_offset": 0.0,
+      "humidity_offset": 0.0,
+      "pressure_offset": 0.0,
+      "enabled": true
+    },
+    "bme280_secondary": {
+      "sensor_type": "BME280", 
+      "i2c_address": 119,
+      "reading_interval_secs": 60,
+      "calibration_enabled": true,
+      "temperature_offset": -0.2,
+      "humidity_offset": 1.0,
+      "pressure_offset": 0.0,
+      "enabled": false
+    }
+  },
+  "console": {
+    "enabled": true,
+    "baud_rate": 115200,
+    "command_timeout_ms": 5000,
+    "history_size": 10,
+    "prompt": "esp32> "
+  },
+  "system": {
+    "performance_monitoring": true,
+    "status_led_enabled": true,
+    "debug_output": false,
+    "heap_size": 65536,
+    "task_stack_size": 4096,
+    "watchdog_timeout_secs": 30
+  },
+  "storage": {
+    "flash_offset": 3145728,
+    "backup_enabled": true,
+    "wear_leveling": true,
+    "compression": false
+  },
+  "features": {
+    "wifi_enabled": true,
+    "mqtt_enabled": true,
+    "console_enabled": true,
+    "performance_enabled": false,
+    "container_enabled": false,
+    "storage_enabled": true
+  },
+  "hardware": {
+    "i2c_sda_pin": 8,
+    "i2c_scl_pin": 9,
+    "status_led_pin": 3,
+    "i2c_frequency_hz": 100000
+  }
+}

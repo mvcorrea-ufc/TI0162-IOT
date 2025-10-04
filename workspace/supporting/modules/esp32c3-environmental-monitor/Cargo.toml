@@ -1,0 +1,58 @@
+[package]
+name = "esp32c3-environmental-monitor"
+version = "0.1.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+description = "Complete ESP32-C3 environmental monitoring system - BME280 + WiFi + MQTT"
+
+[lib]
+name = "esp32c3_environmental_monitor"
+path = "src/lib.rs"
+
+[[bin]]
+name = "bme280_simple"
+path = "src/bme280_simple.rs"
+
+[[bin]]
+name = "bme280_mqtt"
+path = "src/bme280_mqtt.rs"
+
+[dependencies]
+# ESP32-C3 Hardware Abstraction Layer
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
+
+# Embassy Async Framework
+embassy-executor = { version = "0.7", default-features = false, features = ["task-arena-size-20480"] }
+embassy-time = { version = "0.4", default-features = false }
+embassy-sync = { version = "0.6.2", default-features = false }
+
+# Network and connectivity
+embassy-net = { version = "0.6", default-features = false, features = ["proto-ipv4", "medium-ethernet", "tcp", "udp", "dhcpv4"] }
+smoltcp = { version = "0.12.0", default-features = false, features = ["medium-ethernet", "proto-dhcpv4", "proto-ipv4", "socket-tcp", "socket-udp"] }
+esp-wifi = { version = "0.15.0", features = ["esp32c3", "wifi", "smoltcp"] }
+
+# I2C and async I/O
+embedded-io-async = { version = "0.6" }
+embedded-hal-async = { version = "1.0" }
+
+# BME280 sensor
+bme280-rs = { version = "0.3", features = ["async"] }
+
+# String processing and utilities
+heapless = { version = "0.8" }
+static_cell = { version = "2.1" }
+
+# Memory allocation
+esp-alloc = { version = "0.8.0" }
+
+# JSON serialization
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde-json-core = { version = "0.6" }
+
+# Debugging and panic handling
+rtt-target = { version = "0.5" }
+panic-rtt-target = { version = "0.1" }
+
+# Force portable-atomic override (ESP32-C3 compatibility)
+portable-atomic = { version = "1.11", default-features = false, features = ["unsafe-assume-single-core"] }

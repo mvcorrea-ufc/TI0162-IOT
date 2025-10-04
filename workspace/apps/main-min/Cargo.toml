@@ -1,0 +1,68 @@
+[package]
+name = "main-min"
+version = "1.0.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+description = "Minimal ESP32-C3 IoT Application - Ultra-lightweight sensor reading"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+# Minimal core dependencies only
+iot-common = { path = "../../core/iot-common", default-features = false }
+iot-config = { path = "../../core/iot-config", default-features = false }
+
+# Optional modules (can be completely disabled)
+bme280-embassy = { path = "../../drivers/bme280-embassy", optional = true }
+wifi-embassy = { path = "../../drivers/wifi-embassy", optional = true }
+mqtt-embassy = { path = "../../drivers/mqtt-embassy", optional = true }
+
+# ESP32-C3 Hardware Abstraction Layer
+esp-hal = { workspace = true }
+esp-hal-embassy = { workspace = true }
+esp-rom-sys = { workspace = true }
+
+# Embassy Async Framework
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
+embassy-sync = { workspace = true }
+embassy-futures = { workspace = true }
+
+# Network dependencies now handled by wifi-embassy module
+
+# I2C and async I/O support
+embedded-hal-async = { workspace = true }
+embedded-io-async = { workspace = true }
+
+# Memory allocation
+esp-alloc = { workspace = true }
+
+# Debugging via RTT
+rtt-target = { workspace = true }
+panic-rtt-target = { workspace = true }
+
+# Utilities
+static_cell = { workspace = true }
+heapless = { workspace = true }
+
+# JSON serialization for MQTT
+serde = { workspace = true }
+serde-json-core = { workspace = true }
+
+[features]
+# Default: Complete sensor→wifi→mqtt flow
+default = ["iot-flow"]
+
+# Build size variants (from smallest to largest)
+sensor = ["bme280-embassy"]                       # ~4KB: Embassy-based sensor only
+wifi = ["wifi-embassy"]                           # ~8KB: Add WiFi connectivity
+mqtt = ["mqtt-embassy", "wifi"]                   # ~12KB: Add MQTT publishing
+iot-flow = ["sensor", "wifi", "mqtt"]             # ~15KB: Complete sensor→wifi→mqtt flow
+
+# Development features
+dev = ["iot-flow"]                                # Development with full flow
+
+[[bin]]
+name = "main-min"
+path = "src/main.rs"
+
+# Size optimization handled by workspace profile

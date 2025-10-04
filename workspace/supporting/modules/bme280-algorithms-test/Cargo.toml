@@ -1,0 +1,11 @@
+[package]
+name = "bme280-algorithms-test"
+version = "0.1.0"
+edition = "2021"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+description = "Host-based testing for BME280 sensor algorithms - pure algorithm validation"
+
+# This package is specifically for host testing and has no embedded dependencies
+
+[dependencies]
+# No dependencies - pure algorithm testing

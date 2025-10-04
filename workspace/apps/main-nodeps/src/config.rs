@@ -5,6 +5,7 @@
 pub const BME280_I2C_ADDRESS: u8 = 0x76;
 
 /// System Configuration - MINIMAL SET
+#[allow(dead_code)]
 pub const SENSOR_INTERVAL_SECS: u32 = 30;
 
 /// Memory Configuration - OPTIMIZED (increased for WiFi controller)
@@ -31,6 +32,7 @@ impl NodepsConfig {
     }
     
     /// Get sensor reading interval
+    #[allow(dead_code)]
     pub const fn sensor_interval_secs() -> u32 {
         SENSOR_INTERVAL_SECS
     }

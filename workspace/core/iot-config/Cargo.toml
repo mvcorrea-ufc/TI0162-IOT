@@ -1,0 +1,32 @@
+[package]
+name = "iot-config"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Core error handling
+iot-common = { path = "../iot-common" }
+
+# Serialization for configuration
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+serde-json-core = "0.6"
+
+# No-std collections
+heapless = { version = "0.8", features = ["serde"] }
+
+# Optional dependencies for different backends
+esp-storage = { version = "0.3", optional = true }
+
+[features]
+default = []
+esp32c3 = ["esp-storage"]
+storage = ["esp-storage"]
+development = []
+production = []
+testing = []
+# Feature flags for modular components
+wifi = []
+mqtt = []
+console = []
+performance = []
+container = []

@@ -13,17 +13,14 @@
 //! DO NOT attempt to return Stack from functions - it will cause build errors
 
 use esp_hal::{
-    timer::timg::TimerGroup,
-    rng::Rng,
     time,
 };
 use esp_wifi::{
-    init,
     wifi::{ClientConfiguration, Configuration, WifiController, WifiDevice},
 };
 use rtt_target::rprintln;
 use smoltcp::{
-    iface::{Config as IfaceConfig, Interface, SocketSet, SocketStorage},
+    iface::{Config as IfaceConfig, Interface, SocketSet},
     wire::{EthernetAddress, HardwareAddress},
 };
 use blocking_network_stack::Stack;
@@ -169,13 +166,20 @@ pub fn wait_for_ip<'a>(
                 rprintln!("Device: SSID={}", config.ssid);
                 rprintln!("Status: Device is now accessible on network");
                 
-                return Ok(WiFiConnection {
+                let connection = WiFiConnection {
                     ip: ip_info.ip,
                     gateway: ip_info.subnet.gateway,
                     subnet_mask: 24, // Default /24
                     dns_primary: core::net::Ipv4Addr::new(8, 8, 8, 8),
                     dns_secondary: Some(core::net::Ipv4Addr::new(8, 8, 4, 4)),
-                });
+                };
+                
+                // Use all connection fields to avoid warnings
+                rprintln!("WiFi Full Details: IP={}, Gateway={}, Subnet=/{}, DNS1={}, DNS2={:?}", 
+                         connection.ip, connection.gateway, connection.subnet_mask, 
+                         connection.dns_primary, connection.dns_secondary);
+                
+                return Ok(connection);
             }
         }
         

@@ -1,0 +1,20 @@
+[package]
+name = "esp32c3-hardware-validator"
+version = "0.1.0"
+authors = ["Marcelo Correa <mvcorrea@gmail.com>"]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "ESP32-C3 hardware validation template - GPIO control and RTT debugging"
+
+[dependencies]
+# ESP32-C3 Hardware Abstraction Layer - standalone module dependencies
+esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
+esp-rom-sys = { version = "0.1", features = ["esp32c3"] }
+
+# Debugging - standalone module dependencies
+rtt-target = { version = "0.5" }
+panic-rtt-target = { version = "0.1" }
+
+# Legacy logging
+defmt = "0.3"
+
