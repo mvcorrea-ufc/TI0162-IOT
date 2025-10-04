@@ -255,7 +255,9 @@ cargo clean
 
 ## 🔍 Hardware Validation Results
 
-The system has been successfully tested on real ESP32-C3 hardware with the following validated results:
+The system has been successfully tested on real ESP32-C3 hardware. **[Complete validation report with detailed analysis](docs/HARDWARE_VALIDATION.md)**
+
+### Summary of Validated Results:
 
 ### MQTT Message Examples (Real Hardware)
 ```bash
@@ -364,6 +366,14 @@ ping [ESP32_IP]
 - **MQTT**: Successful publishing to broker (tested: 10.10.10.210:1883)
 - **Data**: Real environmental measurements with proper calibration
 - **Apps**: All three applications working simultaneously
+
+## 📖 Documentation
+
+- **[Hardware Validation Results](docs/HARDWARE_VALIDATION.md)**: Complete real-hardware testing report
+- **[Architecture Documentation](docs/)**: System design and implementation analysis
+- **[Driver Documentation](drivers/)**: Individual hardware driver modules
+- **[Core Module Documentation](core/)**: Platform-agnostic infrastructure components
+- **[Application Documentation](apps/)**: Three different IoT implementation patterns
 
 ## 📚 Academic Context
 

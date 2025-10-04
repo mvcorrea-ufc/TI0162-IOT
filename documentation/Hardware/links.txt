@@ -1,0 +1,7 @@
+## Reference Links
+- ESP32-C3
+    - https://documentation.espressif.com/en/home
+    - https://github.com/WeActStudio/WeActStudio.ESP32C3CoreBoard
+- Bosh BME280, humidity, pressure and temperature sensor
+- Oled Ssd1306, 128x32, 0,91 inches
+    - https://github.com/adafruit/Adafruit_SSD1306

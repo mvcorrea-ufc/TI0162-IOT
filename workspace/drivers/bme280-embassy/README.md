@@ -2,15 +2,16 @@
 
 ## 🌡️ Description
 
-Complete and functional module for asynchronous reading of the BME280 sensor using the Embassy framework for ESP32-C3. This module implements a custom BME280 driver with corrected value compensation and automatic calibration.
+Complete and functional BME280 sensor driver for the **TI0162 Internet of Things** course project. This module implements an asynchronous BME280 driver using the Embassy framework for ESP32-C3, with corrected value compensation and automatic calibration.
 
-**Status**: ✅ Implemented and tested
+**Project**: TI0162 IoT Environmental Monitoring System (UFC)  
+**Status**: ✅ Implemented and validated on real hardware
 
 ## 🚀 Features
 
 - ✅ **Async/Await**: All I2C operations are asynchronous via Embassy
 - ✅ **Embassy Framework**: embassy-executor 0.7 + embassy-time 0.4
-- ✅ **ESP32-C3**: esp-hal v1.0.0-rc.0 with unstable features
+- ✅ **ESP32-C3**: esp-hal v1.0.0-rc.0 with unstable features (workspace managed)
 - ✅ **Automatic Calibration**: Reading and application of calibration coefficients
 - ✅ **Corrected Compensation**: Validated compensation algorithms
 - ✅ **Dual Address**: Supports I2C addresses 0x76 and 0x77
@@ -57,16 +58,19 @@ bme280-embassy/
 ## Dependencies
 
 ```toml
-# Base Embassy
-embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
-embassy-time = "0.4.0"
+# All dependencies managed at workspace level
+# See workspace/Cargo.toml for exact versions
 
-# ESP32-C3 HAL + Embassy Integration  
-esp-hal = { version = "0.23.1", features = ["esp32c3", "log"] }
-esp-hal-embassy = { version = "0.6", features = ["esp32c3"] }
+# Core Embassy Framework
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
 
-# I2C Async Support
-embedded-hal-async = "1.0"
+# ESP32-C3 Hardware Support
+esp-hal = { workspace = true }          # v1.0.0-rc.0
+esp-hal-embassy = { workspace = true }  # v0.9.0
+
+# Hardware Abstraction
+embedded-hal-async = { workspace = true }
 ```
 
 ## 🚀 Quick Start
@@ -120,29 +124,29 @@ cargo run --example basic_reading --release
 cargo run --example full_system --release
 ```
 
-### Integration into Your Project
+### Integration into Your TI0162 Project
 
-#### Method 1: Add as Dependency
-Add to your `Cargo.toml`:
+#### Method 1: Workspace Integration (Recommended)
+All dependencies are managed at workspace level in `/workspace/Cargo.toml`:
 ```toml
 [dependencies]
-bme280-embassy = { path = "../bme280-embassy" }
+bme280-embassy = { path = "../drivers/bme280-embassy" }
 
-# Required Embassy dependencies
-embassy-executor = { version = "0.7", features = ["task-arena-size-20480"] }
-embassy-time = "0.4.0"
-esp-hal = { version = "1.0.0-rc.0", features = ["esp32c3", "unstable"] }
-esp-hal-embassy = { version = "0.9.0", features = ["esp32c3"] }
-embedded-hal-async = "1.0"
+# All other dependencies inherited from workspace
+embassy-executor = { workspace = true }
+embassy-time = { workspace = true }
+esp-hal = { workspace = true }
+esp-hal-embassy = { workspace = true }
+embedded-hal-async = { workspace = true }
 ```
 
-#### Method 2: Copy Source Files
+#### Method 2: Copy Source Files (For Reference)
 ```bash
-# Copy BME280 driver to your project
-cp workspace/bme280-embassy/src/bme280.rs your-project/src/
-cp workspace/bme280-embassy/src/i2c_device.rs your-project/src/
+# Copy BME280 driver files for study/modification
+cp workspace/drivers/bme280-embassy/src/bme280.rs your-study/src/
+cp workspace/drivers/bme280-embassy/src/i2c_device.rs your-study/src/
 
-# Add to your main.rs:
+# Add to your main.rs for TI0162 learning:
 mod bme280;
 mod i2c_device;
 use bme280::BME280;

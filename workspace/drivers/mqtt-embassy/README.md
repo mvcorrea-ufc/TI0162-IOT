@@ -2,9 +2,10 @@
 
 ## 📨 Description
 
-Complete and functional module for MQTT client using the Embassy framework for ESP32-C3. Implements asynchronous MQTT client via Embassy TCP sockets with support for JSON publication of sensor data, status, and heartbeat.
+Complete and functional MQTT client module for the **TI0162 Internet of Things** course project. Implements asynchronous MQTT client using the Embassy framework for ESP32-C3, via Embassy TCP sockets with support for JSON publication of sensor data, status, and heartbeat.
 
-**Status**: ✅ Implemented and tested
+**Project**: TI0162 IoT Environmental Monitoring System (UFC)  
+**Status**: ✅ Implemented and validated on real hardware
 
 ## 🚀 Features
 

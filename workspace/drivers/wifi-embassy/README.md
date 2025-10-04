@@ -2,9 +2,10 @@
 
 ## 📡 Description
 
-Complete and functional module for WiFi connectivity using the Embassy framework for ESP32-C3. Implements robust WiFi connection with automatic reconnection, DHCP acquisition, and complete network stack for TCP/UDP operations.
+Complete and functional WiFi connectivity module for the **TI0162 Internet of Things** course project. Implements robust WiFi connection using the Embassy framework for ESP32-C3, with automatic reconnection, DHCP acquisition, and complete network stack for TCP/UDP operations.
 
-**Status**: ✅ Implemented and tested
+**Project**: TI0162 IoT Environmental Monitoring System (UFC)  
+**Status**: ✅ Implemented and validated on real hardware
 
 ## 🚀 Features
 

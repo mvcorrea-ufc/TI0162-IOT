@@ -1,6 +1,9 @@
 # IoT Common Library
 
-A unified error handling and common utilities library for ESP32-C3 IoT systems using bare metal programming with `esp-hal`. This library provides a consistent error handling framework across all IoT modules while maintaining `no_std` compatibility for embedded environments.
+A unified error handling and common utilities library for the **TI0162 Internet of Things** course project. This library provides a consistent error handling framework across all IoT modules for ESP32-C3 systems using bare metal programming with `esp-hal`, while maintaining `no_std` compatibility for embedded environments.
+
+**Project**: TI0162 IoT Environmental Monitoring System (UFC)  
+**Purpose**: Core infrastructure for cross-platform error handling
 
 ## Features
 
